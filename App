@@ -1,0 +1,1687 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lernwald 2.0</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;600;700&display=swap">
+<style>
+/* Layout concept: one centred column. Today's tree and timer sit in a hero card,
+   with this week's progress underneath. Below, the forest is one landscape field
+   that grows downward with every study day, with rivers, animals and golden trees. */
+
+/* Light palette: sage-tinted paper, moss accent, bark trunks, meadow ground, warm gold. */
+:root {
+  --bg: #eef3ec;
+  --surface: #f8fbf6;
+  --ink: #17231c;
+  --muted: #5b6a5f;
+  --line: #d3ddd0;
+  --accent: #2f6b4c;
+  --accent-ink: #f5faf4;
+  --leaf: #5fa173;
+  --leaf-2: #3f8359;
+  --bark: #7a5a43;
+  --gold: #e6b83a;
+  --gold-2: #f2d36b;
+  --gold-bark: #9a7422;
+  --gold-text: #8a6200;
+  --sky: #e2ece4;
+  --ground: #d2dfcc;
+  --shade: #b4c7b0;
+  --water: #8fc0cf;
+  --water-light: #cfe9f0;
+  --pad: #3f8359;
+  --pad-alt: #5fa173;
+  --fox: #c9733a;
+  --animal: #8c6b52;
+  --animal-light: #efe6d8;
+  --animal-dark: #3f3026;
+  --sun: #c98a2c;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1812;
+    --surface: #16221a;
+    --ink: #e3eee3;
+    --muted: #9bb0a0;
+    --line: #2a3b2f;
+    --accent: #7fc597;
+    --accent-ink: #0f1812;
+    --leaf: #5fae7a;
+    --leaf-2: #3b8a5a;
+    --bark: #a6825f;
+    --gold: #f0c24f;
+    --gold-2: #ffe07a;
+    --gold-bark: #c79a3a;
+    --gold-text: #f0c24f;
+    --sky: #13201a;
+    --ground: #1d2e24;
+    --shade: #0b130e;
+    --water: #3f7f93;
+    --water-light: #7fb6c7;
+    --pad: #3b8a5a;
+    --pad-alt: #5fae7a;
+    --fox: #e0904f;
+    --animal: #b89a7e;
+    --animal-light: #efe3d3;
+    --animal-dark: #1a120c;
+    --sun: #e7b25c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1812;
+  --surface: #16221a;
+  --ink: #e3eee3;
+  --muted: #9bb0a0;
+  --line: #2a3b2f;
+  --accent: #7fc597;
+  --accent-ink: #0f1812;
+  --leaf: #5fae7a;
+  --leaf-2: #3b8a5a;
+  --bark: #a6825f;
+  --gold: #f0c24f;
+  --gold-2: #ffe07a;
+  --gold-bark: #c79a3a;
+  --gold-text: #f0c24f;
+  --sky: #13201a;
+  --ground: #1d2e24;
+  --shade: #0b130e;
+  --water: #3f7f93;
+  --water-light: #7fb6c7;
+  --pad: #3b8a5a;
+  --pad-alt: #5fae7a;
+  --fox: #e0904f;
+  --animal: #b89a7e;
+  --animal-light: #efe3d3;
+  --animal-dark: #1a120c;
+  --sun: #e7b25c;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Figtree", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 460px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px calc(110px + env(safe-area-inset-bottom, 0px));
+}
+
+.top { text-align: center; margin-bottom: 18px; }
+.top h1 {
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 36px;
+  margin: 2px 0 6px;
+  text-wrap: balance;
+}
+.lede { color: var(--muted); margin: 0; text-wrap: balance; }
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.muted { color: var(--muted); margin: 0; }
+.empty { color: var(--muted); text-align: center; margin: 14px 0 0; }
+.fine { color: var(--muted); font-size: 13px; text-align: center; margin: 22px 0 0; }
+
+.hero {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 18px 18px 22px;
+  text-align: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.app[data-state="run"] .status::before { background: var(--accent); }
+.app[data-state="pause"] .status::before { background: var(--sun); }
+
+.stage { margin: 6px 0 0; }
+.stage svg, #sheetTree {
+  width: min(230px, 72%);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.level {
+  margin: 6px 0 0;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; min-height: 1.5em; }
+
+.clock {
+  /* System face: plain zeros and fixed-width digits, so the time does not jitter. */
+  font-family: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin-top: 6px;
+}
+
+.today { margin: 4px 0 0; color: var(--muted); }
+.today strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.week {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.week strong { color: var(--ink); }
+.bar {
+  height: 8px;
+  margin: 6px auto 0;
+  max-width: 280px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--gold);
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.btn {
+  font: inherit;
+  font-weight: 700;
+  min-width: 132px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.btn:disabled { color: var(--muted); cursor: default; }
+.btn.primary:disabled { color: var(--accent-ink); opacity: 0.5; }
+.btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+
+.confirm {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px dashed var(--line);
+  background: var(--bg);
+}
+.confirm p { margin: 0; }
+
+.forest { margin-top: 30px; }
+.forest-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.forest h2 {
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  margin: 0;
+}
+
+.field {
+  margin-top: 14px;
+  padding: 8px 6px 12px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  --field-sky: var(--sky);
+  background: linear-gradient(to bottom, var(--field-sky) 0%, var(--ground) 60%);
+  overflow: hidden;
+}
+.field svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.finds-title {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 18px 0 6px;
+}
+.finds {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.finds li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.finds span { color: var(--muted); }
+
+.find { color: var(--accent); font-weight: 700; margin-top: 10px !important; }
+.gold-note { color: var(--gold-text); font-weight: 700; margin-top: 10px !important; }
+
+/* Tree and animal drawing */
+.ground { fill: var(--shade); opacity: 0.55; }
+.branches path {
+  fill: none;
+  stroke: var(--bark);
+  stroke-linecap: round;
+}
+.leaf { fill: var(--leaf); }
+.leaf.alt { fill: var(--leaf-2); }
+.leaf.back { fill: var(--leaf-2); opacity: 0.55; }
+
+/* Golden trees: awarded for 40 study hours in one week */
+.golden .branches path { stroke: var(--gold-bark); }
+.golden .leaf { fill: var(--gold); }
+.golden .leaf.alt { fill: var(--gold-2); }
+
+.water {
+  fill: none;
+  stroke: var(--water);
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+.water-light {
+  fill: none;
+  stroke: var(--water-light);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.animal { fill: var(--animal); }
+.animal-light { fill: var(--animal-light); }
+.animal-dark { fill: var(--animal-dark); }
+.fox { fill: var(--fox); }
+.pond { fill: var(--water); }
+.pond-light { fill: var(--water-light); }
+.pad { fill: var(--pad); }
+.pad-alt { fill: var(--pad-alt); }
+.antler {
+  fill: none;
+  stroke: var(--animal-dark);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+}
+.sheet-card {
+  width: min(100%, 380px);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 22px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+.sheet-card h2 {
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  margin: 4px 0 10px;
+}
+.sheet-card p { margin: 4px 0; }
+
+/* Atmosphere: the sky follows the time of day */
+.field[data-tod="morning"] { --field-sky: color-mix(in srgb, #f6d9a8 25%, var(--sky)); }
+.field[data-tod="evening"] { --field-sky: color-mix(in srgb, #e3a48a 25%, var(--sky)); }
+.field[data-tod="night"] { --field-sky: color-mix(in srgb, #1b2747 60%, var(--sky)); }
+.sun { fill: var(--sun); opacity: 0.9; }
+.sun.low { opacity: 0.75; }
+.star { fill: #fff8d8; opacity: 0.85; }
+.moon { fill: #f6f1d6; }
+.moon-cut { fill: var(--field-sky); }
+
+/* Small life in the scene */
+.water-light {
+  stroke-dasharray: 8 16;
+  animation: flow 3s linear infinite;
+}
+@keyframes flow { to { stroke-dashoffset: -48; } }
+.pond-light {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple 3.5s ease-in-out infinite;
+}
+@keyframes ripple {
+  0%, 100% { opacity: 0.5; transform: scaleX(0.9); }
+  50% { opacity: 1; transform: scaleX(1.05); }
+}
+.pad, .pad-alt {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bob 4s ease-in-out infinite;
+}
+.pad-alt { animation-duration: 5s; animation-direction: reverse; }
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+.blade { fill: none; stroke: var(--leaf-2); stroke-width: 1.4; stroke-linecap: round; }
+.flower { fill: var(--gold); }
+.flower.alt { fill: var(--fox); }
+
+/* Growth: a tree gets visibly bigger when it reaches the next level */
+.grow {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: grow 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes grow {
+  from { transform: scale(0.9, 0.72); }
+  to { transform: none; }
+}
+
+/* A new discovery hops into the scene */
+.enter { animation: enter 700ms ease-out; }
+@keyframes enter {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: none; }
+}
+
+.weeks { margin-top: 30px; }
+.weeks h2 {
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  margin: 0;
+}
+.weeks-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.week-row {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 14px 12px;
+  min-width: 0;
+}
+.week-row.current { border-color: var(--accent); }
+.week-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.week-meta { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.gold-mark { color: var(--gold-text); font-weight: 700; }
+.week-bar {
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.week-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.streak { margin: 8px 0 0; font-size: 14px; color: var(--accent); font-weight: 700; }
+
+/* Depth: a far hill line, and haze that softens the rows further back */
+.hill { fill: var(--ground); }
+.hill.far { fill: color-mix(in srgb, var(--ground) 50%, var(--field-sky)); }
+.haze { fill: var(--field-sky); }
+
+/* Views and the tab bar at the bottom */
+.view > section:first-child { margin-top: 4px; }
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 8px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+.tab {
+  flex: 1;
+  max-width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.tab svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tab[aria-selected="true"] { color: var(--accent); }
+.tab:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+/* While the timer runs, today's tree sways a little */
+.sway { transform-box: fill-box; transform-origin: 50% 100%; }
+.app[data-state="run"] #heroTree .sway { animation: sway 5s ease-in-out infinite; }
+@keyframes sway {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+}
+
+/* Question after the app was closed while the timer ran */
+.resume { border-style: solid; border-color: var(--sun); }
+
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<div class="app" id="app" lang="de" data-state="idle">
+  <div class="view" id="view-timer">
+  <header class="top">
+    <p class="eyebrow" id="today"></p>
+    <h1>Lernwald 2.0</h1>
+    <p class="lede">Jede Lerneinheit lässt einen Baum wachsen. Die Zeit läuft, bis du auf Pause drückst.</p>
+  </header>
+
+  <section class="hero" aria-label="Heutige Lerneinheit">
+    <div class="status" id="status">Bereit</div>
+    <div class="stage">
+      <svg id="heroTree" viewBox="0 0 200 220" role="img" aria-label="Der heutige Baum"></svg>
+    </div>
+    <p class="level" id="levelLine"></p>
+    <p class="hint" id="heroHint"></p>
+    <div class="clock" id="clock" aria-live="off">00:00:00</div>
+    <p class="today">Heute gelernt: <strong id="todayTotal">0 min</strong></p>
+
+    <p class="week" id="weekLine"></p>
+    <div class="bar" aria-hidden="true"><span id="weekFill"></span></div>
+    <p class="streak" id="streakLine"></p>
+
+    <div class="controls">
+      <button class="btn primary" id="toggleBtn" type="button">Starten</button>
+      <button class="btn" id="endBtn" type="button" disabled>Beenden</button>
+    </div>
+
+    <div class="confirm" id="confirm" hidden>
+      <p>Session beenden? Die Lernzeit wird gespeichert und der Baum von heute aktualisiert.</p>
+      <div class="controls">
+        <button class="btn primary" id="confirmYes" type="button">Speichern und beenden</button>
+        <button class="btn" id="confirmNo" type="button">Abbrechen</button>
+      </div>
+    </div>
+
+    <div class="confirm resume" id="resumeBox" hidden>
+      <p id="resumeText"></p>
+      <div class="controls">
+        <button class="btn primary" id="resumeYes" type="button">Ja, weiterzählen</button>
+        <button class="btn" id="resumeNo" type="button">Nein, anhalten</button>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <div class="view" id="view-forest" hidden>
+  <section class="forest" aria-labelledby="forestTitle">
+    <div class="forest-head">
+      <h2 id="forestTitle">Dein Wald</h2>
+      <p class="muted" id="forestStats"></p>
+    </div>
+    <div class="field" id="field">
+      <svg id="fieldSvg" viewBox="0 0 400 200" role="img" aria-label="Dein Wald"></svg>
+    </div>
+    <p class="empty" id="forestEmpty">Noch keine Bäume. Die erste Lerneinheit pflanzt den ersten.</p>
+    <div id="findsBlock" hidden>
+      <p class="finds-title">Entdeckungen</p>
+      <ul class="finds" id="finds"></ul>
+    </div>
+    <p class="fine" id="syncNote">Verbinde mit deinem Konto …</p>
+  </section>
+  </div>
+
+  <div class="view" id="view-weeks" hidden>
+  <section class="weeks" aria-labelledby="weeksTitle">
+    <h2 id="weeksTitle">Deine Wochen</h2>
+    <ul class="weeks-list" id="weekList"></ul>
+    <p class="empty" id="weeksEmpty">Noch keine Wochen. Sobald du lernst, erscheint hier jede Woche mit ihren Stunden.</p>
+  </section>
+    <!-- app:backup -->
+  </div>
+
+  <nav class="tabbar" role="tablist" aria-label="Bereiche">
+    <button class="tab" id="tab-timer" role="tab" type="button" data-tab="timer" aria-controls="view-timer" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.6 2.2M9.5 2.8h5"/></svg>
+      <span id="tabTimerLabel">Timer</span>
+    </button>
+    <button class="tab" id="tab-forest" role="tab" type="button" data-tab="forest" aria-controls="view-forest" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-5.5"/><path d="M12 3.2a4.6 4.6 0 0 1 4.5 5.5 3.6 3.6 0 0 1-.6 6.8H8.1a3.6 3.6 0 0 1-.6-6.8A4.6 4.6 0 0 1 12 3.2z"/></svg>
+      <span>Wald</span>
+    </button>
+    <button class="tab" id="tab-weeks" role="tab" type="button" data-tab="weeks" aria-controls="view-weeks" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+      <span>Wochen</span>
+    </button>
+  </nav>
+
+  <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-card">
+      <p class="eyebrow">Session abgeschlossen</p>
+      <h2 id="sheetTitle">Gut gemacht</h2>
+      <p>Aktive Lernzeit: <strong id="sheetSession"></strong></p>
+      <p class="muted" id="sheetLevel"></p>
+      <svg id="sheetTree" viewBox="0 0 200 220" aria-hidden="true"></svg>
+      <p class="muted" id="sheetDay"></p>
+      <p class="find" id="sheetFind" hidden></p>
+      <p class="gold-note" id="sheetGold" hidden>Goldener Baum! Du hast diese Woche 40 Stunden geschafft.</p>
+      <button class="btn primary" id="sheetClose" type="button">Zum Wald</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const KEY = 'lernwald.v1';
+  const COLS = 4;
+  const SLOT_W = 100;        // 400 units wide field / 4 columns
+  const ROW_H = 128;         // height of a row of trees
+  const RIVER_H = 56;        // height of a river band
+  const WEEK_GOAL_SEC = 40 * 3600;
+  const FULL_TREE_MIN = 480; // 8 hours: fully grown, top level
+  const MAX_LEVEL = 8;       // one level per full hour
+  const DEPTHS = [2, 3, 3, 4, 4, 5, 5, 6, 7]; // branching depth per level
+  const LEVEL_NAMES = ['Setzling', 'Bäumchen', 'Jungbaum', 'Kleiner Baum', 'Baum',
+    'Großer Baum', 'Stattlicher Baum', 'Alter Baum', 'Waldriese'];
+
+  const $ = (id) => document.getElementById(id);
+  const app = $('app');
+  const clockEl = $('clock');
+  const statusEl = $('status');
+  const toggleBtn = $('toggleBtn');
+  const endBtn = $('endBtn');
+  const confirmBox = $('confirm');
+  const confirmYes = $('confirmYes');
+  const confirmNo = $('confirmNo');
+  const todayEl = $('todayTotal');
+  const heroSvg = $('heroTree');
+  const heroHint = $('heroHint');
+  const levelLine = $('levelLine');
+  const weekLine = $('weekLine');
+  const weekFill = $('weekFill');
+  const streakLine = $('streakLine');
+  const weekList = $('weekList');
+  const weeksEmpty = $('weeksEmpty');
+  const fieldSvg = $('fieldSvg');
+  const fieldEl = $('field');
+  const forestEmpty = $('forestEmpty');
+  const forestStats = $('forestStats');
+  const findsBlock = $('findsBlock');
+  const findsList = $('finds');
+  const syncNote = $('syncNote');
+  const sheet = $('sheet');
+  const sheetSession = $('sheetSession');
+  const sheetLevel = $('sheetLevel');
+  const sheetDay = $('sheetDay');
+  const sheetFind = $('sheetFind');
+  const sheetGold = $('sheetGold');
+  const sheetTree = $('sheetTree');
+  const sheetClose = $('sheetClose');
+  const dateEl = $('today');
+  const resumeBox = $('resumeBox');
+  const resumeText = $('resumeText');
+  const resumeYes = $('resumeYes');
+  const resumeNo = $('resumeNo');
+  const tabTimerLabel = $('tabTimerLabel');
+  const views = { timer: $('view-timer'), forest: $('view-forest'), weeks: $('view-weeks') };
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+
+  // ---------- state ----------
+  // The whole state lives in memory. It is saved to the viewer's own database
+  // document (kept with their account, so it follows them across devices), and
+  // a copy stays in localStorage as a fallback.
+  function emptyState() {
+    return { days: {}, golden: {}, session: null, updatedAt: 0 };
+  }
+
+  function normalize(s) {
+    if (!s || typeof s !== 'object') return emptyState();
+    return {
+      days: s.days && typeof s.days === 'object' ? s.days : {},
+      golden: s.golden && typeof s.golden === 'object' ? s.golden : {},
+      session: s.session && typeof s.session === 'object' ? s.session : null,
+      updatedAt: Number(s.updatedAt) || 0,
+    };
+  }
+
+  // Number of study days in a state. A state with fewer days never replaces one with more.
+  function countDays(s) {
+    return Object.keys(s.days).length;
+  }
+
+  function readLocal() {
+    try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch (e) { return emptyState(); }
+  }
+
+  function writeLocal() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  let state = readLocal();
+
+  // ---------- saving ----------
+  let docRef = null;       // the viewer's own database document, once connected
+  let remoteLive = false;  // true after the database has answered in full
+  let writing = false;     // one write at a time
+  let dirty = false;       // changes not yet sent
+  let retryTimer = null;
+
+  // Call after every change. Saves locally at once and sends to the database.
+  function touch() {
+    state.updatedAt = Date.now();
+    writeLocal();
+    if (docRef) {
+      dirty = true;
+      flush();
+    }
+  }
+
+  let currentWrite = null;
+
+  function flush() {
+    if (!docRef || !dirty || writing) return;
+    dirty = false;
+    writing = true;
+    const token = {};
+    currentWrite = token;
+    setSyncNote(false, true);
+    const body = JSON.parse(JSON.stringify(state));
+    // If the database does not answer (for example, the page was paused mid-save),
+    // give up on this attempt after 10 seconds and send the state again.
+    const watchdog = setTimeout(() => {
+      if (currentWrite !== token) return;
+      currentWrite = null;
+      writing = false;
+      dirty = true;
+      setSyncNote(true);
+      flush();
+    }, 10000);
+    const finish = (ok) => {
+      if (currentWrite !== token) return;
+      clearTimeout(watchdog);
+      currentWrite = null;
+      writing = false;
+      if (ok) {
+        setSyncNote(false);
+        flush();
+      } else {
+        dirty = true;
+        setSyncNote(true);
+        clearTimeout(retryTimer);
+        retryTimer = setTimeout(flush, 5000);
+      }
+    };
+    docRef.set(body).then(() => finish(true), () => finish(false));
+  }
+
+  function setSyncNote(failed, saving) {
+    if (!docRef) syncNote.textContent = 'Gespeichert nur in diesem Browser.';
+    else if (saving) syncNote.textContent = 'Wird gespeichert …';
+    else if (failed) syncNote.textContent = 'Speichern hat gerade nicht geklappt. Es wird erneut versucht.';
+    else syncNote.textContent = 'Gespeichert in deinem Konto. Auf anderen Geräten mit demselben Konto siehst du denselben Wald.';
+  }
+
+  // Takes the stored state, but never drops a day this device already has.
+  function adopt(remote) {
+    const merged = {
+      days: { ...remote.days },
+      golden: { ...remote.golden },
+      session: state.session || remote.session,
+      updatedAt: Math.max(state.updatedAt, remote.updatedAt),
+    };
+    for (const k of Object.keys(state.days)) {
+      const local = state.days[k];
+      const other = merged.days[k];
+      if (!other || (local.sec || 0) > (other.sec || 0)) merged.days[k] = local;
+    }
+    for (const k of Object.keys(state.golden)) {
+      if (!merged.golden[k]) merged.golden[k] = state.golden[k];
+    }
+    state = merged;
+    writeLocal();
+    updateUI();
+    renderAll();
+    checkResume();
+  }
+
+  async function connect() {
+    let db = null;
+    let uid = null;
+    try {
+      db = await window.claude?.use('db');
+      const user = db ? await window.claude.use('user') : null;
+      uid = user ? await user.id() : null;
+    } catch (e) {
+      db = null;
+      uid = null;
+    }
+    if (!db || !uid) {
+      setSyncNote(false);
+      return;
+    }
+    try {
+      docRef = db.doc('data/users/' + uid + '/state');
+    } catch (e) {
+      docRef = null;
+      setSyncNote(false);
+      return;
+    }
+    docRef.onSnapshot((snap) => {
+      // Ignore our own unconfirmed writes and anything while a save is pending.
+      if (snap.metadata.hasPendingWrites || writing || dirty) return;
+      const remote = snap.exists ? normalize(snap.data()) : null;
+      if (!remoteLive) {
+        if (snap.metadata.fromCache) return; // wait for the database's own answer
+        remoteLive = true;
+        if (remote && remote.updatedAt >= state.updatedAt && countDays(remote) >= countDays(state)) {
+          adopt(remote);
+        } else {
+          // Nothing stored yet, or this device has the newer state: upload it.
+          touch();
+        }
+        setSyncNote(false);
+        return;
+      }
+      if (remote && remote.updatedAt > state.updatedAt && countDays(remote) >= countDays(state)) adopt(remote);
+    }, () => {
+      docRef = null;
+      setSyncNote(false);
+    });
+  }
+
+  // ---------- time helpers ----------
+  function dayKey(d = new Date()) {
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+
+  function parseKey(k) {
+    const [y, m, d] = k.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  // A week runs Monday to Sunday. The week key is the date of its Monday.
+  function weekKeyOf(d) {
+    const offset = (d.getDay() + 6) % 7;
+    return dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - offset));
+  }
+
+  function sessionMs() {
+    const s = state.session;
+    if (!s) return 0;
+    return s.accum + (s.runStart ? Date.now() - s.runStart : 0);
+  }
+
+  function isRunning() {
+    return !!(state.session && state.session.runStart);
+  }
+
+  function storedSec(key) {
+    return (state.days[key] && state.days[key].sec) || 0;
+  }
+
+  // A session counts for the day it started on.
+  function sessionDay() {
+    return (state.session && state.session.day) || dayKey();
+  }
+
+  function todaySec() {
+    const today = dayKey();
+    return storedSec(today) + (sessionDay() === today ? Math.floor(sessionMs() / 1000) : 0);
+  }
+
+  // Study time in the current week, including the running session.
+  function weekSec() {
+    const today = dayKey();
+    const wk = weekKeyOf(new Date());
+    let sum = 0;
+    for (const k of Object.keys(state.days)) {
+      if (k === today) continue;
+      if (weekKeyOf(parseKey(k)) === wk) sum += storedSec(k);
+    }
+    return sum + todaySec();
+  }
+
+  function levelFor(sec) {
+    return Math.min(MAX_LEVEL, Math.floor(sec / 3600));
+  }
+
+  function levelText(sec) {
+    const lvl = levelFor(sec);
+    return `${LEVEL_NAMES[lvl]} · Level ${lvl} von ${MAX_LEVEL}`;
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function fmtClock(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  }
+
+  function fmtDur(sec) {
+    if (sec <= 0) return '0 min';
+    if (sec < 60) return `${sec} s`;
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return h ? `${h} h ${pad2(m)} min` : `${m} min`;
+  }
+
+  function dateLabel(key) {
+    return parseKey(key).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+
+  function labelFor(key) {
+    return key === dayKey() ? 'Heute' : dateLabel(key);
+  }
+
+  // Awards a golden tree once per week when the goal is reached.
+  // Changes state only; the caller saves.
+  function awardGoldIfNeeded() {
+    const wk = weekKeyOf(new Date());
+    if (state.golden[wk]) return false;
+    if (weekSec() < WEEK_GOAL_SEC) return false;
+    state.golden[wk] = { day: dayKey() };
+    return true;
+  }
+
+  function dayBefore(key, n) {
+    const d = parseKey(key);
+    d.setDate(d.getDate() - n);
+    return dayKey(d);
+  }
+
+  // Consecutive study days. Today counts once you have studied today;
+  // until then, yesterday's streak still stands.
+  function streakDays() {
+    const today = dayKey();
+    const active = (k) => (k === today ? todaySec() : storedSec(k)) > 0;
+    let k = active(today) ? today : dayBefore(today, 1);
+    let n = 0;
+    while (active(k) && n < 3650) {
+      n++;
+      k = dayBefore(k, 1);
+    }
+    return { n, todayDone: active(today) };
+  }
+
+  function goldenEarnedThisWeek() {
+    return !!state.golden[weekKeyOf(new Date())];
+  }
+
+  // ---------- seeded randomness ----------
+  function hashStr(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const r1 = (n) => Math.round(n * 10) / 10;
+  const r3 = (n) => Math.round(n * 1000) / 1000;
+
+  // ---------- special discoveries ----------
+  // Every 4th day, counted from a fixed start. Which discovery it is depends on the
+  // date, so it stays the same on every visit. Rivers appear twice as often.
+  const KIND_INFO = {
+    river: ['ein', 'Fluss'],
+    fox: ['ein', 'Fuchs'],
+    deer: ['ein', 'Reh'],
+    rabbit: ['ein', 'Hase'],
+    owl: ['eine', 'Eule'],
+    bird: ['ein', 'Vogel'],
+    hedgehog: ['ein', 'Igel'],
+    mushroom: ['ein', 'Pilz'],
+    pond: ['ein', 'Teich'],
+  };
+  const KINDS = ['river', 'river', 'fox', 'deer', 'rabbit', 'owl', 'bird', 'hedgehog', 'mushroom', 'pond'];
+
+  function dayIndex(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+  }
+
+  function discoveryFor(key) {
+    if (dayIndex(key) % 4 !== 0) return null;
+    const pick = mulberry32(hashStr(key + '#kind'))();
+    return KINDS[Math.floor(pick * KINDS.length)];
+  }
+
+  // ---------- tree drawing ----------
+  // One level per full hour of learning, up to level 8 at 8 hours.
+  // Drawings are cached: the same day and minute always give the same tree.
+  const treeCache = new Map();
+
+  function treeMarkup(minutes, key) {
+    const m = Math.round(minutes * 10) / 10;
+    const cacheKey = key + '|' + m;
+    const hit = treeCache.get(cacheKey);
+    if (hit) return hit;
+    const out = buildTree(m, key);
+    if (treeCache.size > 300) treeCache.clear();
+    treeCache.set(cacheKey, out);
+    return out;
+  }
+
+  function buildTree(minutes, key) {
+    const rnd = mulberry32(hashStr(key));
+    const level = Math.min(MAX_LEVEL, Math.floor(minutes / 60));
+    const depth = DEPTHS[level];
+    // A small floor keeps even a few seconds of learning visible as a tree.
+    const growth = Math.max(0.25, Math.min(1, minutes / FULL_TREE_MIN));
+    const trunk = 30 + 32 * growth;
+    const levels = [];
+    for (let i = 0; i <= depth; i++) levels.push([]);
+    const tips = [];
+    let minY = 214;
+
+    const grow = (x, y, ang, len, lv) => {
+      const x2 = x + Math.sin(ang) * len;
+      const y2 = y - Math.cos(ang) * len;
+      if (y2 < minY) minY = y2;
+      levels[lv].push(`M${r1(x)} ${r1(y)}L${r1(x2)} ${r1(y2)}`);
+      if (lv === depth) {
+        tips.push([x2, y2]);
+        return;
+      }
+      const kids = lv === 0 ? 2 : (rnd() < 0.3 ? 3 : 2);
+      const spread = 0.45 + rnd() * 0.3;
+      for (let i = 0; i < kids; i++) {
+        const off = kids === 2 ? (i === 0 ? -spread : spread) : (i - 1) * spread * 0.85;
+        // Keep branches pointing upward, so crowns stay round instead of drooping.
+        const a = Math.max(-0.9, Math.min(0.9, ang + off + (rnd() - 0.5) * 0.3));
+        grow(x2, y2, a, len * (0.64 + rnd() * 0.1), lv + 1);
+      }
+    };
+    grow(100, 214, 0, trunk, 0);
+
+    const paths = levels
+      .map((segs, lv) => segs.length
+        ? `<path d="${segs.join('')}" stroke-width="${r1(Math.max(1.2, 9 - lv * 1.15))}"/>`
+        : '')
+      .join('');
+
+    // Crowns fill out with every level: bigger leaves, and soft clusters behind them.
+    const leafR = 3.4 + level * 0.45;
+    let leaves = '';
+    let back = '';
+    tips.forEach(([x, y], i) => {
+      const n = depth >= 3 ? 2 : 1;
+      for (let k = 0; k < n; k++) {
+        const jx = (rnd() - 0.5) * (9 + level);
+        const jy = (rnd() - 0.5) * 7 - 1;
+        const rr = leafR + rnd() * 2.4;
+        const cls = rnd() < 0.4 ? 'leaf alt' : 'leaf';
+        leaves += `<circle class="${cls}" cx="${r1(x + jx)}" cy="${r1(y + jy)}" r="${r1(rr)}"/>`;
+      }
+      if (level >= 2 && i % 2 === 0) {
+        back += `<circle class="leaf back" cx="${r1(x)}" cy="${r1(y + 2)}" r="${r1(leafR * 1.9 + rnd() * 2)}"/>`;
+      }
+    });
+
+    return `<g data-top="${r1(minY - 18)}">` +
+      `<ellipse class="ground" cx="100" cy="215" rx="64" ry="5"/>` +
+      `<g>${back}</g>` +
+      `<g class="branches">${paths}</g>` +
+      `<g>${leaves}</g></g>`;
+  }
+
+  // Crops the empty space above a tree, keeping its size.
+  function fitTree(svg) {
+    const el = svg.querySelector('[data-top]');
+    const top = el ? Number(el.getAttribute('data-top')) : 0;
+    const y = Math.max(0, Math.min(Math.floor(top) - 6, 100));
+    svg.setAttribute('viewBox', `0 ${y} 200 ${222 - y}`);
+  }
+
+  function goldenMarkup(key) {
+    return `<g class="golden">${treeMarkup(FULL_TREE_MIN, key + '#gold')}</g>`;
+  }
+
+  function sprout() {
+    return `<g data-top="160"><ellipse class="ground" cx="100" cy="215" rx="34" ry="5"/>` +
+      `<g class="branches"><path d="M100 214Q97 194 101 176" stroke-width="2.6"/></g>` +
+      `<ellipse class="leaf" cx="89" cy="178" rx="9" ry="5" transform="rotate(-25 89 178)"/>` +
+      `<ellipse class="leaf alt" cx="111" cy="172" rx="9" ry="5" transform="rotate(25 111 172)"/></g>`;
+  }
+
+  function markupFor(sec, key) {
+    return sec <= 0 ? sprout() : treeMarkup(sec / 60, key);
+  }
+
+  // Small 40x30 animal sprites, standing on y = 30.
+  const SPRITES = {
+    fox: `
+      <path class="fox" d="M6 18Q0 13 2 8Q8 11 11 16Z"/>
+      <ellipse class="fox" cx="18" cy="20" rx="11" ry="6"/>
+      <circle class="fox" cx="30" cy="14" r="5"/>
+      <path class="fox" d="M27 10L28.5 4L31 9Z"/>
+      <path class="animal-dark" d="M34 13L38 14.5L34 16Z"/>
+      <rect class="animal-dark" x="12" y="24" width="2.2" height="6"/>
+      <rect class="animal-dark" x="22" y="24" width="2.2" height="6"/>`,
+    deer: `
+      <rect class="animal-dark" x="10" y="22" width="2" height="8"/>
+      <rect class="animal-dark" x="15" y="22" width="2" height="8"/>
+      <rect class="animal-dark" x="21" y="22" width="2" height="8"/>
+      <rect class="animal-dark" x="26" y="22" width="2" height="8"/>
+      <ellipse class="animal" cx="18" cy="17" rx="11" ry="6"/>
+      <path class="animal" d="M25 14L29 7L32 8L30 15Z"/>
+      <ellipse class="animal" cx="32" cy="7" rx="4" ry="3.2"/>
+      <path class="antler" d="M31 4L29 0M32 4L35 0"/>`,
+    rabbit: `
+      <ellipse class="animal" cx="18" cy="21" rx="9" ry="6"/>
+      <circle class="animal" cx="27" cy="15" r="4.5"/>
+      <ellipse class="animal" cx="25.5" cy="7.5" rx="1.8" ry="5.5"/>
+      <ellipse class="animal" cx="29.5" cy="7.5" rx="1.8" ry="5.5"/>
+      <circle class="animal-light" cx="8" cy="18" r="2.6"/>
+      <rect class="animal-dark" x="13" y="25" width="2.2" height="5"/>
+      <rect class="animal-dark" x="21" y="25" width="2.2" height="5"/>`,
+    owl: `
+      <rect class="animal" x="12" y="6" width="16" height="22" rx="8"/>
+      <path class="animal" d="M12 10L10 3L17 8Z"/>
+      <path class="animal" d="M28 10L30 3L23 8Z"/>
+      <circle class="animal-light" cx="17" cy="13" r="3.4"/>
+      <circle class="animal-light" cx="23" cy="13" r="3.4"/>
+      <circle class="animal-dark" cx="17" cy="13" r="1.6"/>
+      <circle class="animal-dark" cx="23" cy="13" r="1.6"/>
+      <path class="fox" d="M19 17L21 17L20 20Z"/>
+      <rect class="animal-dark" x="16" y="28" width="2" height="2"/>
+      <rect class="animal-dark" x="22" y="28" width="2" height="2"/>`,
+    bird: `
+      <path class="animal" d="M10 16L3 11L4 18Z"/>
+      <ellipse class="animal" cx="18" cy="16" rx="8" ry="5"/>
+      <circle class="animal" cx="26" cy="11" r="4"/>
+      <path class="fox" d="M29.5 10L33 12L29.5 13Z"/>
+      <circle class="animal-dark" cx="27" cy="10" r="0.9"/>
+      <rect class="animal-dark" x="0" y="23" width="40" height="2.5" rx="1"/>`,
+    hedgehog: `
+      <path class="animal-dark" d="M5 25A14 12 0 0 1 35 25Z"/>
+      <ellipse class="animal-light" cx="33" cy="23" rx="4" ry="3.5"/>
+      <circle class="animal-dark" cx="36.5" cy="23" r="1"/>
+      <rect class="animal-dark" x="9" y="25" width="2.2" height="5"/>
+      <rect class="animal-dark" x="25" y="25" width="2.2" height="5"/>`,
+    mushroom: `
+      <rect class="animal-light" x="15" y="16" width="8" height="13" rx="2"/>
+      <path class="fox" d="M7 17Q7 4 19 4Q31 4 31 17Z"/>
+      <circle class="animal-light" cx="13" cy="10" r="1.8"/>
+      <circle class="animal-light" cx="21" cy="8" r="1.5"/>
+      <circle class="animal-light" cx="25" cy="13" r="1.6"/>`,
+    pond: `
+      <ellipse class="pond" cx="20" cy="20" rx="18" ry="8"/>
+      <ellipse class="pond-light" cx="15" cy="18" rx="6" ry="2"/>
+      <circle class="pad" cx="27" cy="21" r="3"/>
+      <circle class="pad-alt" cx="11" cy="23" r="2.2"/>`,
+  };
+
+  function riverMarkup(cy) {
+    let d = `M-10 ${cy}`;
+    let up = true;
+    for (let x = -10; x < 410; x += 60) {
+      d += ` Q${x + 30} ${up ? cy - 10 : cy + 10} ${x + 60} ${cy}`;
+      up = !up;
+    }
+    return `<path class="water" d="${d}"/><path class="water-light" d="${d}"/>`;
+  }
+
+  // ---------- atmosphere ----------
+  function timeOfDay() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 9) return 'morning';
+    if (h >= 9 && h < 17) return 'day';
+    if (h >= 17 && h < 21) return 'evening';
+    return 'night';
+  }
+
+  function skyMarkup(tod) {
+    if (tod === 'night') {
+      const rnd = mulberry32(hashStr('stars'));
+      let stars = '';
+      for (let i = 0; i < 22; i++) {
+        const x = r1(rnd() * 400);
+        const y = r1(6 + rnd() * 70);
+        const r = r1(0.6 + rnd() * 1.1);
+        stars += `<circle class="star" cx="${x}" cy="${y}" r="${r}"/>`;
+      }
+      return stars + `<circle class="moon" cx="350" cy="22" r="11"/><circle class="moon-cut" cx="356" cy="18" r="9"/>`;
+    }
+    if (tod === 'evening') return `<circle class="sun low" cx="350" cy="34" r="13"/>`;
+    return `<circle class="sun" cx="350" cy="22" r="${tod === 'morning' ? 12 : 14}"/>`;
+  }
+
+  // One grass tuft per learned hour in total, with a flower every fifth tuft.
+  function grassMarkup(totalSec, y) {
+    const count = Math.min(28, Math.floor(totalSec / 3600));
+    const rnd = mulberry32(hashStr('grass'));
+    let out = '';
+    for (let i = 0; i < count; i++) {
+      const x = r1(4 + rnd() * 392);
+      const h = r1(5 + rnd() * 5);
+      out += `<path class="blade" d="M${x} ${y}q-2 ${r1(-h * 0.6)} -4 ${r1(-h)}M${x} ${y}q1 ${r1(-h * 0.7)} 3 ${r1(-h * 0.9)}"/>`;
+      if (i % 5 === 4) {
+        out += `<circle class="flower${i % 2 ? '' : ' alt'}" cx="${r1(x + 1)}" cy="${r1(y - h)}" r="2"/>`;
+      }
+    }
+    return out;
+  }
+
+  // ---------- animation bookkeeping ----------
+  // The first render is silent. Afterwards, a tree that reached a new level grows,
+  // and a discovery seen for the first time hops in.
+  let firstRender = true;
+  const seenLevel = {};
+  const seenMotif = {};
+
+  function growClass(id, lvl) {
+    const prev = seenLevel[id];
+    seenLevel[id] = lvl;
+    return prev !== undefined && lvl > prev ? ' grow' : '';
+  }
+
+  function enterClass(id) {
+    if (seenMotif[id]) return '';
+    seenMotif[id] = true;
+    return firstRender ? '' : ' enter';
+  }
+
+  // ---------- weekly overview ----------
+  function renderWeeks() {
+    const today = dayKey();
+    const keys = new Set(Object.keys(state.days));
+    keys.add(today);
+    const byWeek = {};
+    for (const k of keys) {
+      const sec = k === today ? todaySec() : storedSec(k);
+      if (sec <= 0) continue;
+      const wk = weekKeyOf(parseKey(k));
+      byWeek[wk] = (byWeek[wk] || 0) + sec;
+    }
+    const weeks = Object.keys(byWeek).sort().reverse();
+    const currentWk = weekKeyOf(new Date());
+    const fmtDay = (k) => parseKey(k).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+
+    weekList.innerHTML = weeks.map((wk) => {
+      const sec = byWeek[wk];
+      const range = `${fmtDay(wk)} – ${fmtDay(dayBefore(wk, -6))}`;
+      const isCurrent = wk === currentWk;
+      const pct = Math.min(100, (sec / WEEK_GOAL_SEC) * 100);
+      const gold = state.golden[wk] ? '<span class="gold-mark">✦ goldener Baum</span>' : '';
+      return `<li class="week-row${isCurrent ? ' current' : ''}">` +
+        `<div class="week-top"><strong>${isCurrent ? 'Diese Woche' : range}</strong><span class="week-meta">${fmtDur(sec)}</span></div>` +
+        `<div class="week-meta">${isCurrent ? range : ''}${isCurrent && gold ? ' · ' : ''}${gold}</div>` +
+        `<div class="week-bar"><span style="width:${pct.toFixed(1)}%"></span></div>` +
+        `</li>`;
+    }).join('');
+    weeksEmpty.hidden = weeks.length > 0;
+  }
+
+  // ---------- rendering ----------
+  let lastMinute = -1;
+
+  function renderHero() {
+    const today = dayKey();
+    const tsec = todaySec();
+    const lvl = levelFor(tsec);
+    heroSvg.innerHTML = `<g class="sway"><g class="tree${growClass('hero', lvl)}">${markupFor(tsec, today)}</g></g>`;
+    fitTree(heroSvg);
+    levelLine.textContent = levelText(tsec);
+
+    if (tsec <= 0) {
+      heroHint.textContent = 'Starte deine erste Lerneinheit, dann wächst heute ein Baum.';
+    } else if (lvl < MAX_LEVEL) {
+      const left = (lvl + 1) * 3600 - tsec;
+      heroHint.textContent = `Noch ${fmtDur(left)} bis ${LEVEL_NAMES[lvl + 1]} (Level ${lvl + 1}).`;
+    } else {
+      heroHint.textContent = 'Voll ausgewachsen. Größer wird der Baum heute nicht mehr.';
+    }
+
+    const wsec = weekSec();
+    const pct = Math.min(100, (wsec / WEEK_GOAL_SEC) * 100);
+    weekLine.innerHTML = `Diese Woche: <strong>${fmtDur(wsec)}</strong> von 40 Stunden` +
+      (goldenEarnedThisWeek() ? ' · <span class="gold-mark">goldener Baum ✓</span>' : '');
+    weekFill.style.width = pct.toFixed(1) + '%';
+
+    const streak = streakDays();
+    if (streak.n === 0) {
+      streakLine.textContent = 'Lerne heute, um eine Serie zu starten.';
+    } else {
+      const unit = streak.n === 1 ? 'Tag' : 'Tage';
+      streakLine.textContent = streak.todayDone
+        ? `Serie: ${streak.n} ${unit} in Folge`
+        : `Serie: ${streak.n} ${unit}. Lerne heute weiter, damit sie bleibt.`;
+    }
+  }
+
+  function renderForest() {
+    const today = dayKey();
+    const tsec = todaySec();
+
+    const entries = Object.keys(state.days).map((k) => [k, k === today ? tsec : storedSec(k)]);
+    if (!state.days[today] && tsec > 0) entries.push([today, tsec]);
+    const shown = entries.filter(([, sec]) => sec > 0).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+
+    // Golden trees are placed on the day their week goal was reached.
+    const goldenByDay = {};
+    for (const wk of Object.keys(state.golden)) {
+      const day = state.golden[wk].day;
+      if (day) (goldenByDay[day] = goldenByDay[day] || []).push(wk);
+    }
+
+    // Flatten days into placeable items, in date order.
+    const items = [];
+    const finds = [];
+    for (const [key, sec] of shown) {
+      const disc = discoveryFor(key);
+      if (disc === 'river') items.push({ type: 'river', key });
+      items.push({ type: 'tree', key, sec });
+      for (const wk of goldenByDay[key] || []) items.push({ type: 'golden', key: key + '#' + wk });
+      if (disc && disc !== 'river') items.push({ type: 'animal', key, kind: disc });
+      if (disc) finds.push({ key, kind: disc });
+    }
+
+    // Group into rows: slot rows hold up to COLS items, rivers take a full row.
+    const rows = [];
+    let cur = null;
+    for (const it of items) {
+      if (it.type === 'river') {
+        if (cur) { rows.push(cur); cur = null; }
+        rows.push({ type: 'river', h: RIVER_H, key: it.key });
+        continue;
+      }
+      if (!cur) cur = { type: 'slots', h: ROW_H, items: [] };
+      cur.items.push(it);
+      if (cur.items.length === COLS) { rows.push(cur); cur = null; }
+    }
+    if (cur) rows.push(cur);
+
+    // Draw rows top to bottom. The field grows with every row.
+    let y = 50;
+    let body = skyMarkup(timeOfDay()) + '<path class="hill far" d="M-10 52 Q70 28 150 44 T300 34 T410 46 V140 H-10Z"/>' +
+      '<path class="hill" d="M-10 76 Q40 50 100 68 T220 60 T330 54 T410 66 V4000 H-10Z"/>';
+    let rowIdx = 0;
+    for (const row of rows) {
+      const start = body.length;
+      if (row.type === 'river') {
+        body += riverMarkup(y + row.h / 2);
+      } else {
+        row.items.forEach((it, c) => {
+          const rnd = mulberry32(hashStr(it.key + '#pos' + c));
+          const cx = (c + 0.5) * SLOT_W + (rnd() - 0.5) * 14;
+          const baseY = y + ROW_H - 8 + (rnd() - 0.5) * 6;
+          if (it.type === 'animal') body += animalItem(it, cx, baseY);
+          else body += treeItem(it, cx, baseY);
+        });
+      }
+      // Rows further up are further back: smaller, and hazier.
+      const depth = rows.length > 1 ? rowIdx / (rows.length - 1) : 1;
+      const scale = r3(0.8 + 0.2 * depth);
+      const bottom = y + row.h;
+      const inner = body.slice(start);
+      body = body.slice(0, start) +
+        `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})" opacity="${r3(0.62 + 0.38 * depth)}">${inner}</g>`;
+      y += row.h;
+      rowIdx++;
+    }
+
+    body += grassMarkup(shown.reduce((s, [, sec]) => s + sec, 0), y + 4);
+    fieldEl.dataset.tod = timeOfDay();
+    fieldEl.hidden = shown.length === 0;
+    fieldSvg.setAttribute('viewBox', `0 0 400 ${y + 8}`);
+    fieldSvg.innerHTML = body;
+
+    forestEmpty.hidden = shown.length > 0;
+    const total = shown.reduce((sum, [, sec]) => sum + sec, 0);
+    const trees = shown.length;
+    const goldCount = Object.keys(state.golden).length;
+    const parts = [];
+    parts.push(`${trees} ${trees === 1 ? 'Baum' : 'Bäume'}`);
+    if (goldCount) parts.push(`${goldCount} ${goldCount === 1 ? 'goldener Baum' : 'goldene Bäume'}`);
+    if (finds.length) parts.push(`${finds.length} ${finds.length === 1 ? 'Entdeckung' : 'Entdeckungen'}`);
+    parts.push(`${fmtDur(total)} gelernt`);
+    forestStats.textContent = shown.length ? parts.join(' · ') : '';
+
+    findsBlock.hidden = finds.length === 0;
+    findsList.innerHTML = finds.map((f) => `
+      <li><span>${labelFor(f.key)}</span><strong>${KIND_INFO[f.kind][0] === 'eine' ? 'Eine' : 'Ein'} ${KIND_INFO[f.kind][1]}</strong></li>`).join('');
+  }
+
+  function treeItem(it, cx, baseY) {
+    if (it.type === 'golden') {
+      const s = r3(0.68);
+      const tx = r1(cx - 100 * s);
+      const ty = r1(baseY - 214 * s);
+      return `<g transform="translate(${tx} ${ty}) scale(${s})">` +
+        `<title>Goldener Baum: Wochenziel erreicht</title>` +
+        `${goldenMarkup(it.key)}</g>`;
+    }
+    const growth = Math.min(1, it.sec / 60 / FULL_TREE_MIN);
+    const s = r3(0.32 + 0.36 * growth);
+    const tx = r1(cx - 100 * s);
+    const ty = r1(baseY - 214 * s);
+    return `<g transform="translate(${tx} ${ty}) scale(${s})">` +
+      `<title>${labelFor(it.key)}: ${fmtDur(it.sec)}, ${levelText(it.sec)}</title>` +
+      `<g class="tree${growClass('f:' + it.key, levelFor(it.sec))}">${treeMarkup(it.sec / 60, it.key)}</g></g>`;
+  }
+
+  function animalItem(it, cx, baseY) {
+    const [, name] = KIND_INFO[it.kind];
+    return `<g transform="translate(${r1(cx - 20)} ${r1(baseY - 30)})">` +
+      `<title>${name}, entdeckt ${labelFor(it.key)}</title>` +
+      `<g class="motif${enterClass(it.key + it.kind)}">${SPRITES[it.kind]}</g></g>`;
+  }
+
+  function renderAll() {
+    renderHero();
+    renderForest();
+    renderWeeks();
+    firstRender = false;
+  }
+
+  function updateUI() {
+    const s = state.session;
+    const running = isRunning();
+    app.dataset.state = !s ? 'idle' : running ? 'run' : 'pause';
+    statusEl.textContent = !s ? 'Bereit' : running ? 'Lernt gerade' : 'Pausiert';
+    toggleBtn.textContent = running ? 'Pause' : s ? 'Weiter' : 'Starten';
+    const blocked = !confirmBox.hidden || !resumeBox.hidden;
+    toggleBtn.disabled = blocked;
+    endBtn.disabled = !s || blocked;
+  }
+
+  function tick() {
+    const shown = fmtClock(Math.floor(sessionMs() / 1000));
+    clockEl.textContent = shown;
+    tabTimerLabel.textContent = !state.session ? 'Timer' : isRunning() ? shown : 'Pausiert';
+    const tsec = todaySec();
+    todayEl.textContent = fmtDur(tsec);
+    if (awardGoldIfNeeded()) {
+      touch();
+      lastMinute = -1;
+    }
+    const m = Math.floor(tsec / 60);
+    if (m !== lastMinute) {
+      lastMinute = m;
+      renderAll();
+    }
+  }
+
+  // ---------- actions ----------
+  function start() {
+    if (!state.session) {
+      state.session = { accum: 0, runStart: Date.now(), day: dayKey() };
+    } else if (!state.session.runStart) {
+      state.session.runStart = Date.now();
+    }
+    touch();
+    updateUI();
+    tick();
+  }
+
+  function pause() {
+    const s = state.session;
+    if (s && s.runStart) {
+      s.accum += Date.now() - s.runStart;
+      s.runStart = null;
+      delete s.hiddenAt;
+      touch();
+      updateUI();
+      tick();
+    }
+  }
+
+  function showSheet(sec, key, newGold) {
+    const isToday = key === dayKey();
+    const total = storedSec(key);
+    sheetSession.textContent = sec < 60 ? 'unter einer Minute' : fmtDur(sec);
+    sheetLevel.textContent = levelText(total);
+    sheetDay.textContent = `${isToday ? 'Heute' : dateLabel(key)} insgesamt: ${fmtDur(total)}`;
+    sheetTree.innerHTML = markupFor(total, key);
+    fitTree(sheetTree);
+    const disc = discoveryFor(key);
+    if (disc) {
+      const [art, name] = KIND_INFO[disc];
+      sheetFind.textContent = `${isToday ? 'Heute' : 'An diesem Tag'} entdeckt: ${art} ${name}.`;
+      sheetFind.hidden = false;
+    } else {
+      sheetFind.hidden = true;
+    }
+    sheetGold.hidden = !newGold;
+    sheet.hidden = false;
+    sheetClose.focus();
+  }
+
+  function finishSession() {
+    pause();
+    const sec = Math.round((state.session ? state.session.accum : 0) / 1000);
+    const key = sessionDay();
+    if (sec > 0) {
+      const prev = state.days[key] || { sec: 0, sessions: 0 };
+      state.days[key] = { sec: prev.sec + sec, sessions: (prev.sessions || 0) + 1 };
+    }
+    state.session = null;
+    const newGold = awardGoldIfNeeded();
+    touch();
+    confirmBox.hidden = true;
+    updateUI();
+    renderAll();
+    tick();
+    if (sec > 0) showSheet(sec, key, newGold);
+  }
+
+  // ---------- after the app was closed ----------
+  // The timer keeps running while the screen is off or another app is open.
+  // When the app goes out of view, the moment is noted. If the app comes back
+  // by a fresh start (it was closed, or the phone cleared it from memory),
+  // we ask whether the time in between was study time.
+  let resumeAsked = false;
+
+  function checkResume() {
+    const s = state.session;
+    if (resumeAsked || !s || !s.runStart || !s.hiddenAt) return;
+    resumeAsked = true;
+    const at = new Date(s.hiddenAt);
+    const time = at.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const when = dayKey(at) === dayKey() ? `um ${time} Uhr` : `am ${dateLabel(dayKey(at))} um ${time} Uhr`;
+    resumeText.textContent = `Die App wurde ${when} geschlossen, während der Timer lief. Hast du seitdem weitergelernt?`;
+    resumeNo.textContent = `Nein, um ${time} Uhr anhalten`;
+    resumeBox.hidden = false;
+    updateUI();
+  }
+
+  function closeResume() {
+    resumeBox.hidden = true;
+    updateUI();
+    lastMinute = -1;
+    tick();
+  }
+
+  resumeYes.addEventListener('click', () => {
+    const s = state.session;
+    if (s) {
+      delete s.hiddenAt;
+      touch();
+    }
+    closeResume();
+  });
+
+  resumeNo.addEventListener('click', () => {
+    const s = state.session;
+    if (s && s.runStart) {
+      const stopAt = Math.max(s.runStart, s.hiddenAt || Date.now());
+      s.accum += stopAt - s.runStart;
+      s.runStart = null;
+      delete s.hiddenAt;
+      touch();
+    }
+    closeResume();
+  });
+
+  // ---------- tabs ----------
+  function showTab(name) {
+    if (!views[name]) name = 'timer';
+    for (const [k, v] of Object.entries(views)) v.hidden = k !== name;
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+    window.scrollTo(0, 0);
+  }
+
+  tabs.forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+  toggleBtn.addEventListener('click', () => {
+    if (isRunning()) pause(); else start();
+  });
+
+  endBtn.addEventListener('click', () => {
+    if (!state.session) return;
+    confirmBox.hidden = false;
+    updateUI();
+    confirmYes.focus();
+  });
+
+  confirmNo.addEventListener('click', () => {
+    confirmBox.hidden = true;
+    updateUI();
+    tick();
+  });
+
+  confirmYes.addEventListener('click', finishSession);
+
+  sheetClose.addEventListener('click', () => {
+    sheet.hidden = true;
+    showTab('forest');
+    updateUI();
+  });
+
+  // Screen off or another app: the timer keeps running. Only the moment is noted,
+  // in case the app gets closed. Coming back clears it and sends any interrupted save.
+  document.addEventListener('visibilitychange', () => {
+    const s = state.session;
+    if (document.visibilityState === 'hidden') {
+      // Keep the first moment the app left view.
+      if (s && s.runStart && !s.hiddenAt) {
+        s.hiddenAt = Date.now();
+        touch();
+      }
+    } else {
+      if (s && s.hiddenAt) {
+        delete s.hiddenAt;
+        touch();
+      }
+      flush();
+      tick();
+    }
+  });
+
+  // ---------- init ----------
+  dateEl.textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+  syncNote.textContent = 'Verbinde mit deinem Konto …';
+  updateUI();
+  renderAll();
+  checkResume();
+  tick();
+  setInterval(tick, 200);
+  connect();
+})();
+</script>
+
+</body></html>
