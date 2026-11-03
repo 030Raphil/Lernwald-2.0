@@ -193,7 +193,14 @@ body {
 }
 .hill-far { fill: color-mix(in srgb, var(--ground) 65%, var(--field-sky)); }
 .hill-near { fill: var(--hero-body); }
-.stage #heroTree { position: relative; z-index: 1; width: min(290px, 86%); }
+.stage #heroTree {
+  position: relative;
+  z-index: 1;
+  width: min(290px, 86%);
+  /* Big trees shrink on small screens, so Pause and Beenden stay in reach. */
+  max-height: min(300px, max(110px, calc(100vh - 545px)));
+  max-height: min(300px, max(110px, calc(100svh - 545px)));
+}
 
 .status {
   position: absolute;
@@ -343,9 +350,11 @@ body {
   border-radius: 22px;
   border: 1px solid var(--line);
   --field-sky: var(--sky);
-  background: linear-gradient(to bottom, var(--field-sky) 0%, var(--ground) 60%);
-  overflow: hidden;
+  background: linear-gradient(to bottom, var(--field-sky) 0px, var(--ground) 110px);
+  /* Rounded clipping without making the field a scroll box, so the snowfall can stay on screen. */
+  clip-path: inset(0 round 22px);
 }
+.field-sections svg { overflow: visible; }
 .field svg {
   display: block;
   width: 100%;
@@ -400,6 +409,7 @@ body {
 .lshade { fill: color-mix(in srgb, var(--tone, var(--leaf)) 70%, var(--shade-mix)); }
 .lhi { fill: color-mix(in srgb, var(--tone, var(--leaf)) 80%, var(--light-mix)); }
 .golden .lshade { fill: color-mix(in srgb, var(--gold) 72%, #6b4300); }
+.lshade.inner { opacity: 0.7; }
 .golden .lhi { fill: var(--gold-2); animation: gleam 3.6s ease-in-out infinite; }
 @keyframes gleam { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 .gold-glow circle { fill: var(--gold-2); opacity: 0.16; }
@@ -411,6 +421,23 @@ body {
 /* Wood: tapered trunk and branches, shade on the side away from the sun */
 .wood { fill: var(--bark); }
 .twig-line { fill: none; stroke: var(--bark); stroke-linecap: round; }
+.sprout-stem { fill: none; stroke: var(--bark); stroke-linecap: round; }
+.birch .sprout-stem { stroke: color-mix(in srgb, var(--birch) 75%, var(--bark)); }
+.stake { fill: none; stroke: color-mix(in srgb, var(--bark) 70%, #d8c29a); stroke-width: 1.6; stroke-linecap: round; }
+.tie { fill: none; stroke: #cdb58a; stroke-width: 1.4; stroke-linecap: round; }
+.knot-rim { fill: color-mix(in srgb, var(--bark) 75%, #e8d3b0); }
+.knot { fill: #2a1c12; opacity: 0.75; }
+.moss { fill: color-mix(in srgb, var(--leaf-2) 65%, var(--bark)); opacity: 0.9; }
+.birch-foot { fill: #4a423b; }
+.birch-crack { fill: none; stroke: color-mix(in srgb, var(--birch) 60%, #4a423b); stroke-width: 0.6; stroke-linecap: round; }
+.birch-branch { fill: none; stroke: color-mix(in srgb, var(--birch) 45%, var(--bark)); stroke-linecap: round; }
+.birch-eye { fill: #2f2a25; }
+.app[data-season="winter"] .birch { --t2: var(--win-snow); }
+.hang { fill: none; stroke: color-mix(in srgb, var(--tone, var(--leaf-2)) 70%, var(--bark)); stroke-width: 0.9; stroke-linecap: round; }
+.hang.t0 { --tone: var(--t0); } .hang.t1 { --tone: var(--t1); } .hang.t2 { --tone: var(--t2); }
+.needle.young { fill: color-mix(in srgb, var(--conifer) 72%, #a9d98f); }
+.cone { fill: color-mix(in srgb, var(--bark) 82%, #000); }
+.leader { fill: none; stroke: var(--conifer); stroke-width: 1.6; stroke-linecap: round; }
 .birch .twig-line { stroke: var(--birch); }
 .golden .twig-line { stroke: var(--gold-bark); }
 .wood-shade { fill: #000; opacity: 0.16; }
@@ -448,9 +475,18 @@ body {
 .app[data-season="winter"] .gstar { display: inline; }
 .field { position: relative; }
 .flakes { display: none; }
-.app[data-season="winter"] .flakes { display: block; position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.app[data-season="winter"] .flakes {
+  display: block;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-bottom: -100vh;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
 .flake { position: absolute; top: -10px; border-radius: 50%; background: var(--win-snow); opacity: .75; animation: fall linear infinite; }
-@keyframes fall { to { transform: translate(var(--dx, 0px), 320px); } }
+@keyframes fall { to { transform: translate(var(--dx, 0px), 100vh); } }
 .gstar { display: none; fill: var(--gold-2); }
 .snow { display: none; }
 .app[data-season="winter"] .snow { display: inline; fill: var(--win-snow); }
@@ -513,10 +549,6 @@ body {
 .animal-light { fill: var(--animal-light); }
 .animal-dark { fill: var(--animal-dark); }
 .fox { fill: var(--fox); }
-.pond { fill: var(--water); }
-.pond-light { fill: var(--water-light); }
-.pad { fill: var(--pad); }
-.pad-alt { fill: var(--pad-alt); }
 /* Details of animals and the forest floor */
 .fox-shade { fill: color-mix(in srgb, var(--fox) 72%, #2a1208); }
 .animal-shade { fill: color-mix(in srgb, var(--animal) 74%, #000); }
@@ -883,7 +915,7 @@ body {
       <div class="stats" id="forestStats"></div>
     </div>
     <div class="field" id="field">
-      <svg id="fieldSvg" viewBox="0 0 400 200" role="img" aria-label="Dein Wald"></svg>
+      <div id="fieldSvg" class="field-sections" role="img" aria-label="Dein Wald"></div>
     </div>
     <div class="empty-state" id="forestEmpty">
       <svg viewBox="0 0 200 96" aria-hidden="true">
@@ -991,7 +1023,6 @@ body {
   const WEEK_GOAL_SEC = 40 * 3600;
   const FULL_TREE_MIN = 480; // 8 hours: fully grown, top level
   const MAX_LEVEL = 8;       // one level per full hour
-  const DEPTHS = [2, 3, 3, 4, 4, 5, 5, 5, 6]; // branching depth per level
   const LEVEL_NAMES = ['Setzling', 'Bäumchen', 'Jungbaum', 'Kleiner Baum', 'Baum',
     'Großer Baum', 'Stattlicher Baum', 'Alter Baum', 'Waldriese'];
 
@@ -1446,7 +1477,7 @@ body {
 
   function treeMarkup(minutes, key) {
     const m = Math.round(minutes * 10) / 10;
-    const cacheKey = key + '|' + m + '|' + seasonNow() + '|' + lightDir();
+    const cacheKey = key + '|' + m + '|' + seasonNow() + '|' + lightDir() + '|' + (fineDetail ? 1 : 0);
     const hit = treeCache.get(cacheKey);
     if (hit) return hit;
     const out = buildTree(m, key);
@@ -1492,178 +1523,651 @@ body {
       `L${r1(100 + a * 0.92)} 204Q${r1(100 + a)} 213.4 ${r1(100 + a + 5)} 214.6Z"/>`;
   }
 
-  function buildTree(minutes, key) {
-    const level = Math.min(MAX_LEVEL, Math.floor(minutes / 60));
-    // A small floor keeps even a few seconds of learning visible as a tree.
-    const growth = Math.max(0.25, Math.min(1, minutes / FULL_TREE_MIN));
-    const species = speciesFor(key);
-    if (species === 'tanne') return buildConifer(key, level, growth);
+  // In the forest, trees are drawn small; the finest details (inner tufts) are left out
+  // there, which keeps a large forest quick to open. The timer shows every detail.
+  let fineDetail = true;
 
-    const birch = species === 'birke';
+  // ---------- tree shapes per level ----------
+  // Every level has its own look, not just a bigger size. Between two levels a tree
+  // keeps growing smoothly towards the next one.
+  //  height, crown width (half), crown height (half), trunk width, leaf masses
+  const LAUB = [
+    [44, 0, 0, 2.2, 0],    // Setzling: a stem with a few leaves
+    [64, 15, 13, 3.2, 0],  // Bäumchen: a few tufts on thin twigs, tied to a stake
+    [84, 19, 25, 4.2, 1],  // Jungbaum: slender, upright oval crown
+    [102, 27, 27, 5.6, 1], // Kleiner Baum: round and denser
+    [120, 35, 31, 7, 1],   // Baum: full crown, the fork shows below it
+    [136, 44, 36, 8.6, 3], // Großer Baum: the crown parts into three masses
+    [152, 52, 40, 10.2, 4], // Stattlicher Baum: a wide dome, strong roots
+    [166, 58, 43, 12, 5],  // Alter Baum: uneven, a side branch, knothole, moss
+    [180, 66, 47, 14, 6],  // Waldriese: huge crown, buttress roots
+  ];
+  const BIRKE = [
+    [46, 0, 0, 1.8, 0],    // a thin white whip with leaves
+    [66, 8, 14, 2.6, 1],   // young, tied to a stake
+    [88, 11, 20, 3.4, 1],
+    [108, 14, 26, 4.2, 1],
+    [126, 17, 31, 5, 1],   // twigs start to hang
+    [142, 20, 35, 5.8, 2], // two masses, one above the other
+    [156, 23, 39, 6.6, 2], // dark furrowed bark at the foot
+    [168, 26, 42, 7.4, 3], // a second stem grows beside the first
+    [180, 29, 45, 8.2, 3],
+  ];
+  //  height, half width, tiers, trunk width
+  const TANNE = [
+    [28, 10, 2, 1.6],      // seedling, light green
+    [44, 14, 3, 2.4],
+    [62, 18, 4, 3.2],      // needles get a jagged edge
+    [80, 22, 4, 4],
+    [98, 26, 5, 4.8],
+    [116, 30, 5, 5.6],     // cones
+    [134, 34, 6, 6.4],     // the lower trunk is bare
+    [152, 38, 6, 7.2],     // a broken branch stub
+    [170, 42, 7, 8],       // a leading shoot at the top
+  ];
+  // Where the leaf masses of a broadleaf crown sit: offset in crown widths and heights, size.
+  const LOBES = {
+    3: [[0, -0.22, 0.7], [-0.46, 0.16, 0.62], [0.47, 0.12, 0.62]],
+    4: [[-0.22, -0.24, 0.6], [0.24, -0.2, 0.6], [-0.56, 0.2, 0.55], [0.56, 0.18, 0.55]],
+    5: [[-0.3, -0.22, 0.56], [0.3, -0.26, 0.56], [-0.6, 0.22, 0.5], [0.6, 0.2, 0.5], [0, 0.2, 0.55]],
+    6: [[0, -0.34, 0.5], [-0.38, -0.2, 0.52], [0.38, -0.24, 0.52], [-0.66, 0.24, 0.46], [0.66, 0.22, 0.46], [0, 0.2, 0.55]],
+  };
+  const BIRCH_LOBES = {
+    1: [[0, 0, 1]],
+    2: [[-0.1, -0.32, 0.72], [0.12, 0.22, 0.78]],
+    3: [[-0.12, -0.36, 0.66], [0.16, 0.08, 0.7], [-0.2, 0.38, 0.6]],
+  };
+
+  function levelOf(minutes) {
+    const level = Math.min(MAX_LEVEL, Math.floor(minutes / 60));
+    const frac = level >= MAX_LEVEL ? 0 : Math.min(1, Math.max(0, (minutes - level * 60) / 60));
+    return { level, frac };
+  }
+
+  // A value from a shape table, part of the way towards the next level.
+  function grownValue(table, level, frac, i) {
+    const a = table[level][i];
+    const b = table[Math.min(MAX_LEVEL, level + 1)][i];
+    return a + (b - a) * frac * 0.85;
+  }
+
+  // A single leaf: a pointed oval from (x, y) in direction a (radians, 0 = right).
+  function leafPath(x, y, a, len, wid) {
+    const ex = x + Math.cos(a) * len;
+    const ey = y + Math.sin(a) * len;
+    const nx = -Math.sin(a) * wid;
+    const ny = Math.cos(a) * wid;
+    const mx = (x + ex) / 2;
+    const my = (y + ey) / 2;
+    return `M${r1(x)} ${r1(y)}Q${r1(mx + nx)} ${r1(my + ny)} ${r1(ex)} ${r1(ey)}Q${r1(mx - nx)} ${r1(my - ny)} ${r1(x)} ${r1(y)}Z`;
+  }
+
+  // One mass of leaves: tufts around its edge, a filled middle, a few inner tufts with a
+  // dark lower rim, and a lit side towards the sun. Masses are drawn back to front, so the
+  // darker rim of each one shows against the one behind it.
+  function lobeMarkup(x0, y0, rx, ry, rnd, L, tone, snow) {
+    const ring = fineDetail ? 6 + Math.round(rx / 7) : 5 + Math.round(rx / 10);
+    const tuftR = Math.min(rx, ry) * 0.44;
+    const tufts = [];
+    for (let i = 0; i < ring; i++) {
+      const a = -Math.PI / 2 + (i / ring) * Math.PI * 2 + (rnd() - 0.5) * 0.3;
+      const d = 0.68 + rnd() * 0.1;
+      const sy = Math.sin(a) > 0 ? 0.86 : 1; // crowns are a little flatter underneath
+      const r = tuftR * (0.82 + rnd() * 0.32);
+      tufts.push([x0 + Math.cos(a) * rx * d, y0 + Math.sin(a) * ry * d * sy, r, r * 0.94]);
+    }
+    tufts.push([x0, y0, rx * 0.8, ry * 0.78]);
+    let shade = '';
+    let base = '';
+    let lit = '';
+    let snowD = '';
+    let top = y0;
+    for (const [x, y, ex, ey] of tufts) {
+      top = Math.min(top, y - ey);
+      shade += oval(x - ex * 0.14 * L, y + ey * (0.16 + 0.05 * (1 - Math.abs(L))), ex, ey);
+      base += oval(x, y, ex, ey);
+      if (ex < rx * 0.6 && (x - x0) * L - (y - y0) * 0.9 > rx * 0.05 && rnd() < 0.62) lit += oval(x + ex * 0.18 * L, y - ey * 0.22, ex * 0.52, ey * 0.5);
+      if (snow && y < y0 - ry * 0.2) snowD += oval(x, y - ey * 0.35, ex * 0.8, ey * 0.45);
+    }
+    let inner = '';
+    let innerTop = '';
+    const count = fineDetail ? 1 + Math.floor(rx / 14) : 0;
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + rnd() * 0.8;
+      const d = 0.2 + rnd() * 0.25;
+      const x = x0 + Math.cos(a) * rx * d;
+      const y = y0 + ry * 0.12 + Math.sin(a) * ry * d * 0.8;
+      const r = tuftR * (0.7 + rnd() * 0.25);
+      inner += oval(x - r * 0.08 * L, y + r * 0.2, r, r * 0.85);
+      innerTop += oval(x, y, r, r * 0.85);
+    }
+    const svg = `<path class="lshade${tone}" d="${shade}"/><path class="leaf${tone}" d="${base}"/>` +
+      (inner ? `<path class="lshade inner${tone}" d="${inner}"/><path class="leaf${tone}" d="${innerTop}"/>` : '') +
+      (lit ? `<path class="lhi${tone}" d="${lit}"/>` : '') + (snowD ? `<path class="snow" d="${snowD}"/>` : '');
+    return { svg, top };
+  }
+
+  function buildTree(minutes, key) {
+    const species = speciesFor(key);
+    if (species === 'tanne') return buildConifer(minutes, key);
+    if (species === 'birke') return buildBirch(minutes, key);
+    return buildBroadleaf(minutes, key, false);
+  }
+
+  function buildBroadleaf(minutes, key, birch) {
+    const table = birch ? BIRKE : LAUB;
+    const { level, frac } = levelOf(minutes);
     const own = key.indexOf('#gold') === -1;
     const rnd = mulberry32(hashStr(key));
     // Each tree gets one of three leaf tones; birches keep their own; golden trees stay gold.
-    const toneCls = !own ? '' : birch ? ' t2' : ' t' + (hashStr(key + '#tone') % 3);
-    const depth = DEPTHS[level];
-    const trunk = (birch ? 36 : 30) + 32 * growth;
-    const trunkW = (birch ? 5 : 7) + 4 * growth;
-    const taper = birch ? 0.6 : 0.64;
-    const widthAt = (lv) => Math.max(0.9, trunkW * Math.pow(taper, lv));
-    const tips = [];
-    let wood = '';
-    const twigs = [];
-    let minY = 214;
-
-    const grow = (x, y, ang, len, lv) => {
-      const x2 = x + Math.sin(ang) * len;
-      const y2 = y - Math.cos(ang) * len;
-      if (y2 < minY) minY = y2;
-      // Trunk and main branches taper; fine twigs are simple lines, grouped by thickness.
-      if (lv < 3) wood += band(x, y, x2, y2, widthAt(lv), widthAt(lv + 1));
-      else if (lv < 5) (twigs[lv] = twigs[lv] || []).push(`M${r1(x)} ${r1(y)}L${r1(x2)} ${r1(y2)}`);
-      if (lv === depth) {
-        tips.push([x2, y2]);
-        return;
-      }
-      const kids = lv === 0 ? 2 : (rnd() < 0.3 ? 3 : 2);
-      const spread = 0.45 + rnd() * 0.3;
-      for (let i = 0; i < kids; i++) {
-        const off = kids === 2 ? (i === 0 ? -spread : spread) : (i - 1) * spread * 0.85;
-        // Keep branches pointing upward, so crowns stay round instead of drooping.
-        const a = Math.max(-0.9, Math.min(0.9, ang + off + (rnd() - 0.5) * 0.3));
-        grow(x2, y2, a, len * (0.64 + rnd() * 0.1), lv + 1);
-      }
-    };
-    grow(100, 214, 0, trunk, 0);
-
-    // The trunk: shade on the side away from the sun, bark lines or birch marks.
-    const w0 = widthAt(0);
-    const w1 = widthAt(1);
-    const tTop = 214 - trunk;
+    const tone = !own ? '' : birch ? ' t2' : ' t' + (hashStr(key + '#tone') % 3);
     const L = lightDir();
-    const away = L > 0 ? -1 : L < 0 ? 1 : -1; // shade side of the trunk
-    let trunkDetail = `<path class="wood-shade" d="M${r1(100 + away * w0 / 2)} 214L${r1(100 + away * w1 / 2)} ${r1(tTop)}` +
-      `L${r1(100 + away * w1 * 0.08)} ${r1(tTop)}L${r1(100 + away * w0 * 0.08)} 214Z"/>`;
-    if (birch) {
-      let m = '';
-      const marks = 3 + Math.floor(level / 2);
-      for (let i = 0; i < marks; i++) {
-        const t = 0.12 + (i + rnd() * 0.6) / marks * 0.8;
-        const yy = 214 - trunk * t;
-        const w = w0 + (w1 - w0) * t;
-        const from = rnd() < 0.5 ? -w * 0.5 : -w * 0.1;
-        m += `M${r1(100 + from)} ${r1(yy)}h${r1(w * (0.3 + rnd() * 0.3))}`;
-      }
-      trunkDetail += `<path class="birch-mark" d="${m}"/>`;
-    } else if (level >= 2) {
-      trunkDetail += `<path class="bark-line" d="M${r1(100 + w0 * 0.12)} 209Q${r1(100 + w0 * 0.2)} ${r1(214 - trunk * 0.45)} ${r1(100 + w1 * 0.1)} ${r1(214 - trunk * 0.8)}` +
-        `M${r1(100 - w0 * 0.2)} 203Q${r1(100 - w0 * 0.15)} ${r1(214 - trunk * 0.35)} ${r1(100 - w1 * 0.2)} ${r1(214 - trunk * 0.6)}"/>`;
-    }
-
-    // The crown: a round cloud of leaves, lit from the upper right (where the sun stands),
-    // with a darker rim on the lower left.
-    const leafR = 3.4 + level * 0.45;
+    const snow = own && seasonNow() === 'winter';
+    const vary = 0.94 + rnd() * 0.12;
+    const h = grownValue(table, level, frac, 0) * vary;
+    const rx = grownValue(table, level, frac, 1) * vary;
+    const ry = grownValue(table, level, frac, 2) * vary;
+    const w = grownValue(table, level, frac, 3);
+    const masses = table[level][4];
+    const away = L > 0 ? -1 : L < 0 ? 1 : -1; // the shaded side of the trunk
+    const lean = (rnd() - 0.5) * 6;
+    let top = 214 - h;
+    let half = 16;
+    let wood = '';
+    let woodExtra = '';
+    let twigs = '';
     let crown = '';
-    if (tips.length) {
-      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-      for (const [x, y] of tips) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
-      const ccx = (x0 + x1) / 2;
-      const rx = ((x1 - x0) / 2 * 0.85 + leafR * 0.6) * (birch ? 0.8 : 1);
-      const ry = Math.max((y1 - y0) / 2 + leafR, rx * (birch ? 1.15 : 0.72));
-      const ccy = y0 + ry * 0.55;
-      const blobs = [];
-      const count = 6 + level * 2;
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2 + rnd() * 0.5;
-        const d = 0.35 + rnd() * 0.55;
-        const r = Math.max(leafR * (1.5 + rnd() * 0.9), rx * (0.3 + rnd() * 0.12));
-        blobs.push([ccx + Math.cos(a) * rx * d, ccy + Math.sin(a) * ry * d, r, r]);
+    let front = '';
+    let stake = '';
+
+    // Trunk shade on the side away from the light.
+    const trunkShade = (x0, y0, x1, y1, w0, w1) =>
+      `<path class="wood-shade" d="M${r1(x0 + away * w0 / 2)} ${r1(y0)}L${r1(x1 + away * w1 / 2)} ${r1(y1)}` +
+      `L${r1(x1 + away * w1 * 0.08)} ${r1(y1)}L${r1(x0 + away * w0 * 0.08)} ${r1(y0)}Z"/>`;
+
+    if (level === 0) {
+      // Setzling: a thin, slightly bent stem with leaves on alternate sides and two at the tip.
+      const bend = (rnd() - 0.5) * 10;
+      const p = (t) => [100 + 2 * (1 - t) * t * bend + t * t * bend * 0.4, 214 - h * t];
+      woodExtra += `<path class="sprout-stem" d="M100 214Q${r1(100 + bend)} ${r1(214 - h * 0.5)} ${r1(100 + bend * 0.4)} ${r1(214 - h)}" stroke-width="${r1(w)}"/>`;
+      let leaves = '';
+      let dark = '';
+      const n = birch ? 5 : 4;
+      for (let i = 0; i < n; i++) {
+        const t = 0.32 + (i / n) * 0.58;
+        const [x, y] = p(t);
+        const side = i % 2 ? 1 : -1;
+        const a = side > 0 ? -0.45 - rnd() * 0.3 : Math.PI + 0.45 + rnd() * 0.3;
+        const len = (birch ? 7 : 10) * (0.8 + t * 0.4);
+        const d = leafPath(x, y, a, len, len * 0.36);
+        if ((side > 0) === (L >= 0)) leaves += d; else dark += d;
       }
-      blobs.push([ccx, ccy, rx * 0.8, ry * 0.75]);
-      let shade = '';
-      let base = '';
-      let lit = '';
-      for (const [x, y, ex, ey] of blobs) {
-        if (y - ey < minY) minY = y - ey;
-        shade += oval(x - ex * 0.18 * L, y + ey * (0.2 + 0.06 * (1 - Math.abs(L))), ex, ey);
-        base += oval(x, y, ex, ey);
-        if ((x - ccx) * L - (y - ccy) * 0.8 > rx * 0.05) lit += oval(x + ex * 0.2 * L, y - ey * 0.24, ex * 0.5, ey * 0.5);
+      const [tx, ty] = p(1);
+      leaves += leafPath(tx, ty, -Math.PI / 2 - 0.5, 8, 3) + leafPath(tx, ty, -Math.PI / 2 + 0.5, 8, 3);
+      front += `<path class="lshade${tone}" d="${dark}"/><path class="leaf${tone}" d="${leaves}"/>`;
+      top = 214 - h - 8;
+      half = 16;
+    } else if (level === 1 && !birch) {
+      // Bäumchen: a thin trunk, three small tufts on visible twigs, tied to a stake.
+      const forkY = 214 - h * 0.5;
+      wood += band(100, 214, 100 + lean * 0.3, forkY, w, w * 0.75);
+      const spots = [[-0.8, 0.62], [0.05, 0.9], [0.82, 0.7]];
+      const masses1 = [];
+      for (const [dx, t] of spots) {
+        const x = 100 + dx * rx * 1.2 + (rnd() - 0.5) * 3;
+        const y = 214 - h * t;
+        woodExtra += `<path class="twig-line" d="M${r1(100 + lean * 0.3)} ${r1(forkY)}Q${r1(100 + dx * rx * 0.4)} ${r1(y + 6)} ${r1(x)} ${r1(y)}" stroke-width="${r1(w * 0.45)}"/>`;
+        masses1.push([x, y, rx * (0.52 + rnd() * 0.1), rx * (0.46 + rnd() * 0.08)]);
       }
-      crown = `<g class="crown"><path class="lshade${toneCls}" d="${shade}"/><path class="leaf${toneCls}" d="${base}"/>` +
-        (lit ? `<path class="lhi${toneCls}" d="${lit}"/>` : '') + '</g>';
+      masses1.sort((a, b) => a[1] - b[1]);
+      for (const [x, y, ex, ey] of masses1) {
+        const m = lobeMarkup(x, y, ex, ey, rnd, L, tone, snow);
+        crown += m.svg;
+        top = Math.min(top, m.top);
+        half = Math.max(half, Math.abs(x - 100) + ex * 1.1);
+      }
+      stake = `<path class="stake" d="M93 216V${r1(214 - h * 0.6)}"/><path class="tie" d="M93 ${r1(214 - h * 0.42)}L${r1(100 + lean * 0.1)} ${r1(214 - h * 0.4)}"/>`;
+      woodExtra += trunkShade(100, 214, 100 + lean * 0.3, forkY, w, w * 0.75);
+    } else {
+      // A tree with a real crown: one or more leaf masses above a trunk.
+      const cx = 100 + lean;
+      const cy = 214 - h + ry;
+      const crownBottom = cy + ry * (birch ? 0.95 : 1.1); // where the leaves end at the bottom
+      wood += band(100, 214, cx, cy, w, w * 0.6);
+      woodExtra += trunkShade(100, 214, 100 + (cx - 100) * 0.7, crownBottom, w, w * 0.7);
+      // Leaf masses, from the back (top) to the front (bottom).
+      let list;
+      if (birch) list = BIRCH_LOBES[masses].map(([dx, dy, s]) => [cx + dx * rx, cy + dy * ry, rx * s * 1.2, ry * s * 0.75]);
+      else if (masses === 1) list = [[cx, cy, rx, ry]];
+      else {
+        list = [[cx, cy + ry * 0.05, rx * 0.72, ry * 0.62]].concat(
+          LOBES[masses].map(([dx, dy, s]) => [cx + dx * rx + (rnd() - 0.5) * rx * 0.08, cy + dy * ry + (rnd() - 0.5) * ry * 0.08,
+            rx * s * 1.15 * (0.92 + rnd() * 0.16), ry * s * 1.25 * (0.92 + rnd() * 0.16)]));
+      }
+      // Old broadleaf trees reach out with one long side branch.
+      if (!birch && level >= 7) {
+        const side = rnd() < 0.5 ? -1 : 1;
+        const bx = cx + side * rx * 1.08;
+        const by = crownBottom - ry * 0.28;
+        wood += band(cx + side * w * 0.2, crownBottom + 2, bx, by, w * 0.42, w * 0.2);
+        list.push([bx, by - 2, rx * 0.3, ry * 0.32]);
+      }
+      // Birches grow a second stem when they are old.
+      if (birch && level >= 7) {
+        const tx = cx + rx * 0.85;
+        const ty = cy + ry * 0.1;
+        wood += band(104, 214, tx, ty, w * 0.66, w * 0.4);
+        list.push([tx, ty - ry * 0.12, rx * 0.62, ry * 0.5]);
+        let m2 = '';
+        for (let i = 0; i < 4; i++) {
+          const t = 0.12 + i * 0.2 + rnd() * 0.05;
+          const x = 104 + (tx - 104) * t;
+          const y = 214 + (ty - 214) * t;
+          m2 += `M${r1(x - w * 0.3)} ${r1(y)}h${r1(w * 0.3)}`;
+        }
+        woodExtra += `<path class="birch-mark" d="${m2}"/>`;
+      }
+      // Main limbs: the fork shows below the crown from level 4 on.
+      if (!birch && level >= 4) {
+        const forkY = crownBottom + 3 + level * 1.4;
+        const fx = 100 + (cx - 100) * ((214 - forkY) / (214 - cy));
+        const targets = masses === 1 ? [[cx - rx * 0.45, cy + ry * 0.15], [cx + rx * 0.45, cy + ry * 0.1]] : list.slice(1).map(([x, y]) => [x, y]);
+        for (const [x, y] of targets) wood += band(fx, forkY, x, y, w * 0.6, w * 0.26);
+      }
+      // Short twig ends peeking out under young crowns.
+      if (masses === 1 && !birch) {
+        const n = 2 + level;
+        let d = '';
+        for (let k = 0; k < n; k++) {
+          const a = Math.PI * (0.12 + 0.76 * (k + rnd() * 0.6) / n);
+          d += `M${r1(cx + Math.cos(a) * rx * 0.62)} ${r1(cy + Math.sin(a) * ry * 0.62)}L${r1(cx + Math.cos(a) * rx * 1.06)} ${r1(cy + Math.sin(a) * ry * 1.03)}`;
+        }
+        twigs = `<path class="twig-line" d="${d}" stroke-width="${r1(Math.max(1, w * 0.2))}"/>`;
+      }
+      list.sort((a, b) => a[1] - b[1]);
+      for (const [x, y, ex, ey] of list) {
+        const m = lobeMarkup(x, y, ex, ey, rnd, L, tone, snow);
+        crown += m.svg;
+        top = Math.min(top, m.top);
+        half = Math.max(half, Math.abs(x - 100) + ex * 1.12);
+      }
+      // Hanging birch twigs with small leaves.
+      if (birch && level >= 4) {
+        let hang = '';
+        let dots = '';
+        const n = 2 + level * 1.5;
+        const [mx, my, mex, mey] = list[list.length - 1];
+        for (let k = 0; k < n; k++) {
+          const right = k % 2 ? 1 : -1;
+          const a = right > 0 ? 0.25 + rnd() * 0.9 : Math.PI - 0.25 - rnd() * 0.9;
+          const sx = mx + Math.cos(a) * mex * 0.82;
+          const sy = my + Math.sin(a) * mey * 0.82;
+          const len = 10 + rnd() * 8 + level;
+          const ex = sx + right * (3 + rnd() * 3);
+          const ey = sy + len;
+          hang += `M${r1(sx)} ${r1(sy)}Q${r1(sx + right * 6)} ${r1(sy + len * 0.4)} ${r1(ex)} ${r1(ey)}`;
+          for (let j = 1; j <= 5; j++) {
+            const t = j / 5.2;
+            const side = j % 2 ? 1 : -1;
+            dots += leafPath(sx + (ex - sx) * t, sy + len * t, Math.PI / 2 + side * 0.9, 3.2, 1.2);
+          }
+        }
+        front += `<path class="hang${tone}" d="${hang}"/><path class="leaf${tone}" d="${dots}"/>`;
+      }
+      // Bark: lines on broadleaf trees, black marks on birches, a dark foot on old birches.
+      const tTop = crownBottom - 2;
+      const th = 214 - tTop;
+      if (birch) {
+        let m = '';
+        const marks = 4 + level;
+        for (let i = 0; i < marks; i++) {
+          const t = 0.08 + (i + rnd() * 0.6) / marks * 0.88;
+          const x = 100 + (cx - 100) * t;
+          const y = 214 - th * t;
+          const ww = w + (w * 0.6 - w) * t;
+          const from = rnd() < 0.5 ? -ww * 0.5 : -ww * 0.1;
+          m += `M${r1(x + from)} ${r1(y)}h${r1(ww * (0.3 + rnd() * 0.3))}`;
+        }
+        woodExtra += `<path class="birch-mark" d="${m}"/>`;
+        if (level >= 6) woodExtra += `<path class="birch-foot" d="M${r1(100 - w / 2)} 214L${r1(100 - w * 0.47)} ${r1(214 - th * 0.18)}Q100 ${r1(214 - th * 0.24)} ${r1(100 + w * 0.47)} ${r1(214 - th * 0.17)}L${r1(100 + w / 2)} 214Z"/>`;
+      } else if (level >= 2) {
+        let d = '';
+        const lines = Math.min(5, level - 1);
+        for (let i = 0; i < lines; i++) {
+          const ox = (i / Math.max(1, lines - 1) - 0.5) * w * 0.6;
+          const y0 = 211 - rnd() * 6;
+          const y1 = 214 - th * (0.55 + rnd() * 0.35);
+          d += `M${r1(100 + ox)} ${r1(y0)}Q${r1(100 + ox * 1.2 + (rnd() - 0.5) * 2)} ${r1((y0 + y1) / 2)} ${r1(100 + (cx - 100) * 0.5 + ox * 0.7)} ${r1(y1)}`;
+        }
+        woodExtra += `<path class="bark-line" d="${d}"/>`;
+      }
+      // Old broadleaf trees: a knothole, and moss on the shaded foot.
+      if (!birch && level >= 6) {
+        const ky = 214 - th * 0.55;
+        const kx = 100 + (cx - 100) * 0.55 + away * w * 0.12;
+        woodExtra += `<ellipse class="knot-rim" cx="${r1(kx)}" cy="${r1(ky)}" rx="${r1(w * 0.2)}" ry="${r1(w * 0.3)}"/>` +
+          `<ellipse class="knot" cx="${r1(kx)}" cy="${r1(ky + 0.6)}" rx="${r1(w * 0.12)}" ry="${r1(w * 0.2)}"/>`;
+      }
+      if (!birch && level >= 7) {
+        // Flat, uneven cushions of moss around the foot, mostly on the shaded side,
+        // and a small patch a little higher up the trunk.
+        let moss = '';
+        for (let i = 0; i < 5; i++) {
+          const x = 100 + away * w * (-0.2 + i * 0.22) + (rnd() - 0.5) * 2;
+          moss += oval(x, 213.2 - rnd() * 1.4, 2.4 + rnd() * 2.2, 1 + rnd() * 0.7);
+        }
+        moss += oval(100 + away * w * 0.3, 213 - (214 - crownBottom) * 0.22, w * 0.16, 1.2);
+        woodExtra += `<path class="moss" d="${moss}"/>`;
+      }
+      // Young trees still lean on a stake.
+      if (birch && level <= 2) {
+        stake = `<path class="stake" d="M94 216V${r1(214 - h * 0.55)}"/><path class="tie" d="M94 ${r1(214 - h * 0.4)}L${r1(100 + lean * 0.3)} ${r1(214 - h * 0.39)}"/>`;
+      }
     }
 
-    // Leaves at the branch tips give the crown edge some texture; snow sits on them in winter.
-    let leafD = '';
-    let litD = '';
-    let snowD = '';
-    // At most about 24 tips get leaves; more would hide under the crown anyway.
-    // Snow is only drawn in winter.
-    const every = Math.max(depth > 4 ? 2 : 1, Math.ceil(tips.length / 24));
-    const winter = own && seasonNow() === 'winter';
-    tips.forEach(([x, y], i) => {
-      if (i % every) return;
-      if (winter) snowD += oval(x, y - 3, leafR * 1.7, leafR * 1.7);
-      const n = depth >= 3 && depth < 5 ? 2 : 1;
-      for (let k = 0; k < n; k++) {
-        const jx = (rnd() - 0.5) * (9 + level);
-        const jy = (rnd() - 0.5) * 7 - 1;
-        const rr = leafR + rnd() * 2.4;
-        if (rnd() < 0.35) litD += oval(x + jx, y + jy, rr, rr);
-        else leafD += oval(x + jx, y + jy, rr, rr);
-      }
-    });
-    const leaves = (leafD ? `<path class="leaf${toneCls}" d="${leafD}"/>` : '') +
-      (litD ? `<path class="lhi${toneCls}" d="${litD}"/>` : '');
+    // Roots: a flare at the foot; the oldest trees stand on buttress roots.
+    let roots = level >= 1 ? rootMarkup(level >= 6 ? w * 1.15 : w) : '';
+    if (!birch && level >= 8) {
+      roots += `<path class="wood" d="M${r1(100 - w * 0.4)} 205Q${r1(100 - w * 0.9)} 212 ${r1(100 - w * 1.7)} 215.2L${r1(100 - w * 0.2)} 215.2Z` +
+        `M${r1(100 + w * 0.4)} 206Q${r1(100 + w * 0.95)} 212.5 ${r1(100 + w * 1.6)} 215.2L${r1(100 + w * 0.2)} 215.2Z"/>`;
+    }
 
-    return `<g data-top="${r1(minY - 18)}"${birch ? ' class="birch"' : ''}>` +
-      shadowMarkup(58) +
-      crown + (snowD ? `<path class="snow" d="${snowD}"/>` : '') +
-      `<g class="wood-g"><path class="wood" d="${wood}"/>${rootMarkup(w0)}${trunkDetail}` +
-      twigs.map((segs, lv) => segs ? `<path class="twig-line" d="${segs.join('')}" stroke-width="${r1(Math.max(0.9, (widthAt(lv) + widthAt(lv + 1)) / 2))}"/>` : '').join('') +
-      `</g>${leaves}</g>`;
+    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}"${birch ? ' class="birch"' : ''}>` +
+      shadowMarkup(level === 0 ? 12 : Math.min(62, 14 + rx)) + stake +
+      `<g class="wood-g">${wood ? `<path class="wood" d="${wood}"/>` : ''}${roots}${woodExtra}${twigs}</g>` +
+      crown + front + `</g>`;
   }
 
-  // A fir: stacked tiers of needles that grow taller and wider with every level.
-  // It stays green all year; in winter each tier carries snow.
-  function buildConifer(key, level, growth) {
+  // A birch: a white trunk that runs up to the very top, thin branches that rise and
+  // then arch down at their ends, small airy leaf clusters along them and fine strands
+  // of leaves hanging from the tips. Sky shows between the clusters.
+  function buildBirch(minutes, key) {
+    const { level, frac } = levelOf(minutes);
+    const own = key.indexOf('#gold') === -1;
     const rnd = mulberry32(hashStr(key));
-    const h = 66 + 140 * growth;
-    const top = 214 - h;
-    const trunkVis = Math.max(8, h * 0.14);
-    const crownBottom = 214 - trunkVis;
-    const tiers = 3 + Math.min(4, Math.floor(level / 2));
-    const step = (crownBottom - top) / (0.75 * tiers + 0.5);
-    const maxHalf = 18 + 32 * growth;
-    const w = 5 + 3 * growth;
-    let needles = '';
+    const tone = ' t2';
+    const L = lightDir();
+    const snow = own && seasonNow() === 'winter';
+    const vary = 0.94 + rnd() * 0.12;
+    const h = grownValue(BIRKE, level, frac, 0) * vary;
+    const reach = grownValue(BIRKE, level, frac, 1) * vary * 1.15;
+    const w = grownValue(BIRKE, level, frac, 3);
+    const away = L > 0 ? -1 : L < 0 ? 1 : -1;
+    const bend = (rnd() - 0.5) * (4 + level);
+
+    // The trunk: a gentle curve from the foot to the tip.
+    const stemAt = (t) => [100 + bend * Math.sin(t * Math.PI * 0.9) + t * bend * 0.3, 214 - h * t];
+
+    let wood = '';
+    let woodExtra = '';
+    let branches = '';
+    let shade = '';
+    let base = '';
+    let lit = '';
+    let hang = '';
+    let hangLeaves = '';
+    let snowD = '';
+    let top = 214 - h;
+    let half = 10;
+
+    // A small, loose cluster of leaves; all clusters of a tree share one set of paths.
+    const cluster = (x, y, r) => {
+      // A rounded, uneven clump: a middle and a few smaller leaf groups around it.
+      const parts = [[0, 0, 0.86]];
+      const n = fineDetail ? 3 + Math.floor(rnd() * 3) : 2 + Math.floor(rnd() * 2);
+      const turn = rnd() * Math.PI * 2;
+      for (let k = 0; k < n; k++) {
+        const a = turn + (k / n) * Math.PI * 2 + (rnd() - 0.5) * 0.6;
+        parts.push([Math.cos(a) * 0.62, Math.sin(a) * 0.55, 0.5 + rnd() * 0.22]);
+      }
+      for (const [dx, dy, s] of parts) {
+        const px = x + dx * r;
+        const py = y + dy * r;
+        const pr = r * s * (0.9 + rnd() * 0.2);
+        shade += oval(px - pr * 0.18 * L, py + pr * 0.26, pr, pr * 0.85);
+        base += oval(px, py, pr, pr * 0.85);
+        if (snow && dy <= 0) snowD += oval(px, py - pr * 0.4, pr * 0.8, pr * 0.4);
+      }
+      if (fineDetail || rnd() < 0.5) lit += oval(x + r * 0.28 * L, y - r * 0.32, r * 0.42, r * 0.36);
+      top = Math.min(top, y - r * 1.2);
+      half = Math.max(half, Math.abs(x - 100) + r * 1.3);
+    };
+
+    // A strand of small leaves hanging down from (x, y).
+    const strand = (x, y, len, side) => {
+      const ex = x + side * (1.5 + rnd() * 2);
+      const ey = y + len;
+      hang += `M${r1(x)} ${r1(y)}Q${r1(x + side * 2.5)} ${r1(y + len * 0.45)} ${r1(ex)} ${r1(ey)}`;
+      const n = Math.max(3, Math.round(len / (fineDetail ? 3.4 : 5)));
+      for (let j = 1; j <= n; j++) {
+        const t = j / (n + 0.2);
+        const s = j % 2 ? 1 : -1;
+        hangLeaves += leafPath(x + (ex - x) * t, y + len * t, Math.PI / 2 + s * 0.95, 2.8 + level * 0.12, 1.1 + level * 0.05);
+      }
+      half = Math.max(half, Math.abs(ex - 100) + 3);
+    };
+
+    // One branch: rises from the trunk, arches out and down, leaves along its outer part.
+    const branch = (x0, y0, side, len, droop, thick) => {
+      const cx = x0 + side * len * 0.5;
+      const cy = y0 - len * 0.55;
+      const ex = x0 + side * len;
+      const ey = y0 - len * 0.28 + droop;
+      branches += `M${r1(x0)} ${r1(y0)}Q${r1(cx)} ${r1(cy)} ${r1(ex)} ${r1(ey)}`;
+      const at = (t) => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * ex, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * ey];
+      const r = (3 + level * 0.46) * (0.85 + rnd() * 0.3);
+      // Leaves hang a little below the branch, more of them towards its end.
+      const spots = !fineDetail ? (level >= 4 ? [0.5, 0.72, 0.95] : [0.6, 0.95]) : level >= 4 ? [0.38, 0.58, 0.76, 0.94] : [0.5, 0.75, 0.97];
+      for (const t of spots) {
+        const [x, y] = at(t);
+        cluster(x + (rnd() - 0.5) * 3, y + r * (0.35 + rnd() * 0.45), r * (0.75 + t * 0.35) * (0.85 + rnd() * 0.3));
+      }
+      if (level >= 3) {
+        const strands = level >= 6 && fineDetail ? 2 : 1;
+        for (let k = 0; k < strands; k++) strand(ex - side * k * 3, ey + r * 0.6, 6 + level * 1.6 + rnd() * 5, side);
+      }
+      half = Math.max(half, Math.abs(ex - 100) + r);
+      return thick;
+    };
+
+    if (level === 0) {
+      // A thin white whip with leaves on alternate sides.
+      woodExtra += `<path class="sprout-stem" d="M100 214Q${r1(100 + bend)} ${r1(214 - h * 0.5)} ${r1(100 + bend * 0.4)} ${r1(214 - h)}" stroke-width="${r1(w)}"/>`;
+      let leaves = '';
+      for (let i = 0; i < 5; i++) {
+        const t = 0.32 + (i / 5) * 0.62;
+        const x = 100 + 2 * (1 - t) * t * bend + t * t * bend * 0.4;
+        const y = 214 - h * t;
+        const side = i % 2 ? 1 : -1;
+        leaves += leafPath(x, y, side > 0 ? -0.5 - rnd() * 0.3 : Math.PI + 0.5 + rnd() * 0.3, 6 + t * 3, 2.4);
+      }
+      base += leaves;
+      top = 214 - h - 6;
+      half = 14;
+    } else {
+      // Trunk, thinner towards the top, running into the crown up to the tip.
+      const segs = 6;
+      for (let i = 0; i < segs; i++) {
+        const [x0, y0] = stemAt(i / segs);
+        const [x1, y1] = stemAt((i + 1) / segs);
+        wood += band(x0, y0, x1, y1, w * (1 - i / segs * 0.75), w * (1 - (i + 1) / segs * 0.75));
+      }
+      // Branches from the bare lower trunk up to the tip, on alternating sides;
+      // the longest a little below the middle of the crown, so the crown is a tall oval.
+      const bare = h * (0.36 + level * 0.014);
+      const count = 3 + Math.round(level * 1.3);
+      const first = rnd() < 0.5 ? -1 : 1;
+      for (let i = 0; i < count; i++) {
+        const t = (bare / h) + (1 - bare / h) * (i + 0.4) / count * 0.94;
+        const [x0, y0] = stemAt(t);
+        const side = i % 2 ? first : -first;
+        const shape = Math.sin(Math.PI * Math.min(1, (t - bare / h) / (1 - bare / h) * 0.9 + 0.15));
+        const len = reach * (0.45 + 0.6 * shape) * (0.85 + rnd() * 0.3);
+        const droop = level * 1.4 * (0.6 + rnd() * 0.6);
+        branch(x0, y0, side, len, droop);
+        // Dark "eyes" where branches leave the trunk.
+        if (level >= 3 && t < 0.8) {
+          const ww = w * (1 - t * 0.75);
+          woodExtra += `<path class="birch-eye" d="M${r1(x0 - side * ww * 0.1)} ${r1(y0 + 1)}l${r1(side * ww * 0.45)} -1.6l${r1(-side * ww * 0.1)} 3.2Z"/>`;
+        }
+      }
+      // Leaves around the tip.
+      const [tx, ty] = stemAt(1);
+      cluster(tx, ty + 2, 2.8 + level * 0.4);
+      cluster(tx + (rnd() - 0.5) * 4, ty + 6 + level * 0.6, 2.6 + level * 0.4);
+
+      // An old birch grows a second, thinner stem beside the first.
+      if (level >= 7) {
+        const lean2 = reach * 0.55;
+        const h2 = h * 0.82;
+        const at2 = (t) => [104 + lean2 * t * t, 214 - h2 * t];
+        for (let i = 0; i < 4; i++) {
+          const [x0, y0] = at2(i / 4);
+          const [x1, y1] = at2((i + 1) / 4);
+          wood += band(x0, y0, x1, y1, w * 0.62 * (1 - i / 4 * 0.7), w * 0.62 * (1 - (i + 1) / 4 * 0.7));
+        }
+        for (let i = 0; i < 5; i++) {
+          const t = 0.5 + i * 0.1;
+          const [x0, y0] = at2(t);
+          branch(x0, y0, i % 2 ? 1 : -1, reach * (0.4 + 0.25 * Math.sin(Math.PI * (i + 1) / 6)), level);
+        }
+        let m2 = '';
+        for (let i = 0; i < 5; i++) {
+          const [x, y] = at2(0.1 + i * 0.16);
+          m2 += `M${r1(x - w * 0.25)} ${r1(y)}h${r1(w * 0.3)}`;
+        }
+        woodExtra += `<path class="birch-mark" d="${m2}"/>`;
+      }
+
+      // Black marks across the white bark; a dark, furrowed foot on older birches.
+      let m = '';
+      const marks = 5 + level * 1.5;
+      for (let i = 0; i < marks; i++) {
+        const t = 0.06 + (i + rnd() * 0.6) / marks * 0.72;
+        const [x, y] = stemAt(t);
+        const ww = w * (1 - t * 0.75);
+        const from = rnd() < 0.5 ? -ww * 0.5 : -ww * 0.15;
+        m += `M${r1(x + from)} ${r1(y)}h${r1(ww * (0.25 + rnd() * 0.35))}`;
+      }
+      woodExtra += `<path class="birch-mark" d="${m}"/>`;
+      woodExtra += `<path class="wood-shade" d="M${r1(100 + away * w / 2)} 214L${r1(stemAt(0.7)[0] + away * w * 0.2)} ${r1(stemAt(0.7)[1])}` +
+        `L${r1(stemAt(0.7)[0])} ${r1(stemAt(0.7)[1])}L100 214Z"/>`;
+      // Old birches: low, dark, cracked bark at the foot, with an uneven upper edge.
+      if (level >= 5) {
+        const fh = 5 + (level - 5) * 2.5 + rnd() * 2;
+        let edge = '';
+        const steps = 6;
+        for (let k = 0; k <= steps; k++) {
+          const x = 100 - w * 0.52 + (k / steps) * w * 1.04;
+          const y = 214 - fh * (k % 2 ? 0.55 + rnd() * 0.3 : 0.85 + rnd() * 0.3);
+          edge += `L${r1(x)} ${r1(y)}`;
+        }
+        let cracks = '';
+        for (let k = 0; k < 3; k++) {
+          const x = 100 - w * 0.3 + k * w * 0.3 + (rnd() - 0.5) * 1;
+          cracks += `M${r1(x)} 213.5L${r1(x + (rnd() - 0.5) * 1.2)} ${r1(214 - fh * (0.35 + rnd() * 0.3))}`;
+        }
+        woodExtra += `<path class="birch-foot" d="M${r1(100 - w * 0.54)} 214.6${edge}L${r1(100 + w * 0.54)} 214.6Z"/>` +
+          `<path class="birch-crack" d="${cracks}"/>`;
+      }
+      // Young birches lean on a stake.
+      if (level <= 2) {
+        woodExtra += `<path class="stake" d="M94 216V${r1(214 - h * 0.55)}"/><path class="tie" d="M94 ${r1(214 - h * 0.4)}L${r1(stemAt(0.4)[0])} ${r1(stemAt(0.4)[1])}"/>`;
+      }
+    }
+
+    const thin = r1(Math.max(0.7, w * 0.17));
+    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="birch">` +
+      shadowMarkup(level === 0 ? 10 : 12 + reach * 0.8) +
+      `<g class="wood-g">${wood ? `<path class="wood" d="${wood}"/>` : ''}${level >= 1 ? rootMarkup(w) : ''}${woodExtra}` +
+      (branches ? `<path class="birch-branch" d="${branches}" stroke-width="${thin}"/>` : '') + `</g>` +
+      (hang ? `<path class="hang${tone}" d="${hang}"/>` : '') +
+      `<path class="lshade${tone}" d="${shade}"/><path class="leaf${tone}" d="${base}"/>` +
+      (lit ? `<path class="lhi${tone}" d="${lit}"/>` : '') +
+      (hangLeaves ? `<path class="leaf${tone}" d="${hangLeaves}"/>` : '') +
+      (snowD ? `<path class="snow" d="${snowD}"/>` : '') + `</g>`;
+  }
+
+  // A fir: stacked tiers of needles. It stays green all year; in winter each tier
+  // carries snow. Older firs get jagged needle edges, cones, a bare lower trunk,
+  // a broken branch stub and finally a leading shoot.
+  function buildConifer(minutes, key) {
+    const { level, frac } = levelOf(minutes);
+    const rnd = mulberry32(hashStr(key));
+    const own = key.indexOf('#gold') === -1;
+    const h = grownValue(TANNE, level, frac, 0) * (0.94 + rnd() * 0.12);
+    const maxHalf = grownValue(TANNE, level, frac, 1) * (0.94 + rnd() * 0.12);
+    const tiers = TANNE[level][2];
+    const w = grownValue(TANNE, level, frac, 3);
     const L = lightDir();
     const sd = L < 0 ? 1 : -1; // the shaded half of each tier
+    const top = 214 - h;
+    const bare = level >= 6 ? h * 0.24 : level >= 3 ? h * 0.14 : h * 0.1;
+    const crownBottom = 214 - bare;
+    const step = (crownBottom - top) / (0.75 * tiers + 0.5);
+    const teeth = level >= 2 ? 3 + Math.floor(level / 3) : 0;
+    const young = level <= 1 ? ' young' : '';
+    let needles = '';
     // Bottom tier first, so each tier above overlaps the one below.
     for (let i = tiers - 1; i >= 0; i--) {
       const yT = top + i * step * 0.75;
       const yB = yT + step * 1.25;
-      const hw = maxHalf * (0.3 + 0.7 * (i + 1) / tiers) * (0.95 + rnd() * 0.1);
+      const hw = maxHalf * (0.3 + 0.7 * (i + 1) / tiers) * (0.93 + rnd() * 0.14);
       const dip = step * 0.22;
+      // Outline: right tip, a jagged lower edge, left tip.
+      const pts = [[100 + hw, yB + 1.5]];
+      if (teeth) {
+        for (let j = 1; j < teeth * 2; j++) {
+          const x = 100 + hw - (j / (teeth * 2)) * 2 * hw;
+          pts.push([x, j % 2 ? yB - dip * 1.1 : yB - dip * 0.1 + (rnd() - 0.5) * 1.6]);
+        }
+      } else {
+        pts.push([100, yB - dip]);
+      }
+      pts.push([100 - hw, yB + 1.5]);
+      const line = (list) => list.map(([x, y]) => `L${r1(x)} ${r1(y)}`).join('');
+      needles += `<path class="needle${young}" d="M100 ${r1(yT)}${line(pts)}Z"/>`;
+      // The shaded half: from the apex out to its tip, back along the jagged edge to the middle.
+      const shadeSide = pts.filter(([x]) => (x - 100) * sd > 0.5);
+      if (sd < 0) shadeSide.reverse();
+      needles += `<path class="needle-shade" d="M100 ${r1(yT)}${line(shadeSide)}L100 ${r1(yB - dip * 0.6)}Z"/>`;
+      needles += `<path class="needle-hi" d="M100 ${r1(yT + 2)}L${r1(100 - sd * hw * 0.82)} ${r1(yB - 0.5)}L${r1(100 - sd * hw * 0.56)} ${r1(yB - dip * 0.7)}Z"/>`;
       const yS = yT + (yB - yT) * 0.55;
-      needles += `<path class="needle" d="M100 ${r1(yT)}L${r1(100 + hw)} ${r1(yB)}Q100 ${r1(yB - dip)} ${r1(100 - hw)} ${r1(yB)}Z"/>` +
-        `<path class="needle-shade" d="M100 ${r1(yT)}L${r1(100 + sd * hw)} ${r1(yB)}Q${r1(100 + sd * hw * 0.5)} ${r1(yB - dip * 0.9)} 100 ${r1(yB - dip)}Z"/>` +
-        `<path class="needle-hi" d="M100 ${r1(yT + 2)}L${r1(100 - sd * hw * 0.8)} ${r1(yB - 1.5)}L${r1(100 - sd * hw * 0.55)} ${r1(yB - dip * 0.6)}Z"/>` +
-        `<path class="snow" d="M100 ${r1(yT - 1)}L${r1(100 + hw * 0.56)} ${r1(yS)}Q100 ${r1(yS - step * 0.18)} ${r1(100 - hw * 0.56)} ${r1(yS)}Z"/>`;
+      needles += `<path class="snow" d="M100 ${r1(yT - 1)}L${r1(100 + hw * 0.56)} ${r1(yS)}Q100 ${r1(yS - step * 0.18)} ${r1(100 - hw * 0.56)} ${r1(yS)}Z"/>`;
+      // Cones hang under the lower tiers of older firs.
+      if (level >= 5 && i >= Math.floor(tiers / 2) && rnd() < 0.8) {
+        const n = level >= 7 ? 2 : 1;
+        for (let k = 0; k < n; k++) {
+          const cxn = 100 + (rnd() < 0.5 ? -1 : 1) * hw * (0.3 + rnd() * 0.4);
+          needles += `<ellipse class="cone" cx="${r1(cxn)}" cy="${r1(yB + 1)}" rx="1.7" ry="3.2"/>`;
+        }
+      }
     }
-    const trunkTop = crownBottom - step * 0.6;
-    const wood = `<path class="wood" d="${band(100, 214, 100, trunkTop, w, w * 0.7)}"/>` + rootMarkup(w) +
+    // A leading shoot at the very top of the oldest firs.
+    if (level >= 8) {
+      needles += `<path class="leader" d="M100 ${r1(top + 3)}V${r1(top - 9)}M100 ${r1(top - 3)}l-3 -3M100 ${r1(top - 3)}l3 -3"/>`;
+    }
+    const trunkTop = crownBottom - step * 0.5;
+    let wood = `<path class="wood" d="${band(100, 214, 100, trunkTop, w, w * 0.7)}"/>` + rootMarkup(w) +
       `<path class="wood-shade" d="M${r1(100 + sd * w / 2)} 214L${r1(100 + sd * w * 0.35)} ${r1(trunkTop)}L100 ${r1(trunkTop)}L100 214Z"/>`;
-    return `<g data-top="${r1(top - 18)}" class="conifer">` +
-      shadowMarkup(maxHalf + 10) +
-      `${wood}${needles}</g>`;
+    if (level >= 5) {
+      wood += `<path class="bark-line" d="M${r1(100 - w * 0.15)} 211L${r1(100 - w * 0.1)} ${r1(crownBottom + 2)}M${r1(100 + w * 0.2)} 209L${r1(100 + w * 0.18)} ${r1(crownBottom + 6)}"/>`;
+    }
+    // A broken branch stub on the bare trunk of old firs.
+    if (level >= 7) {
+      const side = rnd() < 0.5 ? -1 : 1;
+      const y = crownBottom + bare * 0.4;
+      wood += `<path class="twig-line" d="M${r1(100 + side * w * 0.4)} ${r1(y)}L${r1(100 + side * (w * 0.4 + 7))} ${r1(y - 3)}" stroke-width="1.6"/>`;
+    }
+    return `<g data-top="${r1(top - 18 - (level >= 8 ? 9 : 0))}" data-half="${r1(maxHalf * 1.06)}" class="conifer">` +
+      shadowMarkup(maxHalf + 8) + wood + needles + `</g>`;
   }
 
   // Crops the empty space above a tree, keeping its size.
   function fitTree(svg) {
     const el = svg.querySelector('[data-top]');
     const top = el ? Number(el.getAttribute('data-top')) : 0;
-    const y = Math.max(0, Math.min(Math.floor(top) - 6, 100));
+    const y = Math.min(Math.floor(top) - 6, 100);
     svg.setAttribute('viewBox', `0 ${y} 200 ${222 - y}`);
   }
 
@@ -1807,31 +2311,6 @@ body {
       <circle class="eye-hi" cx="33.9" cy="20.1" r="0.3"/>
       <ellipse class="animal-dark" cx="11" cy="28.6" rx="2" ry="1.4"/>
       <ellipse class="animal-dark" cx="27" cy="28.6" rx="2" ry="1.4"/>`,
-    mushroom: `
-      <path class="stem" d="M14.6 16Q13.6 23.6 13.2 29.4L22.6 29.4Q22.2 23.6 21.2 16Z"/>
-      <path class="stem-shade" d="M14.6 16Q13.6 23.6 13.2 29.4L16 29.4Q15.8 23.6 16.4 16Z"/>
-      <path class="stem-ring" d="M14.2 20.2Q17.9 22.4 21.6 20.2Q17.9 21.2 14.2 20.2Z"/>
-      <ellipse class="gills" cx="17.9" cy="16.6" rx="9.6" ry="1.9"/>
-      <path class="cap" d="M6 17Q6 3.2 17.9 3.2Q29.8 3.2 29.8 17Q17.9 14.2 6 17Z"/>
-      <path class="cap-shade" d="M6 17Q6 9 10.8 5.6Q8.4 11 9.6 16.2Q7.6 16.4 6 17Z"/>
-      <circle class="animal-light" cx="12.6" cy="9.6" r="1.8"/>
-      <circle class="animal-light" cx="19.6" cy="6.6" r="1.6"/>
-      <circle class="animal-light" cx="24.6" cy="11.4" r="1.7"/>
-      <circle class="animal-light" cx="16.8" cy="12.4" r="1.1"/>
-      <path class="stem" d="M32 24.6Q31.6 27.6 31.4 29.6L35 29.6Q34.8 27.6 34.4 24.6Z"/>
-      <path class="cap" d="M28.4 25.2Q28.6 19.6 33.2 19.6Q37.8 19.6 38 25.2Q33.2 23.8 28.4 25.2Z"/>
-      <circle class="animal-light" cx="32" cy="22" r="0.8"/>
-      <circle class="animal-light" cx="35" cy="21.6" r="0.7"/>`,
-    pond: `
-      <ellipse class="stone" cx="20" cy="21.4" rx="19.6" ry="8.4"/>
-      <ellipse class="pond" cx="20" cy="21" rx="18" ry="7.4"/>
-      <ellipse class="pond-deep" cx="22" cy="22.4" rx="11" ry="4"/>
-      <ellipse class="pond-light" cx="13.5" cy="18.6" rx="6" ry="1.6"/>
-      <path class="pad" d="M27 22.6a3.2 2.1 0 1 1 1.8 -1.7L27 22.6Z"/>
-      <path class="pad-alt" d="M11 24a2.4 1.6 0 1 1 1.4 -1.3L11 24Z"/>
-      <circle class="lily" cx="28.2" cy="21" r="1.1"/>
-      <path class="reed" d="M4 22Q3 13 4.6 5.4M6.4 22.6Q6.6 15 8.6 10"/>
-      <ellipse class="cattail" cx="4.7" cy="8" rx="1.1" ry="2.8"/>`,
   };
 
   // Small things on the forest floor: bushes, stones, ferns and grass.
@@ -2049,7 +2528,6 @@ body {
   // ---------- animation bookkeeping ----------
   // The first render is silent. Afterwards, a tree that reached a new level grows,
   // and a discovery seen for the first time hops in.
-  let firstRender = true;
   // Forest and weeks are drawn only while visible; otherwise they are marked for later.
   let forestDirty = true;
   let weeksDirty = true;
@@ -2075,10 +2553,11 @@ body {
     return prev !== undefined && lvl > prev ? ' grow' : '';
   }
 
-  function enterClass(id) {
+  // Only a discovery made today hops in, and only the first time it is drawn.
+  function enterClass(id, isToday) {
     if (seenMotif[id]) return '';
     seenMotif[id] = true;
-    return forestShownOnce ? ' enter' : '';
+    return forestShownOnce && isToday ? ' enter' : '';
   }
 
   // ---------- weekly overview ----------
@@ -2188,7 +2667,7 @@ body {
       const left = (lvl + 1) * 3600 - tsec;
       heroHint.textContent = `Noch ${fmtDur(left)} bis ${LEVEL_NAMES[lvl + 1]} (Level ${lvl + 1}).`;
     } else {
-      heroHint.textContent = 'Voll ausgewachsen. Größer wird der Baum heute nicht mehr.';
+      heroHint.textContent = 'Voll ausgewachsen für heute.';
     }
 
     const wsec = weekSec();
@@ -2199,7 +2678,15 @@ body {
     streakLine.textContent = streak.n > 0 ? `${streak.n} ${streak.n === 1 ? 'Tag' : 'Tage'} in Folge` : '';
   }
 
+  let forestSections = [];
+  let sectionWatch = null;
+
   function renderForest() {
+    fineDetail = false;
+    try { renderForestNow(); } finally { fineDetail = true; }
+  }
+
+  function renderForestNow() {
     const entries = Array.from(liveKeys()).map((k) => [k, liveSec(k)]);
     const shown = entries.filter(([, sec]) => sec > 0).sort((a, b) => (a[0] < b[0] ? -1 : 1));
 
@@ -2240,56 +2727,103 @@ body {
     }
     if (cur) rows.push(cur);
 
-    // Draw rows top to bottom. The field grows with every row.
+    // Lay out rows top to bottom. Each row only records how to draw itself; the drawing
+    // happens when its part of the forest comes into view (see below).
     let y = 58;
     let slotRow = 0;
     const slotRows = rows.filter((r) => r.type === 'slots').length;
     const grassPerRow = slotRows ? Math.ceil(grassCount(shown) / slotRows) : 0;
-    let body = skyMarkup(timeOfDay()) + '<path class="hill far" d="M-10 52 Q70 28 150 44 T300 34 T410 46 V140 H-10Z"/>' +
-      '<path class="hill" d="M-10 76 Q40 50 100 68 T220 60 T330 54 T410 66 V4000 H-10Z"/>';
-    let rowIdx = 0;
-    for (const row of rows) {
-      const start = body.length;
-      if (row.type === 'river') {
-        body += riverMarkup(y, row.h, row.key);
-      } else if (row.type === 'golden') {
-        body += treeItem(row.item, 200, y + ROW_H - 8);
-      } else {
-        // A soft rise of ground under each row, so the floor is not one flat sheet.
-        body += moundMarkup(y + row.h - 12, slotRow);
-        body += grassMarkup(grassPerRow, row.items[0].key, y + row.h - 30, y + row.h + 2);
-        body += decorMarkup(row.items[0].key + '#' + slotRow, y + row.h - 6);
-        // Every other row shifts sideways, and each tree moves a little, so no straight lines.
-        // A row that is not full yet is spread around the middle instead of starting left.
-        const shift = (slotRow % 2 ? 1 : -1) * 14;
-        const k = row.items.length;
-        const spacing = k < COLS ? Math.min(SLOT_W * 1.2, 340 / k) : SLOT_W;
-        row.items.forEach((it, c) => {
-          const rnd = mulberry32(hashStr(it.key + '#pos' + c));
-          const slotX = k < COLS ? 200 + (c - (k - 1) / 2) * spacing : (c + 0.5) * SLOT_W;
-          const jitter = it.type === 'animal' ? 14 : 36;
-          const cx = slotX + shift + (rnd() - 0.5) * jitter;
-          const baseY = y + row.h - 8 + (rnd() - 0.5) * 18;
-          if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, cx)), baseY);
-          else body += treeItem(it, cx, baseY, 0.9 + rnd() * 0.2);
-        });
-        slotRow++;
-      }
+    const placed = [];
+    rows.forEach((row, rowIdx) => {
+      const top = y;
+      const sr = row.type === 'slots' ? slotRow++ : -1;
       // Rows further up are further back, so they are drawn a little smaller.
       const depth = rows.length > 1 ? rowIdx / (rows.length - 1) : 1;
       const scale = r3(0.8 + 0.2 * depth);
-      const bottom = y + row.h;
-      const inner = body.slice(start);
-      body = body.slice(0, start) +
-        `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})">${inner}</g>`;
-      y += row.h;
-      rowIdx++;
+      const bottom = top + row.h;
+      const make = () => {
+        let body = '';
+        if (row.type === 'river') {
+          body += riverMarkup(top, row.h, row.key);
+        } else if (row.type === 'golden') {
+          body += treeItem(row.item, 200, top + ROW_H - 8);
+        } else {
+          // A soft rise of ground under each row, so the floor is not one flat sheet.
+          body += moundMarkup(top + row.h - 12, sr);
+          body += grassMarkup(grassPerRow, row.items[0].key, top + row.h - 30, top + row.h + 2);
+          body += decorMarkup(row.items[0].key + '#' + sr, top + row.h - 6);
+          // Every other row shifts sideways, and each tree moves a little, so no straight lines.
+          // A row that is not full yet is spread around the middle instead of starting left.
+          const shift = (sr % 2 ? 1 : -1) * 14;
+          const k = row.items.length;
+          const spacing = k < COLS ? Math.min(SLOT_W * 1.2, 340 / k) : SLOT_W;
+          row.items.forEach((it, c) => {
+            const rnd = mulberry32(hashStr(it.key + '#pos' + c));
+            const slotX = k < COLS ? 200 + (c - (k - 1) / 2) * spacing : (c + 0.5) * SLOT_W;
+            const jitter = it.type === 'animal' ? 14 : 36;
+            const cx = slotX + shift + (rnd() - 0.5) * jitter;
+            const baseY = top + row.h - 8 + (rnd() - 0.5) * 18;
+            if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, cx)), baseY);
+            else body += treeItem(it, cx, baseY, 0.9 + rnd() * 0.2);
+          });
+        }
+        return `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})">${body}</g>`;
+      };
+      placed.push({ top, bottom, make });
+      y = bottom;
+    });
+
+    // The forest is cut into sections of a few rows, each its own picture. Only sections
+    // on screen or about to scroll into view are drawn, so even a forest of many months
+    // opens quickly. Trees reach up into the section above; the pictures let that show.
+    const sections = [];
+    let open = null;
+    for (const r of placed) {
+      if (!open || r.bottom - open.y0 > 520) {
+        open = { y0: sections.length ? r.top : 0, y1: r.bottom, rows: [] };
+        sections.push(open);
+      }
+      open.rows.push(r);
+      open.y1 = r.bottom;
     }
+    if (!sections.length) sections.push({ y0: 0, y1: y, rows: [] });
+    sections[sections.length - 1].y1 += 8;
+    const head = skyMarkup(timeOfDay()) + '<path class="hill far" d="M-10 52 Q70 28 150 44 T300 34 T410 46 V140 H-10Z"/>' +
+      '<path class="hill" d="M-10 76 Q40 50 100 68 T220 60 T330 54 T410 66 V170 H-10Z"/>';
 
     fieldEl.dataset.tod = timeOfDay();
     fieldEl.hidden = shown.length === 0;
-    fieldSvg.setAttribute('viewBox', `0 0 400 ${y + 8}`);
-    fieldSvg.innerHTML = body;
+    if (sectionWatch) sectionWatch.disconnect();
+    forestSections = sections;
+    fieldSvg.innerHTML = sections.map((sec, i) =>
+      `<svg viewBox="0 ${r1(sec.y0)} 400 ${r1(sec.y1 - sec.y0)}" data-i="${i}" aria-hidden="true"></svg>`).join('');
+    const els = Array.from(fieldSvg.children);
+    const fill = (el) => {
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+      const sec = forestSections[Number(el.dataset.i)];
+      const was = fineDetail;
+      fineDetail = false;
+      try {
+        el.innerHTML = (el.dataset.i === '0' ? head : '') + sec.rows.map((r) => r.make()).join('');
+      } finally {
+        fineDetail = was;
+      }
+    };
+    if ('IntersectionObserver' in window) {
+      // The first sections are drawn at once, the rest when they come near the screen.
+      const near = window.innerHeight + 200;
+      els.forEach((el, i) => {
+        const r = el.getBoundingClientRect();
+        if (i < 2 || (r.bottom > -200 && r.top < near)) fill(el);
+      });
+      sectionWatch = new IntersectionObserver((entries) => {
+        for (const e of entries) if (e.isIntersecting) { fill(e.target); sectionWatch.unobserve(e.target); }
+      }, { rootMargin: '900px 0px' });
+      els.forEach((el) => { if (!el.dataset.done) sectionWatch.observe(el); });
+    } else {
+      els.forEach(fill);
+    }
 
     forestEmpty.hidden = shown.length > 0;
     const total = shown.reduce((sum, [, sec]) => sum + sec, 0);
@@ -2334,23 +2868,24 @@ body {
         `<title>Goldener Baum: Wochenziel erreicht</title>` +
         `${goldenMarkup(it.key)}</g>`;
     }
-    const growth = Math.min(1, it.sec / 60 / FULL_TREE_MIN);
-    const s = r3((0.32 + 0.36 * growth) * vary);
+    // The drawing itself grows with every level, so all trees use the same scale.
+    const s = r3(0.6 * vary);
+    const markup = treeMarkup(it.sec / 60, it.key);
     // Keep the whole crown inside the field.
-    const half = (speciesFor(it.key) === 'tanne' ? 54 : 86) * s;
+    const half = Number((/data-half="([\d.]+)"/.exec(markup) || [0, 80])[1]) * s + 2;
     cx = Math.max(half + 2, Math.min(398 - half, cx));
     const tx = r1(cx - 100 * s);
     const ty = r1(baseY - 214 * s);
     return `<g transform="translate(${tx} ${ty}) scale(${s})">` +
       `<title>${labelFor(it.key)}: ${fmtDur(it.sec)}, ${levelText(it.sec)}</title>` +
-      `<g class="tree${growClass('f:' + it.key, levelFor(it.sec))}">${treeMarkup(it.sec / 60, it.key)}</g></g>`;
+      `<g class="tree${growClass('f:' + it.key, levelFor(it.sec))}">${markup}</g></g>`;
   }
 
   function animalItem(it, cx, baseY) {
     const [, name] = KIND_INFO[it.kind];
     return `<g transform="translate(${r1(cx - 20)} ${r1(baseY - 30)})">` +
       `<title>${name}, entdeckt ${labelFor(it.key)}</title>` +
-      `<g class="motif${enterClass(it.key + it.kind)}">${SPRITES[it.kind]}</g></g>`;
+      `<g class="motif${enterClass(it.key + it.kind, it.key === dayKey())}">${SPRITES[it.kind]}</g></g>`;
   }
 
   function renderAll() {
@@ -2360,7 +2895,6 @@ body {
     if (views.forest.hidden) forestDirty = true;
     else if (forestDirty || forestSignature() !== lastForestSig) renderForest();
     if (views.weeks.hidden) weeksDirty = true; else renderWeeks();
-    firstRender = false;
   }
 
   function updateUI() {
@@ -2558,7 +3092,19 @@ body {
     sheet.hidden = true;
     showTab('forest');
     updateUI();
+    scrollToNewest();
   });
+
+  // The forest grows downward, so the newest tree stands at the bottom: bring it into view.
+  function scrollToNewest() {
+    const last = fieldSvg.lastElementChild;
+    if (!last) return;
+    const r = last.getBoundingClientRect();
+    if (r.bottom <= window.innerHeight - 90) return; // already in view
+    const y = window.scrollY + r.bottom - window.innerHeight + 110;
+    const smooth = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+  }
 
   // Screen off or another app: the timer keeps running. Only the moment is noted,
   // in case the app gets closed. Coming back clears it and sends any interrupted save.
@@ -2585,7 +3131,7 @@ body {
     const box = document.createElement('div');
     box.className = 'flakes';
     box.setAttribute('aria-hidden', 'true');
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 22; i++) {
       const f = document.createElement('span');
       f.className = 'flake';
       const size = (2.5 + Math.random() * 2.5).toFixed(1);
@@ -2597,7 +3143,7 @@ body {
       f.style.setProperty('--dx', (Math.random() * 30 - 15).toFixed(0) + 'px');
       box.appendChild(f);
     }
-    fieldEl.appendChild(box);
+    fieldEl.prepend(box);
   }
 
   // ---------- backup ----------
