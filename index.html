@@ -25,6 +25,7 @@
   --gold-text: #8a6200;
   --sky: #e2ece4;
   --ground: #b9cfb0;
+  --hero-body: #d7e4d1;
   --shade: #93ad8a;
   --water: #8fc0cf;
   --water-light: #cfe9f0;
@@ -59,6 +60,7 @@
     --gold-text: #f0c24f;
     --sky: #13201a;
     --ground: #1d2e24;
+    --hero-body: #1a2a20;
     --shade: #0b130e;
     --water: #3f7f93;
     --water-light: #7fb6c7;
@@ -93,6 +95,7 @@
   --gold-text: #f0c24f;
   --sky: #13201a;
   --ground: #1d2e24;
+  --hero-body: #1a2a20;
   --shade: #0b130e;
   --water: #3f7f93;
   --water-light: #7fb6c7;
@@ -144,22 +147,60 @@ body {
 }
 .muted { color: var(--muted); margin: 0; }
 .empty { color: var(--muted); text-align: center; margin: 14px 0 0; }
+.empty-state { text-align: center; margin: 10px 0 0; color: var(--muted); }
+.empty-state svg { display: block; width: 180px; max-width: 70%; height: auto; margin: 0 auto 10px; }
+.empty-state p { margin: 0; }
+.es-ground { fill: var(--shade); }
+.es-stem { fill: none; stroke: var(--bark); stroke-width: 3; stroke-linecap: round; }
+.es-leaf { fill: var(--accent); }
+.es-track { fill: none; stroke: var(--line); stroke-width: 6; stroke-dasharray: 2 8; stroke-linecap: round; }
+.es-dot { fill: var(--line); }
 .fine { color: var(--muted); font-size: 13px; text-align: center; margin: 22px 0 0; }
 
 .hero {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 18px 18px 22px;
+  /* The card is a clearing: sky and hills on top, the meadow below holds the timer. */
+  background: var(--hero-body);
+  border: 0;
+  border-radius: 28px;
+  padding: 0 18px 22px;
   text-align: center;
+  overflow: hidden;
 }
+.stage {
+  position: relative;
+  margin: 0 -18px;
+  padding: 50px 18px 0;
+  --field-sky: var(--sky);
+  background: linear-gradient(to bottom, var(--field-sky), color-mix(in srgb, var(--field-sky) 55%, var(--ground)));
+}
+.stage .hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 92px;
+  display: block;
+}
+.hill-far { fill: color-mix(in srgb, var(--ground) 65%, var(--field-sky)); }
+.hill-near { fill: var(--hero-body); }
+.stage #heroTree { position: relative; z-index: 1; width: min(290px, 86%); }
 
 .status {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
   font-size: 14px;
   color: var(--muted);
+  white-space: nowrap;
 }
 .status::before {
   content: "";
@@ -171,9 +212,7 @@ body {
 .app[data-state="run"] .status::before { background: var(--accent); }
 .app[data-state="pause"] .status::before { background: var(--sun); }
 
-.stage { margin: 6px 0 0; }
-.stage svg, #sheetTree {
-  width: min(230px, 72%);
+.stage #heroTree, #sheetTree {
   height: auto;
   display: block;
   margin: 0 auto;
@@ -190,7 +229,7 @@ body {
 
 .clock {
   /* System face: plain zeros and fixed-width digits, so the time does not jitter. */
-  font-family: ui-rounded, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  font-family: "Figtree", system-ui, -apple-system, sans-serif;
   font-size: 56px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -202,9 +241,15 @@ body {
 .today { margin: 4px 0 0; color: var(--muted); }
 .today strong { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-.week {
-  margin: 16px 0 0;
+.progress { max-width: 320px; margin: 18px auto 0; }
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
   font-size: 14px;
+}
+.week {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -212,7 +257,6 @@ body {
 .bar {
   height: 8px;
   margin: 6px auto 0;
-  max-width: 280px;
   border-radius: 999px;
   background: var(--line);
   overflow: hidden;
@@ -263,13 +307,20 @@ body {
 .confirm p { margin: 0; }
 
 .forest { margin-top: 30px; }
-.forest-head {
+.forest-head { display: block; }
+.stats {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  gap: 22px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
+.stat strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.stat span { font-size: 13px; color: var(--muted); }
 .forest h2 {
   font-family: "Young Serif", Georgia, serif;
   font-weight: 400;
@@ -293,11 +344,10 @@ body {
 }
 
 .finds-title {
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 18px 0 6px;
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 19px;
+  margin: 24px 0 8px;
 }
 .finds {
   list-style: none;
@@ -308,14 +358,15 @@ body {
 }
 .finds li {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 6px 12px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
 }
-.finds span { color: var(--muted); }
+.finds span { color: var(--muted); margin-left: auto; font-size: 14px; }
+.find-icon { width: 36px; height: 27px; flex: none; overflow: visible; }
 
 .find { color: var(--accent); font-weight: 700; margin-top: 10px !important; }
 .gold-note { color: var(--gold-text); font-weight: 700; margin-top: 10px !important; }
@@ -331,20 +382,21 @@ body {
 .leaf.alt { fill: var(--leaf-2); }
 .leaf.back { fill: var(--leaf-2); opacity: 0.55; }
 
+
 /* Autumn: crowns turn gold, orange and rust; the grass dries out */
 .app[data-season="autumn"] .leaf.t0 { fill: var(--aut-1); }
 .app[data-season="autumn"] .leaf.t1 { fill: var(--aut-2); }
 .app[data-season="autumn"] .leaf.t2 { fill: var(--aut-3); }
 .app[data-season="autumn"] .blade { stroke: var(--aut-grass); }
 .app[data-season="autumn"] .flower { fill: var(--aut-2); }
-.app[data-season="autumn"] .field[data-tod="day"] { --field-sky: color-mix(in srgb, #e9c98a 14%, var(--sky)); }
+.app[data-season="autumn"] :is(.field, .stage)[data-tod="day"] { --field-sky: color-mix(in srgb, #e9c98a 14%, var(--sky)); }
 
 /* Winter: snow on the crowns and ground, frozen pond and river, falling flakes */
 .app[data-season="winter"] .leaf.t0,
 .app[data-season="winter"] .leaf.t1 { fill: var(--win-snow); }
 .app[data-season="winter"] .leaf.t2 { fill: var(--win-snow-b); }
 .app[data-season="winter"] .ground { fill: var(--win-snow-b); opacity: .6; }
-.app[data-season="winter"] .field { --sky: var(--win-sky); --ground: var(--win-ground); }
+.app[data-season="winter"] :is(.field, .stage) { --sky: var(--win-sky); --ground: var(--win-ground); }
 .app[data-season="winter"] .water { stroke: var(--win-ice); }
 .app[data-season="winter"] .water-light { stroke: var(--win-snow); stroke-dasharray: none; animation: none; opacity: .6; }
 .app[data-season="winter"] .pond { fill: var(--win-ice); }
@@ -371,7 +423,7 @@ body {
 .app[data-season="spring"] .blade { stroke: var(--spr-grass); }
 .app[data-season="spring"] .flower { fill: var(--spr-flower); }
 .app[data-season="spring"] .flower.alt { fill: var(--spr-blossom); }
-.app[data-season="spring"] .field { --sky: var(--spr-sky); --ground: var(--spr-ground); }
+.app[data-season="spring"] :is(.field, .stage) { --sky: var(--spr-sky); --ground: var(--spr-ground); }
 .patch { display: none; }
 .app[data-season="spring"] .patch { display: inline; fill: var(--win-snow); opacity: .45; }
 
@@ -382,9 +434,17 @@ body {
 .app[data-season="summer"] .blade { stroke: var(--sum-grass); }
 .app[data-season="summer"] .flower { fill: var(--sum-poppy); }
 .app[data-season="summer"] .flower.alt { fill: var(--sum-corn); }
-.app[data-season="summer"] .field { --sky: var(--sum-sky); }
+.app[data-season="summer"] :is(.field, .stage) { --sky: var(--sum-sky); }
 .app[data-season="summer"] .pad,
 .app[data-season="summer"] .pad-alt { fill: var(--sum-lily); }
+
+.date { margin: 0; color: var(--muted); font-size: 15px; }
+.rings { margin: 4px auto 16px; max-width: 220px; }
+.rings svg { display: block; width: 100%; height: auto; }
+.ring-core { fill: var(--bark); }
+.ring-track { fill: none; stroke: var(--line); }
+.ring-fill { fill: none; stroke: var(--accent); }
+.ring-fill.ring-gold { stroke: var(--gold); }
 
 /* Golden trees: awarded for 40 study hours in one week */
 .golden .branches path { stroke: var(--gold-bark); }
@@ -447,9 +507,9 @@ body {
 .sheet-card p { margin: 4px 0; }
 
 /* Atmosphere: the sky follows the time of day */
-.field[data-tod="morning"] { --field-sky: color-mix(in srgb, #f6d9a8 25%, var(--sky)); }
-.field[data-tod="evening"] { --field-sky: color-mix(in srgb, #e3a48a 25%, var(--sky)); }
-.field[data-tod="night"] { --field-sky: color-mix(in srgb, #1b2747 60%, var(--sky)); }
+:is(.field, .stage)[data-tod="morning"] { --field-sky: color-mix(in srgb, #f6d9a8 25%, var(--sky)); }
+:is(.field, .stage)[data-tod="evening"] { --field-sky: color-mix(in srgb, #e3a48a 25%, var(--sky)); }
+:is(.field, .stage)[data-tod="night"] { --field-sky: color-mix(in srgb, #1b2747 60%, var(--sky)); }
 .sun { fill: var(--sun); opacity: 0.9; }
 .sun.low { opacity: 0.75; }
 .star { fill: #fff8d8; opacity: 0.85; }
@@ -548,12 +608,16 @@ body {
   background: var(--accent);
 }
 
-.streak { margin: 8px 0 0; font-size: 14px; color: var(--accent); font-weight: 700; }
+.streak { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Depth: a far hill line, and haze that softens the rows further back */
 .hill { fill: var(--ground); }
 .hill.far { fill: color-mix(in srgb, var(--ground) 50%, var(--field-sky)); }
 .haze { fill: var(--field-sky); }
+.mound { fill: color-mix(in srgb, var(--shade) 16%, var(--ground)); }
+.mound.alt { fill: color-mix(in srgb, var(--shade) 6%, var(--ground)); }
+.app[data-season="winter"] .mound { fill: color-mix(in srgb, var(--win-snow-b) 30%, var(--ground)); }
+.app[data-season="winter"] .mound.alt { fill: color-mix(in srgb, var(--win-snow-b) 12%, var(--ground)); }
 
 /* Views and the tab bar at the bottom */
 .view > section:first-child { margin-top: 4px; }
@@ -616,6 +680,34 @@ body {
 /* Question after the app was closed while the timer ran */
 .resume { border-style: solid; border-color: var(--sun); }
 
+/* Backup at the end of "Wochen" */
+.backup { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
+.backup h3 {
+  font-family: "Young Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: 19px;
+  margin: 0 0 6px;
+}
+.backup .muted { font-size: 14px; }
+.backup-last { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.backup-controls { justify-content: flex-start; margin-top: 12px; }
+.backup-text {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 96px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+.backup-msg { margin: 10px 0 0; font-size: 14px; font-weight: 700; color: var(--accent); min-height: 1.4em; }
+.backup-msg.error { color: var(--fox); }
+
 [hidden] { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -626,24 +718,32 @@ body {
 <div class="app" id="app" lang="de" data-state="idle">
   <div class="view" id="view-timer">
   <header class="top">
-    <p class="eyebrow" id="today"></p>
+    <p class="date" id="today"></p>
     <h1>Lernwald 2.0</h1>
-    <p class="lede">Jede Lerneinheit lässt einen Baum wachsen. Die Zeit läuft, bis du auf Pause drückst.</p>
+    <p class="lede" id="lede">Jede Lerneinheit lässt einen Baum wachsen. Die Zeit läuft, bis du auf Pause drückst.</p>
   </header>
 
   <section class="hero" aria-label="Heutige Lerneinheit">
-    <div class="status" id="status">Bereit</div>
-    <div class="stage">
+    <div class="stage" id="stage">
+      <div class="status" id="status">Bereit</div>
+      <svg class="hills" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true">
+        <path class="hill-far" d="M0 38 Q70 14 150 30 T300 22 T400 30 V90 H0Z"/>
+        <path class="hill-near" d="M0 66 Q90 44 190 58 T400 52 V90 H0Z"/>
+      </svg>
       <svg id="heroTree" viewBox="0 0 200 220" role="img" aria-label="Der heutige Baum"></svg>
     </div>
     <p class="level" id="levelLine"></p>
     <p class="hint" id="heroHint"></p>
     <div class="clock" id="clock" aria-live="off">00:00:00</div>
-    <p class="today">Heute gelernt: <strong id="todayTotal">0 min</strong></p>
+    <p class="today"><span id="todayLabel">Heute gelernt</span>: <strong id="todayTotal">0 min</strong></p>
 
-    <p class="week" id="weekLine"></p>
-    <div class="bar" aria-hidden="true"><span id="weekFill"></span></div>
-    <p class="streak" id="streakLine"></p>
+    <div class="progress">
+      <div class="progress-top">
+        <span class="week" id="weekLine"></span>
+        <span class="streak" id="streakLine"></span>
+      </div>
+      <div class="bar" aria-hidden="true"><span id="weekFill"></span></div>
+    </div>
 
     <div class="controls">
       <button class="btn primary" id="toggleBtn" type="button">Starten</button>
@@ -672,14 +772,22 @@ body {
   <section class="forest" aria-labelledby="forestTitle">
     <div class="forest-head">
       <h2 id="forestTitle">Dein Wald</h2>
-      <p class="muted" id="forestStats"></p>
+      <div class="stats" id="forestStats"></div>
     </div>
     <div class="field" id="field">
       <svg id="fieldSvg" viewBox="0 0 400 200" role="img" aria-label="Dein Wald"></svg>
     </div>
-    <p class="empty" id="forestEmpty">Noch keine Bäume. Die erste Lerneinheit pflanzt den ersten.</p>
+    <div class="empty-state" id="forestEmpty">
+      <svg viewBox="0 0 200 96" aria-hidden="true">
+        <ellipse class="es-ground" cx="100" cy="84" rx="92" ry="10"/>
+        <path class="es-stem" d="M100 84 V58"/>
+        <path class="es-leaf" d="M100 60 C 88 60 80 52 80 42 C 92 42 100 50 100 60 Z"/>
+        <path class="es-leaf" d="M100 52 C 112 52 120 44 120 34 C 108 34 100 42 100 52 Z"/>
+      </svg>
+      <p>Noch keine Bäume. Die erste Lerneinheit pflanzt den ersten.</p>
+    </div>
     <div id="findsBlock" hidden>
-      <p class="finds-title">Entdeckungen</p>
+      <h3 class="finds-title">Entdeckungen</h3>
       <ul class="finds" id="finds"></ul>
     </div>
     <p class="fine" id="syncNote">Verbinde mit deinem Konto …</p>
@@ -689,10 +797,35 @@ body {
   <div class="view" id="view-weeks" hidden>
   <section class="weeks" aria-labelledby="weeksTitle">
     <h2 id="weeksTitle">Deine Wochen</h2>
+    <div class="rings" id="rings"></div>
     <ul class="weeks-list" id="weekList"></ul>
-    <p class="empty" id="weeksEmpty">Noch keine Wochen. Sobald du lernst, erscheint hier jede Woche mit ihren Stunden.</p>
+    <div class="empty-state" id="weeksEmpty">
+      <svg viewBox="0 0 200 96" aria-hidden="true">
+        <circle class="es-track" cx="100" cy="48" r="40"/>
+        <circle class="es-track" cx="100" cy="48" r="26"/>
+        <circle class="es-dot" cx="100" cy="48" r="6"/>
+      </svg>
+      <p>Noch keine Wochen. Sobald du lernst, erscheint hier jede Woche mit ihren Stunden.</p>
+    </div>
   </section>
-    <!-- app:backup -->
+    <section class="backup" aria-labelledby="backupTitle">
+      <h3 id="backupTitle">Sicherung</h3>
+      <p class="muted">Dein Fortschritt liegt nur auf diesem Gerät. Kopiere ab und zu eine Sicherung und lege sie z. B. in deinen Notizen ab. Mit ihr bekommst du deinen Wald auch auf einem neuen Handy zurück.</p>
+      <p class="backup-last" id="backupLast"></p>
+      <div class="controls backup-controls">
+        <button class="btn primary" id="backupCopy" type="button">Sicherung kopieren</button>
+        <button class="btn" id="backupOpen" type="button">Sicherung einfügen</button>
+      </div>
+      <textarea class="backup-text" id="backupOut" readonly hidden aria-label="Deine Sicherung"></textarea>
+      <div id="restoreBox" hidden>
+        <textarea class="backup-text" id="backupIn" placeholder="Sicherung hier einfügen. Sie beginnt mit LERNWALD1:" aria-label="Sicherung einfügen"></textarea>
+        <div class="controls backup-controls">
+          <button class="btn primary" id="backupRestore" type="button">Wiederherstellen</button>
+          <button class="btn" id="backupCancel" type="button">Abbrechen</button>
+        </div>
+      </div>
+      <p class="backup-msg" id="backupMsg" role="status"></p>
+    </section>
   </div>
 
   <nav class="tabbar" role="tablist" aria-label="Bereiche">
@@ -712,7 +845,7 @@ body {
 
   <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-card">
-      <p class="eyebrow">Session abgeschlossen</p>
+      <p class="date">Session abgeschlossen</p>
       <h2 id="sheetTitle">Gut gemacht</h2>
       <p>Aktive Lernzeit: <strong id="sheetSession"></strong></p>
       <p class="muted" id="sheetLevel"></p>
@@ -730,7 +863,8 @@ body {
   const KEY = 'lernwald.v1';
   const COLS = 4;
   const SLOT_W = 100;        // 400 units wide field / 4 columns
-  const ROW_H = 128;         // height of a row of trees
+  const ROW_H = 128;         // height of a golden-tree row
+  const SLOT_ROW_H = 96;     // height of a row of trees; tall trees overlap the row behind
   const RIVER_H = 56;        // height of a river band
   const WEEK_GOAL_SEC = 40 * 3600;
   const FULL_TREE_MIN = 480; // 8 hours: fully grown, top level
@@ -749,12 +883,15 @@ body {
   const confirmYes = $('confirmYes');
   const confirmNo = $('confirmNo');
   const todayEl = $('todayTotal');
+  const todayLabel = $('todayLabel');
   const heroSvg = $('heroTree');
   const heroHint = $('heroHint');
   const levelLine = $('levelLine');
   const weekLine = $('weekLine');
   const weekFill = $('weekFill');
   const streakLine = $('streakLine');
+  const ledeEl = $('lede');
+  const stageEl = $('stage');
   const weekList = $('weekList');
   const weeksEmpty = $('weeksEmpty');
   const fieldSvg = $('fieldSvg');
@@ -870,7 +1007,7 @@ body {
   }
 
   function setSyncNote(failed, saving) {
-    if (!docRef) syncNote.textContent = 'Gespeichert nur in diesem Browser.';
+    if (!docRef) syncNote.textContent = 'Dein Fortschritt ist auf diesem Gerät gespeichert.';
     else if (saving) syncNote.textContent = 'Wird gespeichert …';
     else if (failed) syncNote.textContent = 'Speichern hat gerade nicht geklappt. Es wird erneut versucht.';
     else syncNote.textContent = 'Gespeichert in deinem Konto. Auf anderen Geräten mit demselben Konto siehst du denselben Wald.';
@@ -981,21 +1118,43 @@ body {
     return (state.session && state.session.day) || dayKey();
   }
 
+  function liveSec(k) {
+    return storedSec(k) + (state.session && sessionDay() === k ? Math.floor(sessionMs() / 1000) : 0);
+  }
+
   function todaySec() {
+    return liveSec(dayKey());
+  }
+
+  // Every day with stored time, plus today and the running session's day.
+  function liveKeys() {
+    const keys = new Set(Object.keys(state.days));
+    keys.add(dayKey());
+    if (state.session) keys.add(sessionDay());
+    return keys;
+  }
+
+  // The timer shows the day the session counts for: after midnight, still the start day.
+  function heroDay() {
+    return state.session ? sessionDay() : dayKey();
+  }
+
+  function heroLabel() {
+    const k = heroDay();
     const today = dayKey();
-    return storedSec(today) + (sessionDay() === today ? Math.floor(sessionMs() / 1000) : 0);
+    if (k === today) return 'Heute gelernt';
+    if (k === dayBefore(today, 1)) return 'Gestern gelernt';
+    return dateLabel(k) + ' gelernt';
   }
 
   // Study time in the current week, including the running session.
   function weekSec() {
-    const today = dayKey();
     const wk = weekKeyOf(new Date());
     let sum = 0;
-    for (const k of Object.keys(state.days)) {
-      if (k === today) continue;
-      if (weekKeyOf(parseKey(k)) === wk) sum += storedSec(k);
+    for (const k of liveKeys()) {
+      if (weekKeyOf(parseKey(k)) === wk) sum += liveSec(k);
     }
-    return sum + todaySec();
+    return sum;
   }
 
   function levelFor(sec) {
@@ -1052,7 +1211,7 @@ body {
   // until then, yesterday's streak still stands.
   function streakDays() {
     const today = dayKey();
-    const active = (k) => (k === today ? todaySec() : storedSec(k)) > 0;
+    const active = (k) => liveSec(k) > 0;
     let k = active(today) ? today : dayBefore(today, 1);
     let n = 0;
     while (active(k) && n < 3650) {
@@ -1192,11 +1351,35 @@ body {
       }
     });
 
+    // A round crown behind the branches, so even a young tree reads as a full tree.
+    let crown = '';
+    if (tips.length) {
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const [x, y] of tips) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      // A rounded crown: almost as tall as it is wide, reaching down over the upper branches.
+      const ccx = (x0 + x1) / 2;
+      const rx = (x1 - x0) / 2 * 0.85 + leafR * 0.6;
+      const ry = Math.max((y1 - y0) / 2 + leafR, rx * 0.72);
+      const ccy = y0 + ry * 0.55;
+      const blobs = 6 + level * 2;
+      for (let i = 0; i < blobs; i++) {
+        const a = (i / blobs) * Math.PI * 2 + rnd() * 0.5;
+        const d = 0.35 + rnd() * 0.55;
+        const bx = ccx + Math.cos(a) * rx * d;
+        const by = ccy + Math.sin(a) * ry * d;
+        const br = Math.max(leafR * (1.5 + rnd() * 0.9), rx * (0.3 + rnd() * 0.12));
+        if (by - br < minY) minY = by - br;
+        crown += `<circle class="leaf${toneCls}" cx="${r1(bx)}" cy="${r1(by)}" r="${r1(br)}"/>`;
+      }
+      crown += `<ellipse class="leaf${toneCls}" cx="${r1(ccx)}" cy="${r1(ccy)}" rx="${r1(rx * 0.8)}" ry="${r1(ry * 0.75)}"/>`;
+      crown = `<g class="crown">${crown}</g>`;
+    }
+
     // A snow cap across the top of every own tree, so even small trees stay full in winter.
-    const cap = toneCls ? `<ellipse class="snow" cx="100" cy="${r1(minY + 10)}" rx="${r1(34 + level * 5)}" ry="14"/>` : '';
+    const cap = toneCls && !crown ? `<ellipse class="snow" cx="100" cy="${r1(minY + 10)}" rx="${r1(34 + level * 5)}" ry="14"/>` : '';
     return `<g data-top="${r1(minY - 18)}">` +
       `<ellipse class="ground" cx="100" cy="215" rx="64" ry="5"/>` +
-      `<g>${back}${snow}${cap}</g>` +
+      `<g>${back}${crown}${snow}${cap}</g>` +
       `<g class="branches">${paths}</g>` +
       `<g>${leaves}</g></g>`;
   }
@@ -1381,13 +1564,23 @@ body {
   }
 
   // ---------- weekly overview ----------
+  let ringAnimateOnce = false;
+  let ringAnimatePending = false; // set after a session, played when "Wochen" is opened
+
+  // The newest ring grows from zero to its length, once.
+  function playRingGrow() {
+    const el = document.querySelector('#rings .ring-fresh');
+    if (!el || !el.animate) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const len = Number(el.dataset.len) || 0;
+    el.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+      { duration: 1100, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+
   function renderWeeks() {
-    const today = dayKey();
-    const keys = new Set(Object.keys(state.days));
-    keys.add(today);
     const byWeek = {};
-    for (const k of keys) {
-      const sec = k === today ? todaySec() : storedSec(k);
+    for (const k of liveKeys()) {
+      const sec = liveSec(k);
       if (sec <= 0) continue;
       const wk = weekKeyOf(parseKey(k));
       byWeek[wk] = (byWeek[wk] || 0) + sec;
@@ -1395,6 +1588,35 @@ body {
     const weeks = Object.keys(byWeek).sort().reverse();
     const currentWk = weekKeyOf(new Date());
     const fmtDay = (k) => parseKey(k).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+
+    // Tree rings: one ring per week, oldest in the middle, newest on the outside.
+    const ringWeeks = Object.keys(byWeek).sort().slice(-14);
+    const ringsEl = $('rings');
+    if (ringWeeks.length) {
+      const n = ringWeeks.length;
+      // Rings spread over the whole disc: oldest near the core, newest at the edge.
+      const rMax = 94;
+      const r0 = n > 1 ? 18 : rMax;
+      const step = n > 1 ? (rMax - r0) / (n - 1) : 0;
+      const w = n > 1 ? Math.min(14, Math.max(3, step * 0.6)) : 14;
+      let svg = '';
+      ringWeeks.forEach((wk, i) => {
+        const r = n > 1 ? r0 + i * step : rMax;
+        const circ = 2 * Math.PI * r;
+        const frac = Math.min(1, byWeek[wk] / WEEK_GOAL_SEC);
+        const gold = state.golden[wk] ? ' ring-gold' : '';
+        const fresh = ringAnimateOnce && i === n - 1 ? ' ring-fresh' : '';
+        const lenAttr = fresh ? ` data-len="${r1(circ * frac)}"` : '';
+        svg += `<g><title>${fmtDay(wk)} bis ${fmtDay(dayBefore(wk, -6))}: ${fmtDur(byWeek[wk])}</title>` +
+          `<circle class="ring-track" cx="100" cy="100" r="${r1(r)}" stroke-width="${r1(w)}"/>` +
+          `<circle class="ring-fill${gold}${fresh}"${lenAttr} cx="100" cy="100" r="${r1(r)}" stroke-width="${r1(w)}" stroke-dasharray="${r1(circ * frac)} ${r1(circ)}" transform="rotate(-90 100 100)"/></g>`;
+      });
+      svg += `<circle class="ring-core" cx="100" cy="100" r="9"/>`;
+      ringsEl.innerHTML = `<svg viewBox="0 0 200 200" role="img" aria-label="Jahresringe: ein Ring pro Woche">${svg}</svg>`;
+    } else {
+      ringsEl.innerHTML = '';
+    }
+    ringAnimateOnce = false;
 
     weekList.innerHTML = weeks.map((wk) => {
       const sec = byWeek[wk];
@@ -1411,7 +1633,7 @@ body {
     weeksEmpty.hidden = weeks.length > 0;
   }
 
-  // Autumn runs from September to November; other months keep the summer look.
+  // Spring Mar–May, summer Jun–Aug, autumn Sep–Nov, winter Dec–Feb.
   function seasonNow() {
     const m = new Date().getMonth(); // 0 = January
     if (m >= 2 && m <= 4) return 'spring';
@@ -1425,15 +1647,24 @@ body {
   let lastMinute = -1;
 
   function renderHero() {
-    const today = dayKey();
-    const tsec = todaySec();
+    const hk = heroDay();
+    const tsec = liveSec(hk);
     const lvl = levelFor(tsec);
-    heroSvg.innerHTML = `<g class="sway"><g class="tree${growClass('hero', lvl)}">${markupFor(tsec, today)}</g></g>`;
+    heroSvg.innerHTML = `<g class="sway"><g class="tree${growClass('hero', lvl)}">${markupFor(tsec, hk)}</g></g>`;
     fitTree(heroSvg);
     levelLine.textContent = levelText(tsec);
 
-    if (tsec <= 0) {
-      heroHint.textContent = 'Starte deine erste Lerneinheit, dann wächst heute ein Baum.';
+    const streak = streakDays();
+    // The intro line is for the very first start only.
+    ledeEl.hidden = countDays(state) > 0 || !!state.session;
+    stageEl.dataset.tod = timeOfDay();
+
+    if (tsec <= 0 && !state.session) {
+      heroHint.textContent = streak.n > 0
+        ? `Lerne heute, damit deine Serie von ${streak.n} ${streak.n === 1 ? 'Tag' : 'Tagen'} bleibt.`
+        : 'Starte eine Lerneinheit, dann wächst ein Baum.';
+    } else if (tsec < 60) {
+      heroHint.textContent = 'Dein Baum wächst, solange der Timer läuft.';
     } else if (lvl < MAX_LEVEL) {
       const left = (lvl + 1) * 3600 - tsec;
       heroHint.textContent = `Noch ${fmtDur(left)} bis ${LEVEL_NAMES[lvl + 1]} (Level ${lvl + 1}).`;
@@ -1443,27 +1674,14 @@ body {
 
     const wsec = weekSec();
     const pct = Math.min(100, (wsec / WEEK_GOAL_SEC) * 100);
-    weekLine.innerHTML = `Diese Woche: <strong>${fmtDur(wsec)}</strong> von 40 Stunden` +
-      (goldenEarnedThisWeek() ? ' · <span class="gold-mark">goldener Baum ✓</span>' : '');
+    weekLine.innerHTML = `Woche <strong>${fmtDur(wsec)}</strong> / 40 h` +
+      (goldenEarnedThisWeek() ? ' <span class="gold-mark" title="Goldener Baum diese Woche">✦</span>' : '');
     weekFill.style.width = pct.toFixed(1) + '%';
-
-    const streak = streakDays();
-    if (streak.n === 0) {
-      streakLine.textContent = 'Lerne heute, um eine Serie zu starten.';
-    } else {
-      const unit = streak.n === 1 ? 'Tag' : 'Tage';
-      streakLine.textContent = streak.todayDone
-        ? `Serie: ${streak.n} ${unit} in Folge`
-        : `Serie: ${streak.n} ${unit}. Lerne heute weiter, damit sie bleibt.`;
-    }
+    streakLine.textContent = streak.n > 0 ? `${streak.n} ${streak.n === 1 ? 'Tag' : 'Tage'} in Folge` : '';
   }
 
   function renderForest() {
-    const today = dayKey();
-    const tsec = todaySec();
-
-    const entries = Object.keys(state.days).map((k) => [k, k === today ? tsec : storedSec(k)]);
-    if (!state.days[today] && tsec > 0) entries.push([today, tsec]);
+    const entries = Array.from(liveKeys()).map((k) => [k, liveSec(k)]);
     const shown = entries.filter(([, sec]) => sec > 0).sort((a, b) => (a[0] < b[0] ? -1 : 1));
 
     // Golden trees are placed on the day their week goal was reached.
@@ -1495,14 +1713,15 @@ body {
         else rows.push({ type: 'golden', h: ROW_H, item: it });
         continue;
       }
-      if (!cur) cur = { type: 'slots', h: ROW_H, items: [] };
+      if (!cur) cur = { type: 'slots', h: SLOT_ROW_H, items: [] };
       cur.items.push(it);
       if (cur.items.length === COLS) { rows.push(cur); cur = null; }
     }
     if (cur) rows.push(cur);
 
     // Draw rows top to bottom. The field grows with every row.
-    let y = 50;
+    let y = 58;
+    let slotRow = 0;
     let body = skyMarkup(timeOfDay()) + '<path class="hill far" d="M-10 52 Q70 28 150 44 T300 34 T410 46 V140 H-10Z"/>' +
       '<path class="hill" d="M-10 76 Q40 50 100 68 T220 60 T330 54 T410 66 V4000 H-10Z"/>';
     let rowIdx = 0;
@@ -1513,21 +1732,26 @@ body {
       } else if (row.type === 'golden') {
         body += treeItem(row.item, 200, y + ROW_H - 8);
       } else {
+        // A soft rise of ground under each row, so the floor is not one flat sheet.
+        body += moundMarkup(y + row.h - 12, slotRow);
+        // Every other row shifts sideways, and each tree moves a little, so no straight lines.
+        const shift = (slotRow % 2 ? 1 : -1) * 14;
         row.items.forEach((it, c) => {
           const rnd = mulberry32(hashStr(it.key + '#pos' + c));
-          const cx = (c + 0.5) * SLOT_W + (rnd() - 0.5) * 14;
-          const baseY = y + ROW_H - 8 + (rnd() - 0.5) * 6;
+          const cx = (c + 0.5) * SLOT_W + shift + (rnd() - 0.5) * 36;
+          const baseY = y + row.h - 8 + (rnd() - 0.5) * 18;
           if (it.type === 'animal') body += animalItem(it, cx, baseY);
-          else body += treeItem(it, cx, baseY);
+          else body += treeItem(it, cx, baseY, 0.9 + rnd() * 0.2);
         });
+        slotRow++;
       }
-      // Rows further up are further back: smaller, and hazier.
+      // Rows further up are further back, so they are drawn a little smaller.
       const depth = rows.length > 1 ? rowIdx / (rows.length - 1) : 1;
       const scale = r3(0.8 + 0.2 * depth);
       const bottom = y + row.h;
       const inner = body.slice(start);
       body = body.slice(0, start) +
-        `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})" opacity="${r3(0.62 + 0.38 * depth)}">${inner}</g>`;
+        `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})">${inner}</g>`;
       y += row.h;
       rowIdx++;
     }
@@ -1542,19 +1766,34 @@ body {
     const total = shown.reduce((sum, [, sec]) => sum + sec, 0);
     const trees = shown.length;
     const goldCount = Object.keys(state.golden).length;
-    const parts = [];
-    parts.push(`${trees} ${trees === 1 ? 'Baum' : 'Bäume'}`);
-    if (goldCount) parts.push(`${goldCount} ${goldCount === 1 ? 'goldener Baum' : 'goldene Bäume'}`);
-    if (finds.length) parts.push(`${finds.length} ${finds.length === 1 ? 'Entdeckung' : 'Entdeckungen'}`);
-    parts.push(`${fmtDur(total)} gelernt`);
-    forestStats.textContent = shown.length ? parts.join(' · ') : '';
+    const hours = total >= 3600 ? `${Math.floor(total / 3600)} h` : fmtDur(total);
+    const stat = (value, label) => `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`;
+    const stats = [stat(trees, trees === 1 ? 'Baum' : 'Bäume'), stat(hours, 'gelernt')];
+    if (goldCount) stats.push(stat(goldCount, goldCount === 1 ? 'Goldbaum' : 'Goldbäume'));
+    if (finds.length) stats.push(stat(finds.length, finds.length === 1 ? 'Entdeckung' : 'Entdeckungen'));
+    forestStats.innerHTML = shown.length ? stats.join('') : '';
 
     findsBlock.hidden = finds.length === 0;
-    findsList.innerHTML = finds.map((f) => `
-      <li><span>${labelFor(f.key)}</span><strong>${KIND_INFO[f.kind][0] === 'eine' ? 'Eine' : 'Ein'} ${KIND_INFO[f.kind][1]}</strong></li>`).join('');
+    // Newest first, each with its little picture.
+    findsList.innerHTML = finds.slice().reverse().map((f) => {
+      const pic = f.kind === 'river'
+        ? '<path class="water" style="stroke-width:6" d="M2 17Q11 9 20 17T38 17"/>'
+        : SPRITES[f.kind];
+      return `<li><svg class="find-icon" viewBox="0 0 40 30" aria-hidden="true">${pic}</svg>` +
+        `<strong>${KIND_INFO[f.kind][0] === 'eine' ? 'Eine' : 'Ein'} ${KIND_INFO[f.kind][1]}</strong>` +
+        `<span>${labelFor(f.key)}</span></li>`;
+    }).join('');
   }
 
-  function treeItem(it, cx, baseY) {
+  // A wide, low rise of ground; alternate rows bend the other way.
+  function moundMarkup(b, n) {
+    // Wide enough to reach both edges even when the row is scaled down for depth;
+    // it runs down like a hillside, and the next row's rise covers it.
+    const a = n % 2 ? [-22, 4, -16] : [-6, -24, 2];
+    return `<path class="mound${n % 2 ? ' alt' : ''}" d="M-120 ${r1(b)} Q20 ${r1(b + a[0])} 140 ${r1(b + a[1] / 2)} T300 ${r1(b + a[2] / 2)} T520 ${r1(b - 4)} V${r1(b + 400)} H-120Z"/>`;
+  }
+
+  function treeItem(it, cx, baseY, vary = 1) {
     if (it.type === 'golden') {
       const s = r3(0.68);
       const tx = r1(cx - 100 * s);
@@ -1564,7 +1803,7 @@ body {
         `${goldenMarkup(it.key)}</g>`;
     }
     const growth = Math.min(1, it.sec / 60 / FULL_TREE_MIN);
-    const s = r3(0.32 + 0.36 * growth);
+    const s = r3((0.32 + 0.36 * growth) * vary);
     const tx = r1(cx - 100 * s);
     const ty = r1(baseY - 214 * s);
     return `<g transform="translate(${tx} ${ty}) scale(${s})">` +
@@ -1581,6 +1820,7 @@ body {
 
   function renderAll() {
     app.dataset.season = seasonNow();
+    dateEl.textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
     renderHero();
     renderForest();
     renderWeeks();
@@ -1602,13 +1842,15 @@ body {
     const shown = fmtClock(Math.floor(sessionMs() / 1000));
     clockEl.textContent = shown;
     tabTimerLabel.textContent = !state.session ? 'Timer' : isRunning() ? shown : 'Pausiert';
-    const tsec = todaySec();
+    const hk = heroDay();
+    const tsec = liveSec(hk);
     todayEl.textContent = fmtDur(tsec);
+    todayLabel.textContent = heroLabel();
     if (awardGoldIfNeeded()) {
       touch();
       lastMinute = -1;
     }
-    const m = Math.floor(tsec / 60);
+    const m = dayKey() + '|' + hk + '|' + Math.floor(tsec / 60);
     if (m !== lastMinute) {
       lastMinute = m;
       renderAll();
@@ -1624,6 +1866,7 @@ body {
     }
     touch();
     updateUI();
+    lastMinute = -1;
     tick();
   }
 
@@ -1635,6 +1878,7 @@ body {
       delete s.hiddenAt;
       touch();
       updateUI();
+      lastMinute = -1;
       tick();
     }
   }
@@ -1669,10 +1913,15 @@ body {
       state.days[key] = { sec: prev.sec + sec, sessions: (prev.sessions || 0) + 1 };
     }
     state.session = null;
-    const newGold = awardGoldIfNeeded();
+    awardGoldIfNeeded();
+    // Gold is usually awarded while the timer runs; the message comes with the next finished session.
+    const g = state.golden[weekKeyOf(new Date())];
+    const newGold = !!(g && !g.shown);
+    if (newGold) g.shown = true;
     touch();
     confirmBox.hidden = true;
     updateUI();
+    if (sec > 0) ringAnimatePending = true;
     renderAll();
     tick();
     if (sec > 0) showSheet(sec, key, newGold);
@@ -1732,6 +1981,12 @@ body {
     for (const [k, v] of Object.entries(views)) v.hidden = k !== name;
     tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
     window.scrollTo(0, 0);
+    if (name === 'weeks' && ringAnimatePending) {
+      ringAnimatePending = false;
+      ringAnimateOnce = true;
+      renderWeeks();
+      playRingGrow();
+    }
   }
 
   tabs.forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
@@ -1801,14 +2056,116 @@ body {
     fieldEl.appendChild(box);
   }
 
+  // ---------- backup ----------
+  // A backup is plain text: "LERNWALD1:" plus the days and golden trees, base64-encoded.
+  // Restoring merges it in: no day is lost, and a day keeps the longer of both times.
+  const BACKUP_PREFIX = 'LERNWALD1:';
+  const LAST_BACKUP_KEY = 'lernwald.lastBackup';
+  const backupLast = $('backupLast');
+  const backupMsg = $('backupMsg');
+  const backupOut = $('backupOut');
+  const backupIn = $('backupIn');
+  const restoreBox = $('restoreBox');
+
+  function showBackupMsg(text, isError) {
+    backupMsg.textContent = text;
+    backupMsg.classList.toggle('error', !!isError);
+  }
+
+  function renderBackupLast() {
+    let at = 0;
+    try { at = Number(localStorage.getItem(LAST_BACKUP_KEY)) || 0; } catch (e) {}
+    backupLast.textContent = at
+      ? `Letzte Sicherung: ${new Date(at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}`
+      : 'Noch keine Sicherung kopiert.';
+  }
+
+  function backupText() {
+    const json = JSON.stringify({ v: 1, days: state.days, golden: state.golden });
+    return BACKUP_PREFIX + btoa(unescape(encodeURIComponent(json)));
+  }
+
+  function noteBackup() {
+    try { localStorage.setItem(LAST_BACKUP_KEY, String(Date.now())); } catch (e) {}
+    renderBackupLast();
+  }
+
+  $('backupCopy').addEventListener('click', async () => {
+    const text = backupText();
+    restoreBox.hidden = true;
+    try {
+      await navigator.clipboard.writeText(text);
+      backupOut.hidden = true;
+      noteBackup();
+      showBackupMsg('Sicherung kopiert. Füge sie jetzt z. B. in eine Notiz ein.');
+    } catch (e) {
+      // Clipboard not allowed: show the text so it can be copied by hand.
+      backupOut.value = text;
+      backupOut.hidden = false;
+      backupOut.focus();
+      backupOut.select();
+      noteBackup();
+      showBackupMsg('Markiere den Text oben und tippe auf „Kopieren“.');
+    }
+  });
+
+  $('backupOpen').addEventListener('click', () => {
+    backupOut.hidden = true;
+    restoreBox.hidden = false;
+    backupIn.value = '';
+    showBackupMsg('');
+    backupIn.focus();
+  });
+
+  $('backupCancel').addEventListener('click', () => {
+    restoreBox.hidden = true;
+    showBackupMsg('');
+  });
+
+  $('backupRestore').addEventListener('click', () => {
+    const raw = backupIn.value.replace(/\s+/g, '');
+    const at = raw.indexOf(BACKUP_PREFIX);
+    let data = null;
+    if (at !== -1) {
+      try { data = JSON.parse(decodeURIComponent(escape(atob(raw.slice(at + BACKUP_PREFIX.length))))); } catch (e) { data = null; }
+    }
+    if (!data || typeof data.days !== 'object' || !data.days) {
+      showBackupMsg('Das ist keine vollständige Lernwald-Sicherung. Kopiere den ganzen Text, er beginnt mit LERNWALD1:', true);
+      return;
+    }
+    let added = 0;
+    for (const k of Object.keys(data.days)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) continue;
+      const b = data.days[k] || {};
+      const sec = Math.max(0, Math.round(Number(b.sec) || 0));
+      if (!sec) continue;
+      const local = state.days[k];
+      if (!local || sec > (local.sec || 0)) {
+        if (!local) added++;
+        state.days[k] = { sec, sessions: Math.max(1, Number(b.sessions) || 1) };
+      }
+    }
+    for (const k of Object.keys(data.golden || {})) {
+      const g = data.golden[k];
+      if (!state.golden[k] && g && typeof g === 'object') state.golden[k] = { day: String(g.day || k), shown: true };
+    }
+    touch();
+    lastMinute = -1;
+    renderAll();
+    tick();
+    restoreBox.hidden = true;
+    const total = Object.keys(data.days).length;
+    showBackupMsg(`Sicherung wiederhergestellt: ${total} ${total === 1 ? 'Lerntag' : 'Lerntage'}, davon ${added} neu auf diesem Gerät.`);
+  });
+
   // ---------- init ----------
-  dateEl.textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
-  syncNote.textContent = 'Verbinde mit deinem Konto …';
+  syncNote.textContent = '';
   updateUI();
   renderAll();
   checkResume();
   tick();
   makeFlakes();
+  renderBackupLast();
   setInterval(tick, 200);
   connect();
 })();
