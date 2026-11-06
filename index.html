@@ -25,9 +25,12 @@
   --gold-text: #8a6200;
   --birch: #efe9df;
   --conifer: #2f6a48;
+  --pine: #46766a;
+  --pine-bark: #c4703e;
   --stone: #a5ab9f;
   --sky: #e2ece4;
-  --ground: #b9cfb0;
+  --ground: #a8c59a;
+  --aut-ground: #b4c48c;
   --hero-body: #d7e4d1;
   --hero-winter: #e3ecf1;
   --hero-autumn: #dfe2c9;
@@ -35,8 +38,8 @@
   --wood-ring: #d2b388;
   --wood-late: #a9794b;
   --bark-dark: #5e4430;
-  --shade: #93ad8a;
-  --water: #8fc0cf;
+  --shade: #7c9b70;
+  --water: #7fb6c8;
   --water-light: #cfe9f0;
   --pad: #3f8359;
   --pad-alt: #5fa173;
@@ -47,7 +50,7 @@
   --sun: #c98a2c;
   --aut-1: #d9902f; --aut-2: #b5532c; --aut-3: #c9a93a; --aut-grass: #a88a3e;
   --win-snow: #f7fbfd; --win-snow-b: #c9dde8; --win-ground: #e9f1f5; --win-sky: #dfe9f0; --win-ice: #b7dbe9;
-  --spr-leaf-1: #8cc98f; --spr-leaf-2: #a8d68a; --spr-blossom: #f4c6d0; --spr-grass: #7fb069; --spr-flower: #f7e27a; --spr-sky: #e4f2ee; --spr-ground: #cfe6c4;
+  --spr-leaf-1: #8cc98f; --spr-leaf-2: #a8d68a; --spr-blossom: #f4c6d0; --spr-grass: #7fb069; --spr-flower: #f7e27a; --spr-sky: #e4f2ee; --spr-ground: #bcdca9;
   --sum-leaf-1: #3f8a4f; --sum-leaf-2: #2f7046; --sum-leaf-3: #4f9c5c; --sum-grass: #5e9a4a; --sum-poppy: #d9473a; --sum-corn: #4f7fd6; --sum-sky: #d6ecf7; --sum-lily: #fbfbf4;
   color-scheme: light;
 }
@@ -69,9 +72,12 @@
     --gold-text: #f0c24f;
     --birch: #d9d2c5;
     --conifer: #2f7350;
+    --pine: #4d8676;
+    --pine-bark: #b56a40;
     --stone: #5d665e;
     --sky: #13201a;
     --ground: #1d2e24;
+    --aut-ground: #1d2e24;
     --hero-body: #1a2a20;
     --hero-winter: #1e2a33;
     --hero-autumn: #22291d;
@@ -113,9 +119,12 @@
   --gold-text: #f0c24f;
   --birch: #d9d2c5;
   --conifer: #2f7350;
+  --pine: #4d8676;
+  --pine-bark: #b56a40;
   --stone: #5d665e;
   --sky: #13201a;
   --ground: #1d2e24;
+  --aut-ground: #1d2e24;
   --hero-body: #1a2a20;
   --hero-winter: #1e2a33;
   --hero-autumn: #22291d;
@@ -390,6 +399,22 @@ body {
 }
 .field-sections svg { overflow: visible; }
 .forest { position: relative; }
+.haze {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-bottom: -100vh;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--field-sky) 40%, transparent) 0%, color-mix(in srgb, var(--field-sky) 12%, transparent) 22%, transparent 40%);
+}
+.view-in { animation: view-in 180ms ease-out; }
+@keyframes view-in { from { opacity: 0; transform: translateY(4px); } }
+.today-glow { fill: url(#g-today); animation: today-glow 4.5s ease-in-out infinite; }
+.gt-a { stop-color: #ffeeaa; stop-opacity: 0.95; }
+.gt-b { stop-color: #ffeba6; stop-opacity: 0.42; }
+.gt-c { stop-color: #fff1b8; stop-opacity: 0; }
+@keyframes today-glow { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 .sign-post { fill: color-mix(in srgb, var(--bark) 85%, #000); }
 .sign-board { fill: color-mix(in srgb, var(--bark) 62%, #e8c48e); }
 .sign-grain { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #000); stroke-width: 0.5; opacity: 0.35; }
@@ -425,24 +450,32 @@ body {
   font-size: 19px;
   margin: 24px 0 8px;
 }
-.finds {
+.finds { list-style: none; padding: 0; margin: 0; }
+.finds-month { margin: 14px 0 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.finds-group:first-child .finds-month { margin-top: 4px; }
+.finds-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
 }
-.finds li {
+.find-tile {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 6px 12px;
+  gap: 2px;
+  padding: 10px 6px 8px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
+  text-align: center;
 }
-.finds span { color: var(--muted); margin-left: auto; font-size: 14px; }
-.find-icon { width: 36px; height: 27px; flex: none; overflow: visible; }
+.find-tile strong { font-size: 14px; line-height: 1.25; }
+.find-tile span { color: var(--muted); font-size: 12px; }
+.find-icon { width: 52px; height: 39px; flex: none; overflow: visible; margin-bottom: 2px; }
+.finds-more { display: block; margin: 12px auto 0; min-width: 0; padding-left: 18px; padding-right: 18px; }
 
 .find { color: var(--accent); font-weight: 700; margin-top: 10px !important; }
 .gold-note { color: var(--gold-text); font-weight: 700; margin-top: 10px !important; }
@@ -511,6 +544,14 @@ body {
 
 /* Fir */
 .needle { fill: var(--conifer); }
+.pine-needle { fill: var(--pine); }
+.pine-shade { fill: color-mix(in srgb, var(--pine) 66%, #06120a); }
+.pine-hi { fill: color-mix(in srgb, var(--pine) 80%, #e4f2e2); }
+.pine-hi2 { fill: color-mix(in srgb, var(--pine) 64%, #eef8ec); }
+.pine-fringe { fill: none; stroke: var(--pine); stroke-width: 0.9; stroke-linecap: round; }
+.pine-fringe.low { stroke: color-mix(in srgb, var(--pine) 66%, #06120a); }
+.pine-tips { fill: none; stroke: #b9df8a; stroke-width: 1.4; stroke-linecap: round; }
+.wood.pine-bark { fill: var(--pine-bark); }
 .needle-shade { fill: color-mix(in srgb, var(--conifer) 72%, #06120a); }
 .needle-hi { fill: color-mix(in srgb, var(--conifer) 78%, #e8f5d0); }
 .needle-cast { fill: color-mix(in srgb, var(--conifer) 62%, #06120a); }
@@ -582,7 +623,7 @@ body {
   animation: rainfall linear infinite;
 }
 @keyframes rainfall { to { transform: translate(-14vh, 100vh) rotate(8deg); } }
-.app[data-weather="rain"] :is(.field, .stage) { --field-sky: color-mix(in srgb, #9aa6ad 45%, var(--sky)); }
+.app[data-weather="rain"] :is(.field, .stage) { --field-sky: color-mix(in srgb, #9aa6ad 34%, var(--sky)); }
 .app[data-weather="snow"] :is(.field, .stage) { --field-sky: color-mix(in srgb, #c7d0d8 45%, var(--sky)); }
 .cloud { fill: color-mix(in srgb, #f4f6f8 70%, var(--field-sky)); }
 .cloud-shade { fill: #8a96a0; opacity: 0.25; }
@@ -641,6 +682,7 @@ body {
 .app[data-season="spring"] .flower { fill: var(--spr-flower); }
 .app[data-season="spring"] .flower.alt { fill: var(--spr-blossom); }
 .app[data-season="spring"] :is(.field, .stage) { --sky: var(--spr-sky); --ground: var(--spr-ground); }
+.app[data-season="autumn"] :is(.field, .stage) { --ground: var(--aut-ground); }
 .patch { display: none; }
 .app[data-season="spring"] .patch { display: inline; fill: var(--win-snow); opacity: .45; }
 
@@ -851,7 +893,12 @@ body {
 .firefly-glow { fill: #f4f0a0; opacity: 0.28; }
 .firefly-dot { fill: #fbf7c2; }
 @keyframes firefly { 0%, 100% { opacity: 0.15; transform: translate(0, 0); } 40% { opacity: 1; transform: translate(3px, -2px); } 70% { opacity: 0.5; transform: translate(-2px, -4px); } }
-.mist { fill: #fff; opacity: 0.3; animation: mist 24s ease-in-out infinite alternate; }
+.mist { fill: url(#g-mist); animation: mist 24s ease-in-out infinite alternate; }
+.gmist-a { stop-color: #fff; stop-opacity: 0; }
+.gmist-b { stop-color: #fff; stop-opacity: 0.34; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.gmist-a, .gmist-b) { stop-color: #8fa3ad; } :root:not([data-theme="light"]) .gmist-b { stop-opacity: 0.14; } }
+:root[data-theme="dark"] :is(.gmist-a, .gmist-b) { stop-color: #8fa3ad; }
+:root[data-theme="dark"] .gmist-b { stop-opacity: 0.14; }
 @keyframes mist { from { transform: translateX(-14px); } to { transform: translateX(14px); } }
 .stage .sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
@@ -984,8 +1031,8 @@ body {
 .hill { fill: var(--ground); }
 .hill.far { fill: color-mix(in srgb, var(--ground) 50%, var(--field-sky)); }
 .haze { fill: var(--field-sky); }
-.mound { fill: color-mix(in srgb, var(--shade) 16%, var(--ground)); }
-.mound.alt { fill: color-mix(in srgb, var(--shade) 6%, var(--ground)); }
+.mound { fill: color-mix(in srgb, var(--shade) 24%, var(--ground)); }
+.mound.alt { fill: color-mix(in srgb, var(--shade) 9%, var(--ground)); }
 .app[data-season="winter"] .mound { fill: color-mix(in srgb, var(--win-snow-b) 30%, var(--ground)); }
 .app[data-season="winter"] .mound.alt { fill: color-mix(in srgb, var(--win-snow-b) 12%, var(--ground)); }
 
@@ -1137,6 +1184,8 @@ body {
     <defs>
       <radialGradient id="g-sun"><stop class="gs-a" offset="0"/><stop class="gs-b" offset="0.35"/><stop class="gs-c" offset="1"/></radialGradient>
       <radialGradient id="g-horizon"><stop class="gh-a" offset="0"/><stop class="gh-b" offset="1"/></radialGradient>
+      <linearGradient id="g-mist" x1="0" y1="0" x2="0" y2="1"><stop class="gmist-a" offset="0"/><stop class="gmist-b" offset="0.55"/><stop class="gmist-a" offset="1"/></linearGradient>
+      <radialGradient id="g-today"><stop class="gt-a" offset="0"/><stop class="gt-b" offset="0.55"/><stop class="gt-c" offset="1"/></radialGradient>
       <radialGradient id="g-moon"><stop class="gm-a" offset="0"/><stop class="gm-b" offset="1"/></radialGradient>
     </defs>
   </svg>
@@ -1225,6 +1274,7 @@ body {
     <div id="findsBlock" hidden>
       <h3 class="finds-title">Entdeckungen</h3>
       <ul class="finds" id="finds"></ul>
+      <button class="btn finds-more" id="findsMore" type="button" hidden></button>
     </div>
     <p class="fine" id="syncNote" hidden></p>
   </section>
@@ -1313,8 +1363,6 @@ body {
 <script>
 (() => {
   const KEY = 'lernwald.v1';
-  const COLS = 4;
-  const SLOT_W = 100;        // 400 units wide field / 4 columns
   const ROW_H = 128;         // height of a golden-tree row
   const SLOT_ROW_H = 96;     // height of a row of trees; tall trees overlap the row behind
   const RIVER_H = 104;       // height of a river band; rivers run across it in different courses
@@ -1745,7 +1793,7 @@ body {
   // a squirrel under a broadleaf tree, a woodpecker on a birch, a badger by a fir.
   // Earlier days keep exactly what they had.
   const TREE_FINDS_FROM = '2026-11-05';
-  const TREE_FIND = { laub: 'squirrel', birke: 'woodpecker', tanne: 'badger' };
+  const TREE_FIND = { laub: 'squirrel', birke: 'woodpecker', tanne: 'badger', kiefer: 'squirrel' };
   const COMPANIONS = ['squirrel', 'woodpecker', 'badger'];
   const KINDS = ['river', 'river', 'fox', 'deer', 'rabbit', 'owl', 'bird', 'hedgehog', 'mushroom', 'pond'];
 
@@ -1803,8 +1851,14 @@ body {
 
   // Three kinds of trees. Which one a day gets depends on its date, so it never changes.
   // Golden trees are always broadleaf trees.
+  // From this day on pines grow too; earlier days keep the tree they had.
+  const PINES_FROM = '2026-11-06';
   function speciesFor(key) {
     if (key.indexOf('#gold') !== -1) return 'laub';
+    if (key >= PINES_FROM) {
+      const m = hashStr(key + '#species2') % 20;
+      return m < 9 ? 'laub' : m < 13 ? 'kiefer' : m < 17 ? 'tanne' : 'birke';
+    }
     const n = hashStr(key + '#species') % 10;
     return n < 6 ? 'laub' : n < 8 ? 'tanne' : 'birke';
   }
@@ -1880,6 +1934,19 @@ body {
     [152, 38, 6, 7.2],     // a broken branch stub
     [170, 42, 7, 8],       // a leading shoot at the top
   ];
+  //  height, half width, needle pads, trunk width, where the crown starts (share of height)
+  const KIEFER = [
+    [30, 9, 2, 1.4, 0.3],    // seedling: two tufts of needles
+    [48, 13, 3, 2.2, 0.24],  // a bushy little pine
+    [66, 17, 4, 3, 0.28],    // conical, in layers
+    [86, 22, 4, 3.8, 0.36],
+    [106, 28, 5, 4.8, 0.44], // the lower trunk is bare, the bark above turns orange
+    [124, 34, 5, 5.8, 0.5],  // cones
+    [142, 42, 5, 6.8, 0.56], // the crown spreads out and flattens
+    [158, 50, 6, 7.8, 0.6],
+    [174, 58, 6, 8.8, 0.62], // a tall trunk under a wide umbrella of needle pads
+  ];
+
   // Where the leaf masses of a broadleaf crown sit: offset in crown widths and heights, size.
   const LOBES = {
     3: [[0, -0.22, 0.7], [-0.46, 0.16, 0.62], [0.47, 0.12, 0.62]],
@@ -2056,9 +2123,158 @@ body {
     return { wood, twigs, snowD };
   }
 
+  // A Scots pine: young, a bushy little cone of needle tufts; with age the lower trunk
+  // gets bare, the bark above turns orange, and the crown spreads into flat, uneven pads
+  // of blue-green needles on crooked branches.
+  function buildPine(minutes, key) {
+    const { level, frac } = levelOf(minutes);
+    const own = key.indexOf('#gold') === -1;
+    const rnd = mulberry32(hashStr(key));
+    const L = lightDir();
+    const season = seasonNow();
+    const snow = own && season === 'winter';
+    const vary = 0.94 + rnd() * 0.12;
+    const h = grownValue(KIEFER, level, frac, 0) * vary;
+    const reach = grownValue(KIEFER, level, frac, 1) * vary;
+    const w = grownValue(KIEFER, level, frac, 3);
+    const cs = grownValue(KIEFER, level, frac, 4);
+    const n = KIEFER[level][2];
+    const old = Math.max(0, Math.min(1, (level - 2 + frac) / 6));
+    const bend = (rnd() - 0.5) * (3 + level * 1.2);
+    const stemAt = (t) => [100 + bend * Math.sin(t * Math.PI * 0.8), 214 - h * t];
+    const lx = 0.9 * L;
+    const ly = -0.78;
+
+    // The trunk, thinner towards the top; above the bare part the bark is orange.
+    let wood = '';
+    let upper = '';
+    const segs = 6;
+    for (let i = 0; i < segs; i++) {
+      const [x0, y0] = stemAt(i / segs * 0.97);
+      const [x1, y1] = stemAt((i + 1) / segs * 0.97);
+      const b = band(x0, y0, x1, y1, w * (1 - i / segs * 0.7), w * (1 - (i + 1) / segs * 0.7));
+      if (level >= 4 && (i + 1) / segs > cs * 0.75) upper += b;
+      else wood += b;
+    }
+    const away = L > 0 ? -1 : L < 0 ? 1 : -1;
+    let barkMarks = '';
+    if (level >= 2) {
+      const marks = 3 + level;
+      for (let i = 0; i < marks; i++) {
+        const t = 0.04 + (i / marks) * cs * 0.8;
+        const [x, y] = stemAt(t);
+        const ww = w * (1 - t * 0.7);
+        barkMarks += `M${r1(x - ww * 0.35 + rnd() * ww * 0.2)} ${r1(y)}l${r1(ww * 0.3)} ${r1(-1.2 - rnd())}`;
+      }
+    }
+
+    // The needle pads, from the bottom up, and the crooked branches that carry them.
+    let branches = '';
+    let shade = '';
+    let base = '';
+    let lit = '';
+    let lit2 = '';
+    let fringe = '';
+    let fringeLow = '';
+    let snowD = '';
+    let tips = '';
+    let cones = '';
+    let top = 214;
+    let half = 8;
+    const side0 = rnd() < 0.5 ? -1 : 1;
+    // Older pines carry more, smaller pads, spread left and right at the ends of their
+    // branches with sky between them; the widest are high up, like an umbrella.
+    const count = n + Math.round(old * 2);
+    const zone = h * (1 - cs);
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 1;
+      const topPad = i === count - 1;
+      const youngRx = reach * (1 - t * 0.66);
+      const oldRx = reach * (0.34 + 0.16 * Math.sin(Math.PI * (0.2 + 0.7 * t))) * (topPad ? 1.25 : 1);
+      const rx = (youngRx + (oldRx - youngRx) * old) * (0.88 + rnd() * 0.24);
+      const ty = cs + (1 - cs) * (0.05 + t * 0.85) + (topPad ? 0 : (rnd() - 0.5) * 0.05 * old);
+      const [sx, sy] = stemAt(Math.min(0.97, ty));
+      const side = topPad ? (rnd() - 0.5) * 0.3 : (i % 2 ? side0 : -side0);
+      const out = reach * (0.3 + 0.38 * t + rnd() * 0.14) * old;
+      const x0 = sx + side * out;
+      const y0 = sy - zone * 0.04 * old;
+      const spacing = zone / Math.max(1, count - 1);
+      const ry = Math.min(rx * 0.58, Math.max(3.2, spacing * (0.72 - 0.22 * old) + rx * 0.1));
+      // The branch out to an offset pad, with a kink.
+      if (old > 0.15 && Math.abs(x0 - sx) > 4) {
+        const kx = sx + (x0 - sx) * 0.55;
+        const ky = sy + 2 - Math.abs(x0 - sx) * 0.05 - (rnd() - 0.5) * 4;
+        branches += band(sx, sy + ry * 0.6, kx, ky, w * 0.42, w * 0.3) + band(kx, ky, x0, y0 + ry * 0.2, w * 0.3, w * 0.16);
+      }
+      // A pad: rounded tufts on top, a flat underside.
+      const m = 2 + Math.round(rx / 9);
+      const parts = [[x0, y0 + ry * 0.3, rx * 0.92, ry * 0.46, 0]];
+      for (let j = 0; j < m; j++) {
+        const u = m > 1 ? j / (m - 1) * 2 - 1 : 0;
+        const r = ry * (0.7 + rnd() * 0.3) * (1 - Math.abs(u) * 0.18);
+        parts.push([x0 + u * rx * 0.7 + (rnd() - 0.5) * 2, y0 - ry * 0.2 * (1 - u * u) + (rnd() - 0.5) * 1.6, r * 1.18, r, u]);
+      }
+      for (const [x, y, ex, ey, u] of parts) {
+        shade += oval(x - ex * 0.08 * L, y + ey * 0.34, ex, ey * 0.95);
+        base += oval(x, y, ex, ey);
+        // Light on the top of each tuft, more on the sunny side of the pad.
+        const face = u * lx * 0.6 + 0.5;
+        if (face > 0.2) lit += oval(x + ex * 0.12 * lx, y - ey * 0.3, ex * 0.7, ey * 0.48);
+        if (fineDetail && face > 0.55) lit2 += oval(x + ex * 0.2 * lx, y - ey * 0.44, ex * 0.32, ey * 0.22);
+        if (snow) snowD += oval(x, y - ey * 0.55, ex * 0.86, ey * 0.34);
+        top = Math.min(top, y - ey);
+        half = Math.max(half, Math.abs(x - 100) + ex);
+        // Close up, the edge of a tuft is made of needles.
+        if (fineDetail && ex < rx * 0.7) {
+          for (let k = 0; k < 5; k++) {
+            const a = -Math.PI * (0.12 + 0.76 * (k + rnd() * 0.5) / 5);
+            const px = x + Math.cos(a) * ex * 0.92;
+            const py = y + Math.sin(a) * ey * 0.92;
+            fringe += `M${r1(px)} ${r1(py)}l${r1(Math.cos(a) * 2.6)} ${r1(Math.sin(a) * 2.6)}`;
+          }
+          for (let k = 0; k < 3; k++) {
+            const a = Math.PI * (0.2 + 0.6 * (k + rnd() * 0.5) / 3);
+            const px = x + Math.cos(a) * ex * 0.9;
+            const py = y + Math.sin(a) * ey * 0.9 + ey * 0.3;
+            fringeLow += `M${r1(px)} ${r1(py)}l${r1(Math.cos(a) * 2.2)} ${r1(Math.sin(a) * 2.2)}`;
+          }
+        }
+      }
+      // In spring, light-green new shoots stand up from the pads.
+      if (own && season === 'spring' && level >= 2) {
+        for (let k = 0; k < 2 + Math.floor(rx / 14); k++) {
+          const x = x0 + (rnd() - 0.5) * rx * 1.4;
+          tips += `M${r1(x)} ${r1(y0 - ry * 0.7)}v-3.4`;
+        }
+      }
+      // Small cones under the pads of older pines.
+      if (level >= 5 && !topPad && rnd() < 0.6) {
+        const cxn = x0 + (rnd() - 0.5) * rx;
+        cones += `<ellipse class="cone" cx="${r1(cxn)}" cy="${r1(y0 + ry * 0.8)}" rx="1.4" ry="2.4"/>`;
+      }
+    }
+    const trunkTop = stemAt(cs);
+    const tone = own ? '' : ' gold-pine';
+    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="pine${tone}">` +
+      shadowMarkup(12 + reach * 0.9) +
+      `<g class="wood-g"><path class="wood" d="${wood}"/>${upper ? `<path class="wood pine-bark" d="${upper}"/>` : ''}` +
+      (level >= 1 ? rootMarkup(w) : '') +
+      `<path class="wood-shade" d="M${r1(100 + away * w / 2)} 214L${r1(trunkTop[0] + away * w * 0.25)} ${r1(trunkTop[1])}L${r1(trunkTop[0])} ${r1(trunkTop[1])}L100 214Z"/>` +
+      (barkMarks ? `<path class="bark-line" d="${barkMarks}"/>` : '') +
+      (branches ? `<path class="wood pine-bark" d="${branches}"/>` : '') + `</g>` +
+      `<path class="pine-shade" d="${shade}"/>` +
+      (fringeLow ? `<path class="pine-fringe low" d="${fringeLow}"/>` : '') +
+      `<path class="pine-needle" d="${base}"/>` +
+      (fringe ? `<path class="pine-fringe" d="${fringe}"/>` : '') +
+      `<path class="pine-hi" d="${lit}"/>` + (lit2 ? `<path class="pine-hi2" d="${lit2}"/>` : '') +
+      (tips ? `<path class="pine-tips" d="${tips}"/>` : '') + cones +
+      (snowD ? `<path class="snow" d="${snowD}"/>` : '') + `</g>`;
+  }
+
   function buildTree(minutes, key) {
     const species = speciesFor(key);
     if (species === 'tanne') return buildConifer(minutes, key);
+    if (species === 'kiefer') return buildPine(minutes, key);
     if (species === 'birke') return buildBirch(minutes, key);
     return buildBroadleaf(minutes, key, false);
   }
@@ -3220,9 +3436,10 @@ body {
       }
     }
     if (season === 'autumn' && tod === 'morning') {
-      const y = yTop + (yBot - yTop) * (0.45 + rnd() * 0.3);
-      out += `<path class="mist" style="animation-delay:${r1(-rnd() * 20)}s" d="M-60 ${r1(y)}Q60 ${r1(y - 10)} 160 ${r1(y - 3)}T380 ${r1(y - 6)}T470 ${r1(y)}` +
-        `V${r1(y + 12)}Q340 ${r1(y + 18)} 200 ${r1(y + 13)}T-60 ${r1(y + 12)}Z"/>`;
+      // A soft veil with no hard edges: it fades out above and below.
+      const y = yTop + (yBot - yTop) * (0.4 + rnd() * 0.3);
+      out += `<path class="mist" style="animation-delay:${r1(-rnd() * 20)}s" d="M-60 ${r1(y)}Q60 ${r1(y - 14)} 160 ${r1(y - 6)}T380 ${r1(y - 9)}T470 ${r1(y)}` +
+        `V${r1(y + 30)}Q340 ${r1(y + 38)} 200 ${r1(y + 32)}T-60 ${r1(y + 30)}Z"/>`;
     }
     return out;
   }
@@ -3231,7 +3448,8 @@ body {
   function heroSkyMarkup() {
     const tod = timeOfDay();
     const p = sunPos();
-    const sun = p ? [70 + (p[0] - 40) / 320 * 260, 170 - (42 - p[1]) / 30 * 110] : null;
+    // At noon the sun stands well below the status label, so the two never touch.
+    const sun = p ? [64 + (p[0] - 40) / 320 * 272, 172 - (42 - p[1]) / 30 * 76] : null;
     return skyMarkup(tod, sun, 175, 150, [318, 70], [276, 250, 150]) + airMarkup('hero', 200, 290, 5);
   }
 
@@ -3619,31 +3837,48 @@ body {
       }
     });
 
-    // Group into rows: slot rows hold up to COLS items, rivers take a full row.
+    // Group into rows. A row holds two to four trees: how many depends on the row, and on
+    // how big its trees are, as large crowns need more room. Animals and the month sign
+    // stand between the trees and take no tree's place. A river or a golden tree found
+    // during a row follows right after that row, so rows are not cut short.
     const rows = [];
     let cur = null;
     let sign = null;
+    let later = [];
+    const TARGETS = [3.4, 4.3, 3.4, 2.3, 3.4, 4.3, 3.1, 2.6];
+    const treeWeight = (sec) => 0.8 + levelFor(sec) * 0.06;
+    // After a row comes at most one river or golden tree; any more wait for the next row,
+    // so two rivers never run side by side.
+    const close = (all) => {
+      if (cur) rows.push(cur);
+      cur = null;
+      if (all) { rows.push(...later); later = []; }
+      else if (later.length) rows.push(later.shift());
+    };
     for (const it of items) {
       if (it.type === 'month') {
-        // The signpost takes the first place of a new row, so no tree stands in front of it.
-        if (cur) { rows.push(cur); cur = null; }
+        // A new month starts a new row, with its signpost first.
+        close();
         sign = it.key;
         continue;
       }
       if (it.type === 'river' || it.type === 'golden') {
-        if (cur) { rows.push(cur); cur = null; }
-        if (it.type === 'river') rows.push({ type: 'river', h: RIVER_H, key: it.key });
-        else rows.push({ type: 'golden', h: ROW_H, item: it });
+        const row = it.type === 'river' ? { type: 'river', h: RIVER_H, key: it.key } : { type: 'golden', h: ROW_H, item: it };
+        if (cur) later.push(row);
+        else rows.push(row);
         continue;
       }
       if (!cur) {
-        cur = { type: 'slots', h: SLOT_ROW_H, items: [] };
+        cur = { type: 'slots', h: SLOT_ROW_H, items: [], weight: 0, target: TARGETS[hashStr(it.key + '#row') % TARGETS.length] };
         if (sign) { cur.items.push({ type: 'month', key: sign }); sign = null; }
       }
       cur.items.push(it);
-      if (cur.items.length === COLS) { rows.push(cur); cur = null; }
+      if (it.type === 'tree') {
+        cur.weight += treeWeight(it.sec);
+        if (cur.weight >= cur.target) close();
+      }
     }
-    if (cur) rows.push(cur);
+    close(true);
 
     // Lay out rows top to bottom. Each row only records how to draw itself; the drawing
     // happens when its part of the forest comes into view (see below).
@@ -3681,15 +3916,20 @@ body {
           const weather = weatherNow();
           if (weather === 'rain' || weather === 'rainbow') body += puddleMarkup(row.items[0].key + '#' + sr, top + row.h - 10, weather === 'rain');
           if (specialNow() === 'crocus') body += crocusMarkup(row.items[0].key + '#' + sr, top + row.h - 34, top + row.h + 2, 7);
-          // Every other row shifts sideways, and each tree moves a little, so no straight lines.
-          // A row that is not full yet is spread around the middle instead of starting left.
-          const shift = (sr % 2 ? 1 : -1) * 14;
-          const k = row.items.length;
-          const spacing = k < COLS ? Math.min(SLOT_W * 1.2, 340 / k) : SLOT_W;
+          // The row is spread around the middle: each tree gets room by its size, animals
+          // and the sign a little less. Every other row shifts sideways, and each tree moves
+          // a little, so there are no straight lines.
+          const shift = (sr % 2 ? 1 : -1) * 10;
+          const room = (it) => it.type === 'tree' ? treeWeight(it.sec) : it.type === 'month' ? 0.62 : 0.46;
+          const total = row.items.reduce((sum, it) => sum + room(it), 0);
+          const span = Math.min(336, total * 96);
+          let at = 200 - span / 2;
           row.items.forEach((it, c) => {
             const rnd = mulberry32(hashStr(it.key + '#pos' + c));
-            const slotX = k < COLS ? 200 + (c - (k - 1) / 2) * spacing : (c + 0.5) * SLOT_W;
-            const jitter = it.type === 'tree' ? 36 : 14;
+            const w = (room(it) / total) * span;
+            const slotX = at + w / 2;
+            at += w;
+            const jitter = it.type === 'tree' ? 16 : 8;
             const cx = slotX + shift + (rnd() - 0.5) * jitter;
             const baseY = top + row.h - 8 + (rnd() - 0.5) * 18;
             if (it.type === 'month') body += signMarkup(it.key, Math.max(34, Math.min(366, cx)), baseY);
@@ -3767,19 +4007,47 @@ body {
     forestStats.innerHTML = shown.length ? stats.join('') : '';
 
     findsBlock.hidden = finds.length === 0;
-    // Newest first, each with its little picture.
-    findsList.innerHTML = finds.slice().reverse().map((f) => {
-      const pic = f.kind === 'river'
-        ? '<path class="bank" d="M0 12Q10 6 20 12T40 12V21Q30 27 20 21T0 21Z"/><path class="water-fill" d="M0 13.6Q10 7.6 20 13.6T40 13.6V19.6Q30 25.6 20 19.6T0 19.6Z"/><path class="ripple" d="M8 15.4q3 -1.4 6 0M24 17.6q3 -1.4 6 0"/>'
-        : SPRITES[f.kind];
-      return `<li><svg class="find-icon" viewBox="0 0 40 30" aria-hidden="true">${pic}</svg>` +
-        `<strong>${KIND_INFO[f.kind][0] === 'eine' ? 'Eine' : 'Ein'} ${KIND_INFO[f.kind][1]}</strong>` +
-        `<span>${labelFor(f.key)}</span></li>`;
-    }).join('');
+    renderFinds(finds);
     forestDirty = false;
     forestShownOnce = true;
     lastForestSig = forestSignature();
   }
+
+  // The discoveries as small tiles, grouped by month, newest first. Only the two newest
+  // months show at first; the rest open with a button, so the list never gets endless.
+  let findsAll = false;
+  let lastFinds = [];
+  function renderFinds(finds) {
+    lastFinds = finds;
+    const groups = [];
+    for (const f of finds.slice().reverse()) {
+      const m = f.key.slice(0, 7);
+      if (!groups.length || groups[groups.length - 1].m !== m) groups.push({ m, items: [] });
+      groups[groups.length - 1].items.push(f);
+    }
+    const shownGroups = findsAll ? groups : groups.slice(0, 2);
+    const thisYear = new Date().getFullYear();
+    const dayText = (k) => k === dayKey() ? 'Heute' : k === dayBefore(dayKey(), 1) ? 'Gestern'
+      : parseKey(k).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric' });
+    findsList.innerHTML = shownGroups.map((g) => {
+      const d = parseKey(g.m + '-01');
+      const title = d.toLocaleDateString('de-DE', { month: 'long' }) + (d.getFullYear() !== thisYear ? ' ' + d.getFullYear() : '');
+      const tiles = g.items.map((f) => {
+        const pic = f.kind === 'river'
+          ? '<path class="bank" d="M0 12Q10 6 20 12T40 12V21Q30 27 20 21T0 21Z"/><path class="water-fill" d="M0 13.6Q10 7.6 20 13.6T40 13.6V19.6Q30 25.6 20 19.6T0 19.6Z"/><path class="ripple" d="M8 15.4q3 -1.4 6 0M24 17.6q3 -1.4 6 0"/>'
+          : SPRITES[f.kind];
+        return `<li class="find-tile"><svg class="find-icon" viewBox="0 0 40 30" aria-hidden="true">${pic}</svg>` +
+          `<strong>${KIND_INFO[f.kind][1]}</strong><span>${dayText(f.key)}</span></li>`;
+      }).join('');
+      return `<li class="finds-group"><h4 class="finds-month">${title}</h4><ul class="finds-grid">${tiles}</ul></li>`;
+    }).join('');
+    const hiddenCount = groups.slice(2).reduce((n, g) => n + g.items.length, 0);
+    const more = $('findsMore');
+    more.hidden = groups.length <= 2;
+    more.textContent = findsAll ? 'Weniger anzeigen' : `Ältere Entdeckungen anzeigen (${hiddenCount})`;
+    more.setAttribute('aria-expanded', String(findsAll));
+  }
+  $('findsMore').addEventListener('click', () => { findsAll = !findsAll; renderFinds(lastFinds); });
 
   // A wooden signpost at the start of each month; the year is added for January
   // and for months of an earlier year.
@@ -3825,8 +4093,15 @@ body {
     cx = Math.max(half + 2, Math.min(398 - half, cx));
     const tx = r1(cx - 100 * s);
     const ty = r1(baseY - 214 * s);
+    // Today's tree stands in a soft, warm light, so it is easy to find in a big forest.
+    let glow = '';
+    if (it.key === dayKey()) {
+      const top = Number((/data-top="([-\d.]+)"/.exec(markup) || [0, 120])[1]) + 18;
+      const hgt = 214 - top;
+      glow = `<ellipse class="today-glow" cx="100" cy="${r1(top + hgt * 0.55)}" rx="${r1(Math.max(46, hgt * 0.62))}" ry="${r1(Math.max(42, hgt * 0.68))}"/>`;
+    }
     return `<g class="pick" data-info="t|${it.key}|${Math.round(it.sec)}" transform="translate(${tx} ${ty}) scale(${s})">` +
-      `<title>${labelFor(it.key)}: ${fmtDur(it.sec)}, ${levelText(it.sec)}</title>` +
+      `<title>${labelFor(it.key)}: ${fmtDur(it.sec)}, ${levelText(it.sec)}</title>` + glow +
       `<g class="tree${growClass('f:' + it.key, levelFor(it.sec))}">${markup}</g></g>` +
       (it.companion ? companionItem(it, cx, baseY, s) : '');
   }
@@ -3851,7 +4126,7 @@ body {
     }
     const side = rnd() < 0.5 ? -1 : 1;
     if (it.companion === 'squirrel') {
-      const w = (level ? grownValue(LAUB, level, frac, 3) : 2) * s;
+      const w = (level ? grownValue(speciesFor(it.key) === 'kiefer' ? KIEFER : LAUB, level, frac, 3) : 2) * s;
       const k = 0.5;
       const x = cx + side * (w / 2 + 9) - 21 * k;
       return open + `transform="translate(${r1(x)} ${r1(baseY + 1 - 30 * k)}) scale(${k})">` + body;
@@ -4094,7 +4369,15 @@ body {
   function showTab(name) {
     if (!views[name]) name = 'timer';
     closeTip();
+    const before = Object.keys(views).find((k) => !views[k].hidden);
     for (const [k, v] of Object.entries(views)) v.hidden = k !== name;
+    // The new view fades in briefly instead of jumping.
+    if (before && before !== name) {
+      const v = views[name];
+      v.classList.remove('view-in');
+      void v.offsetWidth;
+      v.classList.add('view-in');
+    }
     tabs.forEach((t) => {
       t.setAttribute('aria-selected', String(t.dataset.tab === name));
       t.tabIndex = t.dataset.tab === name ? 0 : -1;
@@ -4177,7 +4460,7 @@ body {
   });
 
   // ---------- a tap on a tree, an animal or a river tells its story ----------
-  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Tanne' };
+  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Tanne', kiefer: 'Kiefer' };
   let picked = null;
 
   function longDate(key) {
@@ -4287,6 +4570,15 @@ body {
       box.appendChild(f);
     }
     fieldEl.prepend(box);
+  }
+
+  // A light haze over the upper part of the screen: what is further up looks further
+  // away, so the forest has depth and the trees in front stand out.
+  function makeHaze() {
+    const haze = document.createElement('div');
+    haze.className = 'haze';
+    haze.setAttribute('aria-hidden', 'true');
+    fieldEl.prepend(haze);
   }
 
   // Rain: fine streaks falling over the forest and over the clearing in the timer.
@@ -4470,6 +4762,7 @@ body {
   tick();
   makeFlakes();
   makeRain();
+  makeHaze();
   makeDrift();
   renderBackupLast();
   setInterval(tick, 200);
