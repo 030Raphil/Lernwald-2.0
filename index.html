@@ -1,5 +1,8 @@
 <!doctype html><html lang="de"><head><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Lernwald 2.0</title>
+<meta name="theme-color" content="#eef3ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1812" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="Lernwald">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;600;700&display=swap">
 <style>
@@ -25,12 +28,12 @@
   --gold-text: #8a6200;
   --birch: #efe9df;
   --conifer: #2f6a48;
-  --pine: #46766a;
+  --pine: #4a7a63;
   --willow: #8fb24e;
   --willow-spring: #acd064;
   --willow-autumn: #c6bf4e;
   --willow-twig: #c29c40;
-  --pine-bark: #c4703e;
+  --pine-bark: #c27848;
   --stone: #a5ab9f;
   --sky: #e2ece4;
   --ground: #a8c59a;
@@ -210,7 +213,7 @@ body {
   /* The card is a clearing: sky and hills on top, the meadow below holds the timer. */
   background: var(--hero-body);
   border: 0;
-  border-radius: 28px;
+  border-radius: 24px;
   padding: 0 18px 22px;
   text-align: center;
   overflow: hidden;
@@ -318,7 +321,7 @@ body {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   overflow: hidden;
 }
-.level-bar span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--accent); transition: width 900ms ease; }
+.level-bar span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--accent); transition: width 700ms cubic-bezier(.23, 1, .32, 1); }
 .bar-row { display: flex; align-items: flex-end; gap: 8px; margin-top: 6px; }
 .bar-row .bar { flex: 1; margin: 0 0 3px; }
 .goal-tree { width: 18px; height: 20px; flex: none; display: block; }
@@ -368,6 +371,18 @@ body {
 .btn.primary:disabled { color: var(--accent-ink); opacity: 0.5; }
 .btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
 
+/* Touch: no grey tap boxes, no double-tap zoom, no text selection on controls.
+   Feedback lands on press-in: buttons shrink a touch, bar buttons dim. */
+button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.tabbar, .stage, .field svg, #heroTree { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.btn { transition: transform 140ms cubic-bezier(.23, 1, .32, 1), background-color 140ms, opacity 140ms; }
+.btn:active:not(:disabled) { transform: scale(0.97); transition-duration: 80ms; }
+.btn.primary:active:not(:disabled) { background: color-mix(in srgb, var(--accent) 88%, var(--ink)); }
+.btn:not(.primary):active:not(:disabled) { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.tab, .gear { transition: opacity 140ms; }
+.tab:active, .gear:active { opacity: 0.55; transition-duration: 60ms; }
+@media (prefers-reduced-motion: reduce) { .btn:active:not(:disabled) { transform: none; } }
+
 .confirm {
   margin-top: 16px;
   padding: 14px;
@@ -402,7 +417,7 @@ body {
 .field {
   margin-top: 14px;
   padding: 8px 6px 12px;
-  border-radius: 22px;
+  border-radius: 24px;
   border: 1px solid var(--line);
   --field-sky: var(--sky);
   background: linear-gradient(to bottom, var(--field-sky) 0px, var(--ground) 110px);
@@ -421,8 +436,8 @@ body {
   pointer-events: none;
   background: linear-gradient(to bottom, color-mix(in srgb, var(--field-sky) 40%, transparent) 0%, color-mix(in srgb, var(--field-sky) 12%, transparent) 22%, transparent 40%);
 }
-.view-in { animation: view-in 180ms ease-out; }
-@keyframes view-in { from { opacity: 0; transform: translateY(4px); } }
+.view-in { animation: view-in 140ms cubic-bezier(.23, 1, .32, 1); }
+@keyframes view-in { from { opacity: 0; } }
 .today-glow { fill: url(#g-today); animation: today-glow 4.5s ease-in-out infinite; }
 .gt-a { stop-color: #ffeeaa; stop-opacity: 0.95; }
 .gt-b { stop-color: #ffeba6; stop-opacity: 0.42; }
@@ -440,7 +455,7 @@ body {
   z-index: 5;
   max-width: 250px;
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.16);
@@ -482,7 +497,7 @@ body {
   padding: 10px 6px 8px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   text-align: center;
 }
 .find-tile strong { font-size: 14px; line-height: 1.25; }
@@ -561,7 +576,7 @@ body {
 /* Fir */
 .needle { fill: var(--conifer); }
 .pine-needle { fill: var(--pine); }
-.pine-shade { fill: color-mix(in srgb, var(--pine) 66%, #06120a); }
+.pine-shade { fill: color-mix(in srgb, var(--pine) 72%, #06120a); }
 .pine-hi { fill: color-mix(in srgb, var(--pine) 80%, #e4f2e2); }
 .pine-hi2 { fill: color-mix(in srgb, var(--pine) 64%, #eef8ec); }
 .pine-fringe { fill: none; stroke: var(--pine); stroke-width: 0.9; stroke-linecap: round; }
@@ -861,6 +876,20 @@ body {
 .cattail { fill: var(--bark); }
 .stone { fill: var(--stone); }
 .stone-hi { fill: color-mix(in srgb, var(--stone) 62%, #fff); }
+.step-wet { fill: color-mix(in srgb, var(--water) 70%, #1d4250); opacity: 0.55; }
+.step-stone { fill: color-mix(in srgb, var(--stone) 92%, #3c4a50); }
+.bridge-shadow { fill: color-mix(in srgb, var(--water) 60%, #10303a); opacity: 0.5; }
+.bridge-deck { fill: color-mix(in srgb, var(--bark) 62%, #d8b483); }
+.bridge-side { fill: color-mix(in srgb, var(--bark) 90%, #1a0f08); }
+.bridge-plank { fill: none; stroke: color-mix(in srgb, var(--bark) 85%, #2b1a0e); stroke-width: 0.6; opacity: 0.7; }
+.bridge-post { fill: none; stroke: color-mix(in srgb, var(--bark) 90%, #1a0f08); stroke-width: 1.5; stroke-linecap: round; }
+.bridge-rail { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #d8b483); stroke-width: 1.2; stroke-linecap: round; }
+.app[data-season="winter"] .bridge-deck { fill: var(--win-snow); }
+.lily { fill: color-mix(in srgb, var(--leaf-2) 80%, #9ccf6a); }
+.lily-flower { fill: #f6c6d4; }
+.shroom-stem { fill: #efe6d6; }
+.shroom-cap { fill: #c9452f; }
+.shroom-dot { fill: #fff6ea; }
 .fern { fill: none; stroke: color-mix(in srgb, var(--t1) 55%, var(--leaf-2)); stroke-width: 1.7; stroke-linecap: round; }
 .app[data-season="winter"] .fern,
 .app[data-season="winter"] .lily,
@@ -880,7 +909,8 @@ body {
   display: grid;
   place-items: center;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  --dim: 0.32;
+  background: rgb(14 24 16 / calc(var(--dim) * (1 - var(--pull, 0))));
 }
 .sheet-card {
   width: min(100%, 380px);
@@ -892,6 +922,50 @@ body {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 24px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.14);
+}
+/* Settings is a bottom sheet: it rises from the bottom edge, has a grabber and can be
+   pulled down to close. The finish card is a centred card that pops in. */
+.sheet { animation: sheet-dim 220ms cubic-bezier(.23, 1, .32, 1); }
+.sheet > .sheet-card { animation: sheet-pop 260ms cubic-bezier(.23, 1, .32, 1); }
+@keyframes sheet-dim { from { background-color: transparent; } }
+@keyframes sheet-pop { from { opacity: 0; transform: scale(0.95); } }
+.sheet.bottom {
+  place-items: end center;
+  padding-bottom: 0;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  --dim: 0.32;
+  background: rgb(14 24 16 / calc(var(--dim) * (1 - var(--pull, 0))));
+}
+.sheet.bottom > .sheet-card {
+  width: min(100%, 520px);
+  max-height: calc(100% - 24px);
+  padding-top: 10px;
+  padding-bottom: max(22px, calc(14px + env(safe-area-inset-bottom, 0px)));
+  border-width: 1px 0 0;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 32px rgb(0 0 0 / 0.12);
+  animation: sheet-up 340ms cubic-bezier(.23, 1, .32, 1);
+  transition: transform 320ms cubic-bezier(.23, 1, .32, 1);
+  overscroll-behavior: contain;
+}
+.sheet.bottom > .sheet-card.dragging { transition: none; }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sheet { --dim: 0.5; background: rgb(0 0 0 / calc(var(--dim) * (1 - var(--pull, 0)))); } }
+:root[data-theme="dark"] .sheet { --dim: 0.5; background: rgb(0 0 0 / calc(var(--dim) * (1 - var(--pull, 0)))); }
+.grabber {
+  display: block;
+  width: 36px;
+  height: 5px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+}
+.sheet-ghost { position: fixed; inset: 0; z-index: 21; pointer-events: none; }
+.sheet-ghost > .sheet-card { position: fixed; margin: 0; box-sizing: border-box; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheet > .sheet-card, .sheet.bottom > .sheet-card { animation-duration: 1ms; }
 }
 .sheet-card h2 {
   font-family: "Young Serif", Georgia, serif;
@@ -1031,7 +1105,7 @@ body {
 .week-row {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 10px 14px 12px;
   min-width: 0;
 }
@@ -1379,8 +1453,9 @@ body {
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.07 9.81L21.76 10.33L21.76 13.67L19.07 14.19L18.55 15.45L20.08 17.72L17.72 20.08L15.45 18.55L14.19 19.07L13.67 21.76L10.33 21.76L9.81 19.07L8.55 18.55L6.28 20.08L3.92 17.72L5.45 15.45L4.93 14.19L2.24 13.67L2.24 10.33L4.93 9.81L5.45 8.55L3.92 6.28L6.28 3.92L8.55 5.45L9.81 4.93L10.33 2.24L13.67 2.24L14.19 4.93L15.45 5.45L17.72 3.92L20.08 6.28L18.55 8.55Z"/><circle cx="12" cy="12" r="3.1"/></svg>
   </button>
 
-  <div class="sheet" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="sheet bottom" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
     <div class="sheet-card settings-card">
+      <span class="grabber" aria-hidden="true"></span>
       <div class="settings-head">
         <h2 id="settingsTitle">Einstellungen</h2>
         <button class="btn settings-close" id="settingsClose" type="button">Fertig</button>
@@ -2266,13 +2341,13 @@ body {
     const side0 = rnd() < 0.5 ? -1 : 1;
     // Older pines carry more, smaller pads, spread left and right at the ends of their
     // branches with sky between them; the widest are high up, like an umbrella.
-    const count = n + Math.round(old * 2);
+    const count = n + Math.round(old);
     const zone = h * (1 - cs);
     for (let i = 0; i < count; i++) {
       const t = count > 1 ? i / (count - 1) : 1;
       const topPad = i === count - 1;
       const youngRx = reach * (1 - t * 0.66);
-      const oldRx = reach * (0.34 + 0.16 * Math.sin(Math.PI * (0.2 + 0.7 * t))) * (topPad ? 1.25 : 1);
+      const oldRx = reach * (0.4 + 0.18 * Math.sin(Math.PI * (0.2 + 0.7 * t))) * (topPad ? 1.25 : 1);
       const rx = (youngRx + (oldRx - youngRx) * old) * (0.88 + rnd() * 0.24);
       const ty = cs + (1 - cs) * (0.05 + t * 0.85) + (topPad ? 0 : (rnd() - 0.5) * 0.05 * old);
       const [sx, sy] = stemAt(Math.min(0.97, ty));
@@ -2281,7 +2356,8 @@ body {
       const x0 = sx + side * out;
       const y0 = sy - zone * 0.04 * old;
       const spacing = zone / Math.max(1, count - 1);
-      const ry = Math.min(rx * 0.58, Math.max(3.2, spacing * (0.72 - 0.22 * old) + rx * 0.1));
+      // Young pines are one bushy cone, so their pads overlap; old ones have sky between.
+      const ry = Math.min(rx * (0.82 - 0.3 * old), Math.max(3.6, rx * 0.34 * old, spacing * (1.3 - 0.7 * old) + rx * 0.14));
       // The branch out to an offset pad, with a kink.
       if (old > 0.15 && Math.abs(x0 - sx) > 4) {
         const kx = sx + (x0 - sx) * 0.55;
@@ -2289,15 +2365,17 @@ body {
         branches += band(sx, sy + ry * 0.6, kx, ky, w * 0.42, w * 0.3) + band(kx, ky, x0, y0 + ry * 0.2, w * 0.3, w * 0.16);
       }
       // A pad: rounded tufts on top, a flat underside.
-      const m = 2 + Math.round(rx / 9);
-      const parts = [[x0, y0 + ry * 0.3, rx * 0.92, ry * 0.46, 0]];
+      // Many puffy tufts of different size make a cloud-like clump instead of a disc.
+      const m = 3 + Math.round(rx / 7);
+      const parts = [[x0, y0 + ry * 0.32, rx * 0.9, ry * 0.5, 0]];
+      shade += oval(x0 - rx * 0.05 * L, y0 + ry * 0.55, rx * 0.88, ry * 0.5);
       for (let j = 0; j < m; j++) {
         const u = m > 1 ? j / (m - 1) * 2 - 1 : 0;
-        const r = ry * (0.7 + rnd() * 0.3) * (1 - Math.abs(u) * 0.18);
-        parts.push([x0 + u * rx * 0.7 + (rnd() - 0.5) * 2, y0 - ry * 0.2 * (1 - u * u) + (rnd() - 0.5) * 1.6, r * 1.18, r, u]);
+        const r = ry * (0.55 + rnd() * 0.45) * (1 - Math.abs(u) * 0.22);
+        parts.push([x0 + u * rx * 0.74 + (rnd() - 0.5) * 3, y0 - ry * 0.28 * (1 - u * u) + (rnd() - 0.5) * ry * 0.4, r * 1.15, r, u]);
       }
       for (const [x, y, ex, ey, u] of parts) {
-        shade += oval(x - ex * 0.08 * L, y + ey * 0.34, ex, ey * 0.95);
+        shade += oval(x - ex * 0.06 * L, y + ey * 0.2, ex * 0.96, ey * 0.9);
         base += oval(x, y, ex, ey);
         // Light on the top of each tuft, more on the sunny side of the pad.
         const face = u * lx * 0.6 + 0.5;
@@ -2335,6 +2413,17 @@ body {
         cones += `<ellipse class="cone" cx="${r1(cxn)}" cy="${r1(y0 + ry * 0.8)}" rx="1.4" ry="2.4"/>`;
       }
     }
+    // A young pine ends in an upright leading shoot with a little tuft, so it reads as
+    // a conifer and not as a round bush.
+    let leader = '';
+    if (level >= 1 && level <= 4) {
+      const [lx0, ly0] = stemAt(0.97);
+      const ly1 = top - 1.5 - level * 0.8;
+      leader = `<path class="wood pine-bark" d="${band(lx0, ly0, lx0 + bend * 0.1, ly1, w * 0.32, w * 0.18)}"/>` +
+        `<path class="pine-needle" d="${oval(lx0 + bend * 0.1, ly1 - 0.6, 1.8 + level * 0.3, 2.4 + level * 0.3)}"/>` +
+        `<path class="pine-hi" d="${oval(lx0 + bend * 0.1 + 0.4 * L, ly1 - 1.4, 1 + level * 0.15, 1.1)}"/>`;
+      top = Math.min(top, ly1 - 3);
+    }
     const trunkTop = stemAt(cs);
     const tone = own ? '' : ' gold-pine';
     return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="pine${tone}">` +
@@ -2345,11 +2434,10 @@ body {
       (barkMarks ? `<path class="bark-line" d="${barkMarks}"/>` : '') +
       (branches ? `<path class="wood pine-bark" d="${branches}"/>` : '') + `</g>` +
       `<path class="pine-shade" d="${shade}"/>` +
-      (fringeLow ? `<path class="pine-fringe low" d="${fringeLow}"/>` : '') +
       `<path class="pine-needle" d="${base}"/>` +
       (fringe ? `<path class="pine-fringe" d="${fringe}"/>` : '') +
       `<path class="pine-hi" d="${lit}"/>` + (lit2 ? `<path class="pine-hi2" d="${lit2}"/>` : '') +
-      (tips ? `<path class="pine-tips" d="${tips}"/>` : '') + cones +
+      leader + (tips ? `<path class="pine-tips" d="${tips}"/>` : '') + cones +
       (snowD ? `<path class="snow" d="${snowD}"/>` : '') + `</g>`;
   }
 
@@ -3144,10 +3232,12 @@ body {
   }
 
   // Crops the empty space above a tree, keeping its size.
-  function fitTree(svg) {
+  // The hero keeps room above small trees so the stage stays calm; the finish card
+  // crops closer, so a young tree doesn't float under a big empty gap.
+  function fitTree(svg, cap = 100) {
     const el = svg.querySelector('[data-top]');
     const top = el ? Number(el.getAttribute('data-top')) : 0;
-    const y = Math.min(Math.floor(top) - 6, 100);
+    const y = Math.min(Math.floor(top) - 6, cap);
     svg.setAttribute('viewBox', `0 ${y} 200 ${222 - y}`);
   }
 
@@ -3469,7 +3559,17 @@ body {
   // A river crossing the forest. Each river gets its own course: falling or rising
   // diagonally, winding in wide S-bends, or swinging up in an arc. Banks, water that is
   // darker in the middle, small ripples and stones follow that course.
+  // Not every river looks the same: some are narrow brooks with stepping stones, some
+  // have a little wooden footbridge, the wide ones carry water lilies in summer.
+  function riverStyle(key) {
+    const n = hashStr(key + '#style') % 6;
+    return n < 2 ? 'brook' : n === 2 ? 'bridge' : 'river';
+  }
+  const BROOK_H = 80;
+
   function riverMarkup(y0, h, seed) {
+    const style = riverStyle(seed);
+    const wide = style === 'brook' ? 0.58 : 1;
     const rnd = mulberry32(hashStr(seed + '#river'));
     const kind = Math.floor(rnd() * 4);
     const ph = rnd() * 6;
@@ -3498,7 +3598,7 @@ body {
       const len = Math.hypot(tx, ty) || 1;
       return [ty / len, -tx / len, tx / len, ty / len]; // normal (pointing up), tangent
     };
-    const halfAt = (i) => 10.5 + Math.sin(i / 4.2 + ph2) * 4;
+    const halfAt = (i) => (10.5 + Math.sin(i / 4.2 + ph2) * 4) * wide;
     const ribbon = (grow, scale) => {
       const a = [];
       const b = [];
@@ -3576,6 +3676,77 @@ body {
         }
       }
     }
+    // Where something crosses the water: a spot in the middle third, where the course
+    // is fairly flat, so a bridge or stones sit nicely across it.
+    let crossing = '';
+    let lilies = '';
+    const season = seasonNow();
+    if (style !== 'river') {
+      let best = Math.floor(n / 2);
+      let flat = 9;
+      for (let k = Math.floor(n * 0.3); k < n * 0.7; k++) {
+        const [nx] = normal(k);
+        const [x] = centre[k];
+        if (x < 110 || x > 290) continue;
+        if (Math.abs(nx) < flat) { flat = Math.abs(nx); best = k; }
+      }
+      const [x, y] = centre[best];
+      const [nx, ny, tx, ty] = normal(best);
+      const hw = halfAt(best);
+      const P = (a, b) => `${r1(x + nx * a + tx * b)} ${r1(y + ny * a + ty * b)}`;
+      if (style === 'brook') {
+        // Stepping stones, from one bank to the other.
+        let st = '';
+        let sh = '';
+        let wet = '';
+        const m = 3;
+        for (let j = 0; j < m; j++) {
+          const a = (j - 1) * hw * 1.05;
+          const b = (j - 1) * 5 + (rnd() - 0.5) * 2;
+          const px = x + nx * a + tx * b;
+          const py = y + ny * a + ty * b;
+          const rx = 3.6 + rnd() * 1;
+          wet += oval(px, py + 0.7, rx + 1, 2.6);
+          st += oval(px, py, rx, 2.2);
+          sh += oval(px - 0.7, py - 0.8, rx * 0.55, 0.9);
+        }
+        crossing = `<path class="step-wet" d="${wet}"/><path class="step-stone" d="${st}"/><path class="stone-hi" d="${sh}"/>`;
+      } else {
+        // A small wooden footbridge with planks and a hand rail on each side.
+        const len = hw + 8;
+        const bw = 9;
+        const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
+        let planks = '';
+        for (let a = -len + 2.4; a < len; a += 2.8) planks += `M${P(a, -bw)}L${P(a, bw)}`;
+        const rail = (b) => `M${P(-len, b)}L${P(len, b)}`;
+        let posts = '';
+        for (const a of [-len + 1, -hw * 0.45, hw * 0.45, len - 1]) for (const b of [-bw, bw]) {
+          const [px, py] = [x + nx * a + tx * b, y + ny * a + ty * b];
+          posts += `M${r1(px)} ${r1(py)}l0 -6`;
+        }
+        const up = (d) => d.replace(/(-?[\d.]+) (-?[\d.]+)/g, (m0, a, b) => `${a} ${r1(Number(b) - 6)}`);
+        // The side of the deck that faces us, for a little depth.
+        const side = `M${P(-len, bw)}L${P(len, bw)}L${P(len, bw + 2.2)}L${P(-len, bw + 2.2)}Z`;
+        crossing = `<path class="bridge-shadow" d="M${P(-hw, -bw)}L${P(hw, -bw)}L${P(hw, bw + 5)}L${P(-hw, bw + 5)}Z"/>` +
+          `<path class="bridge-side" d="${side}"/><path class="bridge-deck" d="${deck}"/><path class="bridge-plank" d="${planks}"/>` +
+          `<path class="bridge-post" d="${posts}"/><path class="bridge-rail" d="${up(rail(-bw) + rail(bw))}"/>`;
+      }
+    } else if (season === 'summer' || season === 'spring') {
+      // Water lilies drift near the banks of the wide rivers.
+      let flower = '';
+      for (let i = 0; i < 4; i++) {
+        const k = 4 + Math.floor(rnd() * (n - 8));
+        const [x, y] = centre[k];
+        const [nx, ny] = normal(k);
+        const off = halfAt(k) * (rnd() < 0.5 ? 0.45 : -0.45);
+        const px = x + nx * off;
+        const py = y + ny * off;
+        const r = 2.4 + rnd() * 1.2;
+        lilies += `M${r1(px)} ${r1(py)}L${r1(px + r)} ${r1(py - r * 0.25)}A${r1(r)} ${r1(r * 0.6)} 0 1 1 ${r1(px + r * 0.6)} ${r1(py + r * 0.45)}Z`;
+        if (!i && season === 'summer') flower = `<circle class="lily-flower" cx="${r1(px - 0.4)}" cy="${r1(py - 0.8)}" r="1.4"/>`;
+      }
+      lilies = `<path class="lily" d="${lilies}"/>` + flower;
+    }
     return `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
       `<path class="bank-wet" d="${ribbon(1.3, 1)}"/>` +
       `<path class="water-fill" d="${ribbon(0, 1)}"/>` +
@@ -3585,7 +3756,7 @@ body {
       `<path class="stone" d="${stones}"/><path class="stone-hi" d="${stonesHi}"/>` +
       (grass ? `<path class="blade" d="${grass}"/>` : '') +
       (reeds ? `<path class="reed" d="${reeds}"/>` : '') +
-      (tails ? `<path class="cattail" d="${tails}"/>` : '');
+      (tails ? `<path class="cattail" d="${tails}"/>` : '') + lilies + crossing;
   }
 
   // ---------- atmosphere ----------
@@ -4139,7 +4310,7 @@ body {
         continue;
       }
       if (it.type === 'river' || it.type === 'golden') {
-        const row = it.type === 'river' ? { type: 'river', h: RIVER_H, key: it.key } : { type: 'golden', h: ROW_H, item: it };
+        const row = it.type === 'river' ? { type: 'river', h: riverStyle(it.key) === 'brook' ? BROOK_H : RIVER_H, key: it.key } : { type: 'golden', h: ROW_H, item: it };
         if (cur || lastIsBreak()) later.push(row);
         else rows.push(row);
         continue;
@@ -4389,7 +4560,32 @@ body {
     return `<g class="pick" data-info="t|${it.key}|${Math.round(it.sec)}" transform="translate(${tx} ${ty}) scale(${s})">` +
       `<title>${labelFor(it.key)}: ${fmtDur(it.sec)}, ${levelText(it.sec)}</title>` + glow +
       `<g class="tree${growClass('f:' + it.key, levelFor(it.sec))}">${markup}</g></g>` +
-      (it.companion ? companionItem(it, cx, baseY, s) : '');
+      (it.companion ? companionItem(it, cx, baseY, s) : '') + mushroomsBy(it, cx, baseY, half);
+  }
+
+  // In autumn a few fly agarics come up beside some of the bigger trees.
+  function mushroomsBy(it, cx, baseY, half) {
+    if (seasonNow() !== 'autumn' || levelFor(it.sec) < 3) return '';
+    const h = hashStr(it.key + '#shroom');
+    if (h % 4) return '';
+    const rnd = mulberry32(h);
+    const side = it.companion ? -1 : (h & 16 ? 1 : -1);
+    let x = cx + side * (6 + Math.min(half, 30) * 0.45 + rnd() * 6);
+    x = Math.max(8, Math.min(392, x));
+    let stem = '';
+    let cap = '';
+    let dots = '';
+    const m = 1 + Math.floor(rnd() * 3);
+    for (let i = 0; i < m; i++) {
+      const px = x + (i - (m - 1) / 2) * 5 + (rnd() - 0.5) * 1.5;
+      const sz = (i === 0 ? 1 : 0.72) * (0.9 + rnd() * 0.2);
+      const hgt = 4.2 * sz;
+      const py = baseY - 1 + i * 0.6;
+      stem += `M${r1(px - 0.8 * sz)} ${r1(py)}L${r1(px - 0.6 * sz)} ${r1(py - hgt)}L${r1(px + 0.6 * sz)} ${r1(py - hgt)}L${r1(px + 0.8 * sz)} ${r1(py)}Z`;
+      cap += `M${r1(px - 3.2 * sz)} ${r1(py - hgt + 0.4)}Q${r1(px)} ${r1(py - hgt - 4.4 * sz)} ${r1(px + 3.2 * sz)} ${r1(py - hgt + 0.4)}Z`;
+      dots += oval(px - 1.1 * sz, py - hgt - 1.4 * sz, 0.45 * sz, 0.35 * sz) + oval(px + 1 * sz, py - hgt - 1 * sz, 0.4 * sz, 0.3 * sz);
+    }
+    return `<g class="shroom" aria-hidden="true"><path class="shroom-stem" d="${stem}"/><path class="shroom-cap" d="${cap}"/><path class="shroom-dot" d="${dots}"/></g>`;
   }
 
   // An animal that lives with its tree: the woodpecker clings to the birch trunk,
@@ -4520,7 +4716,7 @@ body {
     const after = markupFor(total, key);
     const was = markupFor(before, key);
     sheetTree.innerHTML = `<g class="sheet-after">${after}</g><g class="sheet-before">${was}</g>`;
-    fitTree(sheetTree);
+    fitTree(sheetTree, 140);
     growOnSheet(after, was);
     const studyDays = Object.keys(state.days).filter((k) => storedSec(k) > 0).sort();
     const found = discoveriesFor(key, studyDays.indexOf(key));
@@ -4688,7 +4884,16 @@ body {
     }
   }
 
-  tabs.forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  tabs.forEach((t) => t.addEventListener('click', () => {
+    // Tapping the tab you are on brings you back to its start, as in any tab bar:
+    // the top of the timer and the weeks, the newest trees in the forest.
+    if (t.getAttribute('aria-selected') === 'true') {
+      if (t.dataset.tab === 'forest') scrollToNewest();
+      else window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+      return;
+    }
+    showTab(t.dataset.tab);
+  }));
   // Arrow keys move between the tabs, as in any tab bar.
   tabs.forEach((t, i) => t.addEventListener('keydown', (e) => {
     const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
@@ -4712,11 +4917,117 @@ body {
 
   // ---------- dialogs ----------
   // While a dialog is open, everything behind it is inert: no taps, no focus, not read out.
+  // ---------- native feel: haptics, closing sheets, pulling a sheet down ----------
+  // A short tick from the phone as punctuation for a real action. iPhones have no
+  // vibration API, but toggling a hidden switch control inside a tap gives one tick.
+  const hapticSwitch = (() => {
+    try {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.setAttribute('switch', '');
+      input.tabIndex = -1;
+      label.appendChild(input);
+      label.setAttribute('aria-hidden', 'true');
+      label.style.display = 'none';
+      document.body.appendChild(label);
+      return label;
+    } catch (e) { return null; }
+  })();
+  function haptic(kind) {
+    try {
+      if (navigator.vibrate) navigator.vibrate(kind === 'success' ? [10, 60, 14] : 8);
+      else if (hapticSwitch) {
+        hapticSwitch.click();
+      }
+    } catch (e) { /* no haptics here */ }
+  }
+  // iOS shows :active press states only when a touch listener exists.
+  document.addEventListener('touchstart', () => {}, { passive: true });
+
+  // A closing sheet leaves the way it came: the dialog itself is hidden at once (so
+  // focus and state stay simple), and a silent copy of it slides or fades away.
+  function sheetExit(dialog) {
+    if (dialog.hidden || reducedMotion()) return;
+    const card = dialog.querySelector('.sheet-card');
+    const r = card.getBoundingClientRect();
+    const ghost = document.createElement('div');
+    ghost.className = 'sheet-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.inert = true;
+    const dim = document.createElement('div');
+    dim.style.cssText = `position:fixed;inset:0;background:${getComputedStyle(dialog).backgroundColor}`;
+    const copy = card.cloneNode(true);
+    copy.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+    copy.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;max-height:none;animation:none;transition:none;transform:none`;
+    copy.scrollTop = card.scrollTop;
+    ghost.append(dim, copy);
+    app.appendChild(ghost);
+    const bottom = dialog.classList.contains('bottom');
+    const ease = 'cubic-bezier(.4, 0, 1, 1)';
+    const t = bottom ? 240 : 180;
+    dim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: t, easing: 'ease-out', fill: 'forwards' });
+    const a = copy.animate(bottom
+      ? [{ transform: 'translateY(0)' }, { transform: `translateY(${Math.round(window.innerHeight - r.top + 8)}px)` }]
+      : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.96)' }],
+    { duration: t, easing: ease, fill: 'forwards' });
+    a.onfinish = () => ghost.remove();
+    setTimeout(() => ghost.remove(), t + 300);
+  }
+
+  // Pull a bottom sheet down to close it, as on iOS: it follows the finger, a firm
+  // flick or a long pull closes it, anything else springs back.
+  function pullToClose(dialog, close) {
+    const card = dialog.querySelector('.sheet-card');
+    let y0 = null;
+    let dy = 0;
+    let dragging = false;
+    let samples = [];
+    card.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1 || card.scrollTop > 0 || e.target.closest('textarea')) { y0 = null; return; }
+      y0 = e.touches[0].clientY;
+      dy = 0;
+      dragging = false;
+      samples = [[performance.now(), y0]];
+    }, { passive: true });
+    card.addEventListener('touchmove', (e) => {
+      if (y0 === null) return;
+      const y = e.touches[0].clientY;
+      dy = y - y0;
+      if (!dragging) {
+        if (dy > 8 && card.scrollTop <= 0) { dragging = true; card.classList.add('dragging'); }
+        else if (dy < -8) { y0 = null; return; }
+        else return;
+      }
+      e.preventDefault();
+      samples.push([performance.now(), y]);
+      if (samples.length > 6) samples.shift();
+      card.style.transform = `translateY(${Math.max(0, dy)}px)`;
+      dialog.style.setProperty('--pull', Math.min(1, Math.max(0, dy) / card.offsetHeight).toFixed(3));
+    }, { passive: false });
+    const end = () => {
+      if (y0 === null) return;
+      y0 = null;
+      if (!dragging) return;
+      dragging = false;
+      card.classList.remove('dragging');
+      const [t1, p1] = samples[0];
+      const [t2, p2] = samples[samples.length - 1];
+      const v = (p2 - p1) / Math.max(1, t2 - t1); // px per ms
+      if (dy > card.offsetHeight * 0.35 || (v > 0.45 && dy > 24)) close();
+      card.style.transform = '';
+      dialog.style.removeProperty('--pull');
+    };
+    card.addEventListener('touchend', end);
+    card.addEventListener('touchcancel', end);
+  }
+
   function setBackdrop(dialog, on) {
-    for (const el of app.children) if (el !== dialog) el.inert = on;
+    for (const el of app.children) if (el !== dialog && !el.classList.contains('sheet-ghost')) el.inert = on;
   }
 
   toggleBtn.addEventListener('click', () => {
+    haptic();
     if (isRunning()) pause(); else start();
   });
 
@@ -4743,9 +5054,10 @@ body {
     toggleBtn.focus();
   }));
 
-  confirmYes.addEventListener('click', finishSession);
+  confirmYes.addEventListener('click', () => { haptic('success'); finishSession(); });
 
   sheetClose.addEventListener('click', () => {
+    sheetExit(sheet);
     sheet.hidden = true;
     setBackdrop(sheet, false);
     showTab('forest');
@@ -4936,12 +5248,14 @@ body {
   }
 
   function closeSettings() {
+    sheetExit(settings);
     settings.hidden = true;
     setBackdrop(settings, false);
     settingsBtn.focus();
   }
 
   settingsBtn.addEventListener('click', openSettings);
+  pullToClose(settings, closeSettings);
   $('settingsClose').addEventListener('click', closeSettings);
   // A tap next to the card closes it as well.
   settings.addEventListener('click', (e) => { if (e.target === settings) closeSettings(); });
@@ -4987,6 +5301,7 @@ body {
       await navigator.clipboard.writeText(text);
       backupOut.hidden = true;
       noteBackup();
+      haptic('success');
       showBackupMsg('Sicherung kopiert. Füge sie jetzt z. B. in eine Notiz ein.');
     } catch (e) {
       // Clipboard not allowed: show the text so it can be copied by hand.
