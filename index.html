@@ -26,6 +26,10 @@
   --birch: #efe9df;
   --conifer: #2f6a48;
   --pine: #46766a;
+  --willow: #8fb24e;
+  --willow-spring: #acd064;
+  --willow-autumn: #c6bf4e;
+  --willow-twig: #c29c40;
   --pine-bark: #c4703e;
   --stone: #a5ab9f;
   --sky: #e2ece4;
@@ -73,6 +77,10 @@
     --birch: #d9d2c5;
     --conifer: #2f7350;
     --pine: #4d8676;
+    --willow: #7fa548;
+    --willow-spring: #93b95a;
+    --willow-autumn: #b9b04a;
+    --willow-twig: #b8963f;
     --pine-bark: #b56a40;
     --stone: #5d665e;
     --sky: #13201a;
@@ -120,6 +128,10 @@
   --birch: #d9d2c5;
   --conifer: #2f7350;
   --pine: #4d8676;
+  --willow: #7fa548;
+  --willow-spring: #93b95a;
+  --willow-autumn: #b9b04a;
+  --willow-twig: #b8963f;
   --pine-bark: #b56a40;
   --stone: #5d665e;
   --sky: #13201a;
@@ -483,6 +495,9 @@ body {
 
 /* Tree and animal drawing */
 .ground { fill: var(--shade); opacity: 0.62; }
+/* On dark ground a full-strength shadow reads as a hole; keep it soft. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ground { opacity: 0.4; } }
+:root[data-theme="dark"] .ground { opacity: 0.4; }
 .branches path {
   fill: none;
   stroke: var(--bark);
@@ -553,6 +568,18 @@ body {
 .pine-fringe.low { stroke: color-mix(in srgb, var(--pine) 66%, #06120a); }
 .pine-tips { fill: none; stroke: #b9df8a; stroke-width: 1.4; stroke-linecap: round; }
 .wood.pine-bark { fill: var(--pine-bark); }
+.willow { --wl: var(--willow); }
+.app[data-season="spring"] .willow { --wl: var(--willow-spring); }
+.app[data-season="autumn"] .willow { --wl: var(--willow-autumn); }
+.willow-mass { fill: var(--wl); }
+.willow-back { fill: color-mix(in srgb, var(--wl) 58%, #0e2008); }
+.willow-shade { fill: color-mix(in srgb, var(--wl) 78%, #0e2008); }
+.willow-hi { fill: color-mix(in srgb, var(--wl) 80%, var(--light-mix)); }
+.willow-hi2 { fill: color-mix(in srgb, var(--wl) 76%, var(--light-mix)); }
+.willow-vein { fill: none; stroke: color-mix(in srgb, var(--wl) 70%, #0e2008); stroke-width: 0.6; stroke-linecap: round; opacity: .7; }
+.willow-twig { fill: none; stroke: var(--willow-twig); stroke-width: 0.8; stroke-linecap: round; }
+.willow-twig.back { stroke: color-mix(in srgb, var(--willow-twig) 78%, var(--bark)); }
+.willow-twig.front { stroke: color-mix(in srgb, var(--willow-twig) 75%, #fff6d0); stroke-width: 0.7; }
 .needle-shade { fill: color-mix(in srgb, var(--conifer) 72%, #06120a); }
 .needle-hi { fill: color-mix(in srgb, var(--conifer) 78%, #e8f5d0); }
 .needle-cast { fill: color-mix(in srgb, var(--conifer) 62%, #06120a); }
@@ -764,6 +791,14 @@ body {
 .wp-feet { fill: none; stroke: #5d5a55; stroke-width: 0.8; stroke-linecap: round; }
 .birch-trunk { fill: var(--birch); }
 .field .icon-only { display: none; }
+.kf-blue { fill: #2186a8; }
+.kf-shine { fill: #4cc6d8; }
+.kf-orange { fill: #e07a34; }
+.kf-white { fill: #f4f1ea; }
+.kf-bill { fill: #2b2724; }
+.kf-feet { fill: none; stroke: #d8553a; stroke-width: 0.7; stroke-linecap: round; }
+.kf-perch { fill: none; stroke: var(--bark); stroke-width: 1.3; stroke-linecap: round; }
+.kf-leaf { fill: var(--willow); }
 .badger { fill: #8e8a83; }
 .badger-hi { fill: #b9b5ad; }
 .badger-dark, .badger-leg { fill: #2c2926; }
@@ -1026,6 +1061,31 @@ body {
   background: var(--accent);
 }
 
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.wd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 20px;
+}
+.week-days.named .wd { height: 34px; }
+.wd i {
+  display: block;
+  width: min(100%, 12px);
+  border-radius: 3px 3px 1px 1px;
+  background: color-mix(in srgb, var(--accent) 55%, var(--surface));
+}
+.week-row.gold .wd i { background: color-mix(in srgb, var(--gold) 70%, var(--surface)); }
+.wd.is-today i { background: var(--accent); }
+.wd b { order: 2; margin-top: 3px; font-size: 11px; font-weight: 600; color: var(--muted); line-height: 1; }
+.wd.is-today b { color: var(--accent); }
+.wd i.none { height: 2px; border-radius: 1px; background: var(--line); }
 .streak { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Depth: a far hill line, and haze that softens the rows further back */
@@ -1788,14 +1848,16 @@ body {
     squirrel: ['ein', 'Eichhörnchen'],
     woodpecker: ['ein', 'Specht'],
     badger: ['ein', 'Dachs'],
+    kingfisher: ['ein', 'Eisvogel'],
     family: ['eine', 'Rehfamilie'],
   };
   // From this day on, an animal day may bring an animal that belongs to that day's tree:
-  // a squirrel under a broadleaf tree, a woodpecker on a birch, a badger by a fir.
+  // a squirrel under a broadleaf tree, a woodpecker on a birch, a badger by a fir,
+  // a kingfisher on a twig beside the willow.
   // Earlier days keep exactly what they had.
   const TREE_FINDS_FROM = '2026-11-05';
-  const TREE_FIND = { laub: 'squirrel', birke: 'woodpecker', tanne: 'badger', kiefer: 'squirrel' };
-  const COMPANIONS = ['squirrel', 'woodpecker', 'badger'];
+  const TREE_FIND = { laub: 'squirrel', birke: 'woodpecker', tanne: 'badger', kiefer: 'squirrel', weide: 'kingfisher' };
+  const COMPANIONS = ['squirrel', 'woodpecker', 'badger', 'kingfisher'];
   const KINDS = ['river', 'river', 'fox', 'deer', 'rabbit', 'owl', 'bird', 'hedgehog', 'mushroom', 'pond'];
 
   function dayIndex(key) {
@@ -1854,8 +1916,14 @@ body {
   // Golden trees are always broadleaf trees.
   // From this day on pines grow too; earlier days keep the tree they had.
   const PINES_FROM = '2026-11-06';
+  // From this day on weeping willows grow too, and spruces a little less often.
+  const WILLOWS_FROM = '2026-11-07';
   function speciesFor(key) {
     if (key.indexOf('#gold') !== -1) return 'laub';
+    if (key >= WILLOWS_FROM) {
+      const m = hashStr(key + '#species3') % 20;
+      return m < 9 ? 'laub' : m < 13 ? 'kiefer' : m < 15 ? 'tanne' : m < 17 ? 'weide' : 'birke';
+    }
     if (key >= PINES_FROM) {
       const m = hashStr(key + '#species2') % 20;
       return m < 9 ? 'laub' : m < 13 ? 'kiefer' : m < 17 ? 'tanne' : 'birke';
@@ -1946,6 +2014,19 @@ body {
     [142, 42, 5, 6.8, 0.56], // the crown spreads out and flattens
     [158, 50, 6, 7.8, 0.6],
     [174, 58, 6, 8.8, 0.62], // a tall trunk under a wide umbrella of needle pads
+  ];
+
+  //  height, half width, trunk width, how far the curtain of twigs hangs down
+  const WEIDE = [
+    [34, 10, 1.8, 0.5],   // a thin whip with a few drooping shoots
+    [52, 16, 2.8, 0.58],
+    [70, 24, 3.9, 0.66],
+    [86, 32, 5.2, 0.73],  // the first real curtain
+    [100, 40, 6.5, 0.78],
+    [112, 48, 7.8, 0.82],
+    [124, 56, 9.1, 0.85],
+    [134, 63, 10.4, 0.88],
+    [144, 70, 11.6, 0.9], // a wide dome; its curtain nearly reaches the ground
   ];
 
   // Where the leaf masses of a broadleaf crown sit: offset in crown widths and heights, size.
@@ -2272,10 +2353,161 @@ body {
       (snowD ? `<path class="snow" d="${snowD}"/>` : '') + `</g>`;
   }
 
+  // A weeping willow: a short, stout trunk that soon parts into a few big limbs, a
+  // rounded crown, and from it a curtain of long tapering leaf streamers that hang
+  // nearly to the ground, parted in the middle so the trunk shows. In winter only
+  // the bare twigs remain and glow golden yellow.
+  function willowLobe(x, y0, y1, wid, drift) {
+    const ym = y0 + (y1 - y0) * 0.55;
+    const tx = x + drift;
+    return `M${r1(x - wid / 2)} ${r1(y0)}C${r1(x - wid / 2 + drift * 0.2)} ${r1(ym)} ${r1(tx - wid * 0.22)} ${r1(y1 - wid * 0.9)} ${r1(tx)} ${r1(y1)}` +
+      `C${r1(tx + wid * 0.22)} ${r1(y1 - wid * 0.9)} ${r1(x + wid / 2 + drift * 0.2)} ${r1(ym)} ${r1(x + wid / 2)} ${r1(y0)}Z`;
+  }
+  // A streamer pointed at both ends, like one long willow leaf.
+  function willowLeaf(x, y0, y1, wid, drift) {
+    const d = y1 - y0;
+    const tx = x + drift;
+    return `M${r1(x)} ${r1(y0)}C${r1(x - wid * 0.62)} ${r1(y0 + d * 0.22)} ${r1(tx - wid * 0.32)} ${r1(y1 - d * 0.3)} ${r1(tx)} ${r1(y1)}` +
+      `C${r1(tx + wid * 0.32)} ${r1(y1 - d * 0.3)} ${r1(x + wid * 0.62)} ${r1(y0 + d * 0.22)} ${r1(x)} ${r1(y0)}Z`;
+  }
+  function buildWillow(minutes, key) {
+    const { level, frac } = levelOf(minutes);
+    const own = key.indexOf('#gold') === -1;
+    const rnd = mulberry32(hashStr(key));
+    const L = lightDir();
+    const bare = own && seasonNow() === 'winter';
+    const vary = 0.94 + rnd() * 0.12;
+    const h = grownValue(WEIDE, level, frac, 0) * vary;
+    const rx = grownValue(WEIDE, level, frac, 1) * vary;
+    const w = grownValue(WEIDE, level, frac, 2);
+    const hang = grownValue(WEIDE, level, frac, 3);
+    const lean = (rnd() - 0.5) * (3 + level);
+    const ry = Math.max(8, h * 0.3);
+    const cx = 100 + lean;
+    const cy = 214 - h + ry;
+    const forkY = Math.min(206, cy + ry * 0.9);
+    const fx = 100 + lean * 0.6;
+    const hemY = (x) => {
+      // Where the curtain ends: low at the sides, higher in the middle where it parts.
+      const u = Math.min(1, Math.abs(x - cx) / rx);
+      const full = cy + (214 - cy) * hang;
+      return Math.min(208, full - Math.pow(1 - u, 2.2) * (full - cy - ry * 0.6) * (level >= 2 ? 0.8 : 0.3));
+    };
+    const domeY = (x) => cy - ry * Math.sqrt(Math.max(0, 1 - Math.pow((x - cx) / rx, 2)));
+
+    // Trunk and limbs.
+    let wood = band(100, 214, fx, forkY, w, w * 0.8);
+    const limbs = level >= 3 ? 3 + (level >= 6 ? 1 : 0) : 2;
+    const ends = [];
+    for (let i = 0; i < limbs; i++) {
+      const u = i / (limbs - 1) * 2 - 1;
+      const ex = cx + u * rx * 0.5 + (rnd() - 0.5) * 3;
+      const ey = cy - ry * 0.25 + Math.abs(u) * ry * 0.2;
+      const kx = fx + (ex - fx) * 0.4;
+      const ky = forkY - (forkY - ey) * 0.55;
+      wood += band(fx, forkY + 2, kx, ky, w * 0.6, w * 0.42) + band(kx, ky, ex, ey, w * 0.42, Math.max(0.8, w * 0.16));
+      ends.push([ex, ey]);
+    }
+    let furrows = '';
+    if (level >= 3) {
+      for (let i = 0; i < 2 + Math.floor(level / 3); i++) {
+        const x = 100 + (i % 2 ? 1 : -1) * w * (0.1 + rnd() * 0.22);
+        furrows += `M${r1(x)} 211Q${r1(x + lean * 0.3 + (rnd() - 0.5) * 2)} ${r1((214 + forkY) / 2)} ${r1(x + lean * 0.55)} ${r1(forkY + 3)}`;
+      }
+    }
+    const tone = own ? '' : ' gold';
+    let top = cy - ry;
+    let half = rx;
+
+    if (bare) {
+      // Bare winter willow: from each limb thin golden twigs arch up and over,
+      // then fall straight down like a fountain.
+      let twigs = '';
+      let crown = '';
+      const n = 14 + level * 7;
+      for (let k = 0; k < n; k++) {
+        const x0 = cx + (k / (n - 1) * 2 - 1) * rx * 0.92 + (rnd() - 0.5) * 3;
+        const y0 = domeY(x0) + ry * (0.1 + rnd() * 0.3);
+        const dir = x0 >= cx ? 1 : -1;
+        const out = Math.abs(x0 - cx) / rx;
+        const y1 = hemY(x0) - rnd() * 10;
+        const x1 = x0 + dir * out * (2 + rnd() * 3);
+        const [ex, ey] = ends[Math.min(ends.length - 1, Math.max(0, Math.round((x0 - cx) / rx * (ends.length - 1) / 2 + (ends.length - 1) / 2)))];
+        if (level >= 1) crown += `M${r1(ex)} ${r1(ey)}Q${r1((ex + x0) / 2)} ${r1(Math.min(ey, y0) - ry * 0.35)} ${r1(x0)} ${r1(y0)}`;
+        twigs += `M${r1(x0)} ${r1(y0)}Q${r1(x0 + dir * out * 4)} ${r1(y0 + (y1 - y0) * 0.2)} ${r1(x1)} ${r1(y1)}`;
+        half = Math.max(half, Math.abs(x1 - 100) + 2);
+      }
+      return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="willow${tone}">` +
+        shadowMarkup(14 + rx * 0.9) +
+        `<path class="willow-twig back" d="${twigs}"/>` +
+        `<g class="wood-g"><path class="wood" d="${wood}"/>${level >= 1 ? rootMarkup(w) : ''}` +
+        (furrows ? `<path class="bark-line" d="${furrows}"/>` : '') + `</g>` +
+        `<path class="willow-twig" d="${crown}"/>` +
+        `<path class="willow-twig front" d="${twigs.split('M').filter((x, i) => i % 3 === 1).map((x) => 'M' + x).join('')}"/></g>`;
+    }
+
+    // The curtain, as long pointed streamers: a darker row behind the trunk, then the
+    // crown, then the lit streamers that spring from high up on the crown and fall.
+    const n = 7 + level * 3;
+    // Young willows are airy: narrower streamers with sky between them.
+    const wid = (rx * 2) / n * (level >= 4 ? 1.7 : 1.3 + level * 0.1);
+    let back = '';
+    let front = '';
+    let hi = '';
+    let veins = '';
+    for (let k = 0; k < n; k++) {
+      const x = cx + ((k + 0.5) / n * 2 - 1) * rx * 0.97;
+      const u = (x - cx) / rx;
+      const dir = u >= 0 ? 1 : -1;
+      // The curtain flares out like a bell toward the sides.
+      const drift = u * Math.abs(u) * rx * 0.3 + (rnd() - 0.5) * 2.5;
+      const bx = x + wid * 0.5;
+      if (bx < cx + rx * 0.97) back += willowLobe(bx, domeY(bx) + ry * 0.45, hemY(bx) + 2 + rnd() * 5, wid * 1.05, drift * 1.1);
+      const y0 = domeY(x) + ry * (0.12 + rnd() * 0.18);
+      const y1 = hemY(x) - (k % 2 ? 4 + level : 0) - rnd() * (3 + level);
+      // Leave the middle open on bigger trees so the trunk shows.
+      if (level >= 2 && Math.abs(u) < 0.2) {
+        front += willowLeaf(x, y0, y0 + ry * (1.5 + rnd() * 0.4), wid, drift * 0.5);
+        continue;
+      }
+      const ww = wid * (0.95 + rnd() * 0.35);
+      front += willowLeaf(x, y0, y1, ww, drift);
+      if (dir * (L || 0.3) > 0 && Math.abs(u) > 0.2) hi += willowLeaf(x - dir * ww * 0.08, y0 + 2, y0 + (y1 - y0) * 0.7, ww * 0.4, drift * 0.7);
+      if (fineDetail && level >= 2) veins += `M${r1(x)} ${r1(y0 + ry * 0.3)}Q${r1(x + drift * 0.3)} ${r1((y0 + y1) / 2)} ${r1(x + drift * 0.9)} ${r1(y1 - 3)}`;
+      half = Math.max(half, Math.abs(x + drift - 100) + ww * 0.5);
+    }
+
+    // The crown underneath the streamers: a lumpy dome a shade darker.
+    let mass = oval(cx, cy + ry * 0.2, rx * 0.92, ry * 0.78);
+    let massHi = '';
+    const m = 4 + Math.ceil(level / 2);
+    for (let i = 0; i < m; i++) {
+      const t = (i + 0.5) / m;
+      const a = -Math.PI * (0.1 + 0.8 * t);
+      const r = ry * (0.44 + rnd() * 0.14);
+      const x = cx + Math.cos(a) * rx * 0.62;
+      const y = cy + Math.sin(a) * ry * 0.6 + ry * 0.22;
+      mass += oval(x, y, r * 1.3, r * 0.85);
+      if (Math.cos(a) * (L || 0.4) > 0.05) massHi += oval(x + r * 0.3 * (L || 0.4), y - r * 0.4, r * 0.7, r * 0.34);
+      top = Math.min(top, y - r * 0.85);
+    }
+    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="willow${tone}">` +
+      shadowMarkup(14 + rx * 0.95) +
+      `<path class="willow-back" d="${back}"/>` +
+      `<g class="wood-g"><path class="wood" d="${wood}"/>${level >= 1 ? rootMarkup(w) : ''}` +
+      (furrows ? `<path class="bark-line" d="${furrows}"/>` : '') + `</g>` +
+      `<path class="willow-shade" d="${mass}"/>` +
+      `<path class="willow-hi2" d="${massHi}"/>` +
+      `<path class="willow-mass" d="${front}"/>` +
+      `<path class="willow-hi" d="${hi}"/>` +
+      (veins ? `<path class="willow-vein" d="${veins}"/>` : '') + `</g>`;
+  }
+
   function buildTree(minutes, key) {
     const species = speciesFor(key);
     if (species === 'tanne') return buildConifer(minutes, key);
     if (species === 'kiefer') return buildPine(minutes, key);
+    if (species === 'weide') return buildWillow(minutes, key);
     if (species === 'birke') return buildBirch(minutes, key);
     return buildBroadleaf(minutes, key, false);
   }
@@ -3127,6 +3359,24 @@ body {
       <path class="wp-beak" d="M25 7.4L27.6 7.9L25 8.8Z"/>
       <path class="wp-feet" d="M23.8 12.6l1.4.4M23.6 19.4l1.4.2"/>
       </g>`,
+    kingfisher: `
+      <ellipse class="a-shadow" cx="22" cy="29.8" rx="6" ry="1.1"/>
+      <path class="kf-perch" d="M23 30C22.6 25 21.4 21 20.4 17.4M21.8 22.4C23.6 20.6 25.6 20 27.4 20.2"/>
+      <path class="kf-leaf" d="M27.4 20.2C28.6 19.2 30.4 19.4 31.4 20.4C30.2 21.2 28.6 21.2 27.4 20.2Z"/>
+      <g class="a-hop slow">
+      <path class="kf-blue" d="M15.4 16.6L12.4 21.4L14.6 21.8L17.6 17.4Z"/>
+      <path class="kf-blue" d="M15 12.4C15 8.6 18 6.6 21 7.4C23.4 8.2 24 11 23.6 13.6C23.2 16.4 21.4 18 19 18C16.6 18 15 15.8 15 12.4Z"/>
+      <path class="kf-orange" d="M19.8 11.6C22.6 11.4 23.8 13 23.2 15C22.6 17 20.8 18 19 17.8C18.2 15.6 18.4 13 19.8 11.6Z"/>
+      <path class="kf-shine" d="M15.8 11.4C16.4 13.4 17.4 15 18.6 16.2C16.8 15.8 15.6 14 15.8 11.4Z"/>
+      <circle class="kf-blue" cx="21.2" cy="7.4" r="3.4"/>
+      <path class="kf-shine" d="M18.6 5.6C19.6 4.4 21.6 4 23 4.8C21.4 4.8 20 5.2 18.6 5.6Z"/>
+      <path class="kf-orange" d="M21 8.2C22.4 7.8 24 8 24.6 8.8C23.4 9.4 22 9.4 21 8.2Z"/>
+      <path class="kf-white" d="M22.6 9.6C23.6 9.6 24.4 10.2 24.4 10.8C23.4 11.2 22.6 10.8 22.6 9.6Z"/>
+      <circle class="animal-dark" cx="22.2" cy="7.1" r="0.7"/>
+      <circle class="eye-hi" cx="22.4" cy="6.9" r="0.24"/>
+      <path class="kf-bill" d="M24 6.9L30.2 7.9L24.2 8.9Z"/>
+      <path class="kf-feet" d="M19.6 17.8l.6 .9M21 17.6l.4 1"/>
+      </g>`,
     badger: `
       <ellipse class="a-shadow" cx="21" cy="29.8" rx="15" ry="1.5"/>
       <path class="badger-leg" d="M11 25v4.4M15 25.5v4M26 25.5v4M29.6 25v4.4"/>
@@ -3532,6 +3782,25 @@ body {
       { duration: 1100, easing: 'cubic-bezier(.2,.7,.2,1)' });
   }
 
+  // Seven small columns under each week, one per day, so the rhythm of the week shows.
+  // A full column is 8 hours, the same in every week, so weeks can be compared.
+  const DAY_LETTERS = ['M', 'D', 'M', 'D', 'F', 'S', 'S'];
+  const DAY_NAMES = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  function weekDays(wk, isCurrent) {
+    const today = dayKey();
+    let cols = '';
+    const said = [];
+    for (let i = 0; i < 7; i++) {
+      const k = dayBefore(wk, -i);
+      const sec = k <= today ? liveSec(k) : 0;
+      const h = sec > 0 ? Math.max(2, Math.min(1, sec / (8 * 3600)) * 18) : 0;
+      const cls = (k === today ? ' is-today' : '') + (k > today ? ' later' : '');
+      cols += `<span class="wd${cls}"><i${h ? ` style="height:${r1(h)}px"` : ' class="none"'}></i>${isCurrent ? `<b>${DAY_LETTERS[i]}</b>` : ''}</span>`;
+      if (k <= today) said.push(`${DAY_NAMES[i]} ${sec > 0 ? fmtDur(sec) : 'frei'}`);
+    }
+    return `<div class="week-days${isCurrent ? ' named' : ''}" role="img" aria-label="${said.join(', ')}">${cols}</div>`;
+  }
+
   function renderWeeks() {
     const byWeek = {};
     for (const k of liveKeys()) {
@@ -3612,6 +3881,7 @@ body {
         `<div class="week-top"><strong>${isCurrent ? 'Diese Woche' : range}</strong><span class="week-hours">${fmtDur(sec)}</span></div>` +
         `<div class="week-meta">${isCurrent ? range : ''}${isCurrent && gold ? ' · ' : ''}${gold}</div>` +
         `<div class="week-bar"><span style="width:${pct.toFixed(1)}%"></span></div>` +
+        weekDays(wk, isCurrent) +
         `</li>`;
     }).join('');
     weeksEmpty.hidden = weeks.length > 0;
@@ -3831,7 +4101,7 @@ body {
       items.push(tree);
       (goldenByDay[key] || []).forEach((wk, i) => items.push({ type: 'golden', key: key + '#' + wk, family: i === 0 && found.includes('family') }));
       for (const kind of found) {
-        // Squirrel, woodpecker and badger stay with their tree; the deer family with the golden tree.
+        // Squirrel, woodpecker, badger and kingfisher stay with their tree; the deer family with the golden tree.
         if (COMPANIONS.includes(kind)) tree.companion = kind;
         else if (kind !== 'river' && kind !== 'family') items.push({ type: 'animal', key, kind });
         finds.push({ key, kind });
@@ -3850,11 +4120,16 @@ body {
     const treeWeight = (sec) => 0.8 + levelFor(sec) * 0.06;
     // After a row comes at most one river or golden tree; any more wait for the next row,
     // so two rivers never run side by side.
+    const lastIsBreak = () => rows.length > 0 && rows[rows.length - 1].type !== 'slots';
     const close = (all) => {
+      const had = !!cur;
       if (cur) rows.push(cur);
       cur = null;
-      if (all) { rows.push(...later); later = []; }
-      else if (later.length) rows.push(later.shift());
+      if (all) {
+        // At the very end, two rivers in a row would run side by side: draw one.
+        for (const row of later) if (!(row.type === 'river' && lastIsBreak() && rows[rows.length - 1].type === 'river')) rows.push(row);
+        later = [];
+      } else if (had && later.length) rows.push(later.shift());
     };
     for (const it of items) {
       if (it.type === 'month') {
@@ -3865,9 +4140,14 @@ body {
       }
       if (it.type === 'river' || it.type === 'golden') {
         const row = it.type === 'river' ? { type: 'river', h: RIVER_H, key: it.key } : { type: 'golden', h: ROW_H, item: it };
-        if (cur) later.push(row);
+        if (cur || lastIsBreak()) later.push(row);
         else rows.push(row);
         continue;
+      }
+      if (!cur && it.type === 'animal') {
+        // An animal found on the day that closed the last row stays beside its tree.
+        const prev = rows.filter((r) => r.type === 'slots').pop();
+        if (prev && prev.items.some((i) => i.type === 'tree' && i.key === it.key)) { prev.items.push(it); continue; }
       }
       if (!cur) {
         cur = { type: 'slots', h: SLOT_ROW_H, items: [], weight: 0, target: TARGETS[hashStr(it.key + '#row') % TARGETS.length] };
@@ -3878,6 +4158,11 @@ body {
         cur.weight += treeWeight(it.sec);
         if (cur.weight >= cur.target) close();
       }
+    }
+    // Animals found on the last day stand with the last trees, not alone in a row.
+    if (cur && !cur.items.some((i) => i.type === 'tree')) {
+      const prev = rows.filter((r) => r.type === 'slots').pop();
+      if (prev) { prev.items.push(...cur.items); cur = null; }
     }
     close(true);
 
@@ -4108,7 +4393,8 @@ body {
   }
 
   // An animal that lives with its tree: the woodpecker clings to the birch trunk,
-  // the squirrel sits at the foot of its tree, the badger walks past the fir.
+  // the squirrel sits at the foot of its tree, the badger walks past the fir, the
+  // kingfisher perches on a twig just outside the willow's curtain.
   function companionItem(it, cx, baseY, s) {
     const { level, frac } = levelOf(it.sec / 60);
     const rnd = mulberry32(hashStr(it.key + '#companion'));
@@ -4127,9 +4413,16 @@ body {
     }
     const side = rnd() < 0.5 ? -1 : 1;
     if (it.companion === 'squirrel') {
-      const w = (level ? grownValue(speciesFor(it.key) === 'kiefer' ? KIEFER : LAUB, level, frac, 3) : 2) * s;
+      const sp = speciesFor(it.key);
+      const w = (level ? (sp === 'weide' ? grownValue(WEIDE, level, frac, 2) : grownValue(sp === 'kiefer' ? KIEFER : LAUB, level, frac, 3)) : 2) * s;
       const k = 0.5;
       const x = cx + side * (w / 2 + 9) - 21 * k;
+      return open + `transform="translate(${r1(x)} ${r1(baseY + 1 - 30 * k)}) scale(${k})">` + body;
+    }
+    if (it.companion === 'kingfisher') {
+      const rx = (level ? grownValue(WEIDE, level, frac, 1) : 6) * s;
+      const k = 0.62;
+      const x = cx + side * (rx + 8) - 22 * k;
       return open + `transform="translate(${r1(x)} ${r1(baseY + 1 - 30 * k)}) scale(${k})">` + body;
     }
     const k = 0.62;
@@ -4461,7 +4754,7 @@ body {
   });
 
   // ---------- a tap on a tree, an animal or a river tells its story ----------
-  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Tanne', kiefer: 'Kiefer' };
+  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Fichte', kiefer: 'Kiefer', weide: 'Trauerweide' };
   let picked = null;
 
   function longDate(key) {
