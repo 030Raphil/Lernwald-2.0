@@ -403,7 +403,8 @@ body {
   position: sticky;
   top: 0;
   height: 100vh;
-  margin-bottom: -100vh;
+  /* Over the field's padding too, edge to edge, and taking no room. */
+  margin: -8px -6px calc(8px - 100vh);
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(to bottom, color-mix(in srgb, var(--field-sky) 40%, transparent) 0%, color-mix(in srgb, var(--field-sky) 12%, transparent) 22%, transparent 40%);
