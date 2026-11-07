@@ -39,6 +39,12 @@
   --ground: #a8c59a;
   --aut-ground: #b4c48c;
   --hero-body: #d7e4d1;
+  --far-k: 34%;
+  --sheet-glow: 0.85;
+  --mid-k: 62%;
+  --grove-k: 92%;
+  --night-ink: #f1f5f2;
+  --night-muted: #c9d4da;
   --hero-winter: #e3ecf1;
   --hero-autumn: #dfe2c9;
   --wood: #ecd9b8;
@@ -90,6 +96,10 @@
     --ground: #1d2e24;
     --aut-ground: #1d2e24;
     --hero-body: #1a2a20;
+    --far-k: 26%;
+    --sheet-glow: 0.22;
+    --mid-k: 42%;
+    --grove-k: 56%;
     --hero-winter: #1e2a33;
     --hero-autumn: #22291d;
     --wood: #5d4836;
@@ -141,6 +151,10 @@
   --ground: #1d2e24;
   --aut-ground: #1d2e24;
   --hero-body: #1a2a20;
+  --far-k: 26%;
+  --sheet-glow: 0.22;
+  --mid-k: 42%;
+  --grove-k: 56%;
   --hero-winter: #1e2a33;
   --hero-autumn: #22291d;
   --wood: #5d4836;
@@ -209,47 +223,166 @@ body {
 .es-dot { fill: var(--line); }
 .fine { color: var(--muted); font-size: 13px; text-align: center; margin: 22px 0 0; }
 
+/* The whole timer screen is one clearing in the forest: the sky reaches the top edge,
+   the season's forest stands around today's tree in layers, and the meadow carries
+   the timer down to the tab bar. */
 .hero {
-  /* The card is a clearing: sky and hills on top, the meadow below holds the timer. */
+  --pad-l: max(16px, env(safe-area-inset-left, 0px));
+  --pad-r: max(16px, env(safe-area-inset-right, 0px));
+  --tabbar: calc(110px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  min-height: calc(100vh - env(safe-area-inset-top, 0px));
+  min-height: calc(100svh - env(safe-area-inset-top, 0px));
+  margin: -20px calc(-1 * var(--pad-r)) calc(-1 * var(--tabbar)) calc(-1 * var(--pad-l));
+  padding: 0 18px calc(22px + var(--tabbar));
   background: var(--hero-body);
   border: 0;
-  border-radius: 24px;
-  padding: 0 18px 22px;
   text-align: center;
   overflow: hidden;
+}
+@media (min-width: 520px) {
+  /* On a wide screen the clearing is a framed picture again. */
+  .hero { min-height: 0; margin: 0; padding-bottom: 22px; border-radius: 24px; }
 }
 .stage {
   position: relative;
   margin: 0 -18px;
-  padding: 50px 18px 0;
+  padding: 18px 18px 0;
+  /* The clearing takes the room the timer doesn't need; the tree stands at its foot. */
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(240px, calc(100vh - 404px), 560px);
+  min-height: clamp(240px, calc(100svh - 404px - env(safe-area-inset-bottom, 0px)), 560px);
   --field-sky: var(--sky);
-  background: linear-gradient(to bottom, var(--field-sky), color-mix(in srgb, var(--field-sky) 55%, var(--ground)));
+  background: linear-gradient(to bottom, var(--field-sky) 0%, var(--field-sky) 35%, color-mix(in srgb, var(--field-sky) 70%, var(--ground)));
 }
-.stage .hills {
+/* A couple of fair-weather clouds drift very slowly over the clearing by day. */
+.sky-clouds {
+  position: absolute;
+  left: -8%;
+  width: 116%;
+  top: 120px;
+  height: 100px;
+  display: none;
+  pointer-events: none;
+  animation: cloud-drift 80s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.app:not([data-weather="rain"]):not([data-weather="snow"]) .stage:not([data-tod="night"]) .sky-clouds { display: block; }
+.sky-clouds .fair { fill: color-mix(in srgb, #ffffff 74%, var(--field-sky)); }
+.sky-clouds .fair-shade { fill: color-mix(in srgb, var(--field-sky) 62%, #8e9ca6); opacity: 0.55; }
+.sky-clouds .fair-lit { fill: #ffffff; opacity: 0.55; }
+/* On the dark theme's sky they would look like smoke, so they stay away there. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stage .sky-clouds { visibility: hidden; } }
+:root[data-theme="dark"] .stage .sky-clouds { visibility: hidden; }
+@keyframes cloud-drift { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
+@media (prefers-reduced-motion: reduce) { .sky-clouds { animation: none; } }
+.stage .land {
   position: absolute;
   left: 0;
   right: 0;
   bottom: -1px;
   width: 100%;
-  height: 92px;
+  height: 156px;
   display: block;
 }
-.hill-far { fill: color-mix(in srgb, var(--ground) 65%, var(--field-sky)); }
-.hill-near { fill: var(--hero-body); }
 .stage #heroTree {
   position: relative;
   z-index: 1;
+  margin-top: auto;
   width: min(290px, 86%);
   /* Big trees shrink on small screens, so Pause and Beenden stay in reach. */
-  max-height: min(300px, max(110px, calc(100vh - 556px)));
-  max-height: min(300px, max(110px, calc(100svh - 556px)));
+  max-height: min(310px, max(110px, calc(100vh - 536px)));
+  max-height: min(310px, max(110px, calc(100svh - 536px - env(safe-area-inset-bottom, 0px))));
+}
+.view > section.hero:first-child { margin-top: -20px; }
+@media (min-width: 520px) { .view > section.hero:first-child { margin-top: 0; } }
+.stage .top { position: relative; z-index: 3; margin: 0; padding: 0 46px; }
+.stage .top h1 { font-size: 34px; margin: 0; line-height: 1.15; }
+.stage .top .date { font-size: 14px; letter-spacing: 0.01em; }
+.stage .top .lede { margin-top: 6px; font-size: 15px; }
+.status-row { position: relative; z-index: 3; margin: 8px 0 2px; }
+/* At night the sky is dark in both themes, so the words on it turn light. */
+.stage[data-tod="night"] .top h1 { color: var(--night-ink); }
+.stage[data-tod="night"] .top :is(.date, .lede) { color: var(--night-muted); }
+.app[data-tab="timer"][data-tod="night"] .gear { color: var(--night-muted); }
+
+/* The layers of the clearing. Further away means more of the sky's colour in it. */
+.stage {
+  --lt: #4f8f58; --lt2: #3f7d4b; --lt3: #62a05a; --lc: #2f5f45;
+}
+.app[data-season="spring"] .stage { --lt: #78b46e; --lt2: #9cc87c; --lt3: #e3aebd; --lc: #3b6a4f; }
+.app[data-season="autumn"] .stage { --lt: #d48f3e; --lt2: #c8643b; --lt3: #cfb048; --lc: #3c6550; }
+.app[data-season="winter"] .stage { --lt: #a59a90; --lt2: #978c84; --lt3: #b3a99f; --lc: #48675b; }
+.land .k1 { --c: var(--lt); }
+.land .k2 { --c: var(--lt2); }
+.land .k3 { --c: var(--lt3); }
+.land .kc { --c: var(--lc); }
+.land .kg { --c: var(--ground); }
+.land .far path { fill: color-mix(in srgb, var(--c) var(--far-k), var(--field-sky)); }
+.land .mid path { fill: color-mix(in srgb, var(--c) var(--mid-k), var(--field-sky)); }
+.land .grove path { fill: color-mix(in srgb, var(--c) var(--grove-k), #0a140d); }
+.land .grove path.lhi { fill: color-mix(in srgb, var(--c) 80%, #fffbe6); opacity: 0.55; }
+.land .grove path.trunk { fill: color-mix(in srgb, var(--bark) var(--grove-k), #0a140d); }
+.land .grove path.snowcap { fill: color-mix(in srgb, var(--win-snow) var(--grove-k), var(--field-sky)); display: none; }
+.app[data-season="winter"] .land .grove path.snowcap { display: block; }
+.land path.meadow { fill: var(--hero-body); }
+.land path.tuft { fill: none; stroke: color-mix(in srgb, var(--hero-body) 62%, var(--c)); stroke-width: 1.2; stroke-linecap: round; }
+.land circle.bloom { fill: var(--spr-flower); display: none; }
+.land circle.bloom.alt { fill: var(--sum-poppy); }
+.app:is([data-season="spring"], [data-season="summer"]) .land circle.bloom { display: block; }
+.app[data-season="spring"] .land circle.bloom.alt { fill: var(--spr-blossom); }
+
+/* While you learn, the clearing comes alive: a warm light gathers round the tree,
+   and now and then a few birds cross the sky. */
+.hero-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  width: 360px;
+  height: 330px;
+  margin-left: -180px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 238 178 / 0.62), rgb(255 238 178 / 0.22) 55%, rgb(255 238 178 / 0));
+  opacity: 0;
+  transition: opacity 1.6s cubic-bezier(.23, 1, .32, 1);
+  pointer-events: none;
+}
+.app[data-state="run"] .hero-glow { opacity: 1; }
+.app[data-state="pause"] .hero-glow { opacity: 0.35; }
+.birds {
+  position: absolute;
+  top: 30%;
+  left: 0;
+  width: 64px;
+  height: 26px;
+  display: none;
+  pointer-events: none;
+  will-change: transform;
+}
+.birds svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.bird { fill: none; stroke: color-mix(in srgb, var(--ink) 62%, var(--field-sky)); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 70%; animation: flap 0.9s ease-in-out infinite alternate; }
+.bird.b2 { animation-delay: -0.35s; }
+.bird.b3 { animation-delay: -0.6s; }
+@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(0.35); } }
+.app[data-state="run"]:not([data-weather="rain"]):not([data-weather="snow"]) .stage:not([data-tod="night"]) .birds {
+  display: block;
+  animation: fly 34s linear infinite;
+  animation-delay: 4s;
+}
+@keyframes fly {
+  0% { transform: translate(-80px, 0); }
+  20% { transform: translate(25vw, -14px); }
+  42% { transform: translate(calc(100vw + 20px), 6px); }
+  100% { transform: translate(calc(100vw + 20px), 6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .birds, .app[data-state="run"] .stage .birds { display: none; }
+  .hero-glow { transition: none; }
 }
 
 .status {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -271,10 +404,26 @@ body {
 .app[data-state="run"] .status::before { background: var(--accent); }
 .app[data-state="pause"] .status::before { background: var(--sun); }
 
+/* On the finish card the tree stands in a small clearing of its own: sky, a warm
+   light behind it and a rounded meadow under its feet. */
+#sheetTree {
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+  padding: 18px 26px 0;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  border-radius: 18px;
+  background:
+    radial-gradient(130% 46% at 50% 100%, var(--hero-body) 0 60%, transparent 61%),
+    radial-gradient(56% 50% at 50% 46%, rgb(255 240 188 / var(--sheet-glow)), rgb(255 240 188 / 0) 72%),
+    linear-gradient(to bottom, var(--sky), color-mix(in srgb, var(--sky) 55%, var(--ground)));
+}
 .stage #heroTree, #sheetTree {
   height: auto;
   display: block;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   overflow: visible;
 }
 
@@ -297,6 +446,7 @@ body {
   margin-top: 6px;
 }
 
+.clock .z { color: color-mix(in srgb, var(--muted) 84%, var(--hero-body)); }
 .today { margin: 4px 0 0; color: var(--muted); }
 .today strong { color: var(--ink); font-variant-numeric: tabular-nums; }
 
@@ -425,6 +575,30 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   clip-path: inset(0 round 22px);
 }
 .field-sections svg { overflow: visible; }
+/* On a phone the forest runs from edge to edge, like the clearing on the timer. */
+@media (max-width: 519px) {
+  .field {
+    margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding: 8px 0 12px;
+    border-radius: 0;
+    border-width: 0;
+    clip-path: inset(0);
+  }
+  .haze { margin: -8px 0 calc(8px - 100vh); }
+  /* The page melts into the sky instead of meeting it at a hard line. */
+  .field::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 36px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--bg), color-mix(in srgb, var(--bg) 0%, transparent));
+  }
+}
 .forest { position: relative; }
 .haze {
   position: sticky;
@@ -885,7 +1059,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .bridge-post { fill: none; stroke: color-mix(in srgb, var(--bark) 90%, #1a0f08); stroke-width: 1.5; stroke-linecap: round; }
 .bridge-rail { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #d8b483); stroke-width: 1.2; stroke-linecap: round; }
 .app[data-season="winter"] .bridge-deck { fill: var(--win-snow); }
-.lily { fill: color-mix(in srgb, var(--leaf-2) 80%, #9ccf6a); }
+.lilypad { fill: color-mix(in srgb, var(--leaf-2) 80%, #9ccf6a); }
 .lily-flower { fill: #f6c6d4; }
 .shroom-stem { fill: #efe6d6; }
 .shroom-cap { fill: #c9452f; }
@@ -1056,7 +1230,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .levelup {
   position: absolute;
   left: 50%;
-  top: 48px;
+  top: -3px;
   z-index: 3;
   margin: 0;
   padding: 5px 14px;
@@ -1314,7 +1488,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 }
 </style>
 
-<div class="app" id="app" lang="de" data-state="idle">
+<div class="app" id="app" lang="de" data-state="idle" data-tab="timer">
   <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
       <radialGradient id="g-sun"><stop class="gs-a" offset="0"/><stop class="gs-b" offset="0.35"/><stop class="gs-c" offset="1"/></radialGradient>
@@ -1325,22 +1499,25 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     </defs>
   </svg>
   <div class="view" id="view-timer" role="tabpanel" aria-labelledby="tab-timer">
-  <header class="top">
-    <p class="date" id="today"></p>
-    <h1>Lernwald 2.0</h1>
-    <p class="lede" id="lede">Für jeden Lerntag wächst ein Baum, je länger du lernst, desto größer. Der Timer läuft, bis du auf Pause drückst.</p>
-  </header>
-
   <section class="hero" aria-label="Heutige Lerneinheit">
     <div class="stage" id="stage">
-      <div class="status" id="status" role="status">Bereit</div>
       <svg class="sky" id="heroSky" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice" aria-hidden="true"></svg>
-      <svg class="hills" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true">
-        <path class="hill-far" d="M0 38 Q70 14 150 30 T300 22 T400 30 V90 H0Z"/>
-        <path class="hill-near" d="M0 66 Q90 44 190 58 T400 52 V90 H0Z"/>
-      </svg>
+      <svg class="sky-clouds" id="heroClouds" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <svg class="land" id="heroLand" viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="birds" aria-hidden="true">
+        <svg viewBox="0 0 64 26"><path class="bird" d="M2 12q4 -5 8 0q4 -5 8 0"/><path class="bird b2" d="M26 4q3 -4 6.5 0q3.5 -4 6.5 0"/><path class="bird b3" d="M44 17q3 -3.6 6 0q3 -3.6 6 0"/></svg>
+      </div>
+      <header class="top">
+        <p class="date" id="today"></p>
+        <h1>Lernwald 2.0</h1>
+        <p class="lede" id="lede">Für jeden Lerntag wächst ein Baum, je länger du lernst, desto größer. Der Timer läuft, bis du auf Pause drückst.</p>
+      </header>
+      <div class="status-row">
+        <div class="status" id="status" role="status">Bereit</div>
+        <p class="levelup" id="levelUp" role="status" aria-live="polite"></p>
+      </div>
       <svg id="heroTree" viewBox="0 0 200 220" role="img" aria-label="Der heutige Baum"></svg>
-      <p class="levelup" id="levelUp" role="status" aria-live="polite"></p>
     </div>
     <p class="level" id="levelLine"></p>
     <div class="level-bar" aria-hidden="true"><span id="levelFill"></span></div>
@@ -1524,6 +1701,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   const todayLabel = $('todayLabel');
   const heroSvg = $('heroTree');
   const heroSky = $('heroSky');
+  const heroLand = $('heroLand');
+  const heroClouds = $('heroClouds');
   const heroHint = $('heroHint');
   const levelLine = $('levelLine');
   const weekLine = $('weekLine');
@@ -3745,7 +3924,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         lilies += `M${r1(px)} ${r1(py)}L${r1(px + r)} ${r1(py - r * 0.25)}A${r1(r)} ${r1(r * 0.6)} 0 1 1 ${r1(px + r * 0.6)} ${r1(py + r * 0.45)}Z`;
         if (!i && season === 'summer') flower = `<circle class="lily-flower" cx="${r1(px - 0.4)}" cy="${r1(py - 0.8)}" r="1.4"/>`;
       }
-      lilies = `<path class="lily" d="${lilies}"/>` + flower;
+      lilies = `<path class="lilypad" d="${lilies}"/>` + flower;
     }
     return `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
       `<path class="bank-wet" d="${ribbon(1.3, 1)}"/>` +
@@ -3866,13 +4045,122 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     return out;
   }
 
+  // ---------- the clearing around today's tree ----------
+  // The same place all year: a far ridge with a misty line of trees, a nearer hill with
+  // small groups of trees and a gap in the middle, a grove at each edge, and the meadow
+  // in front with grass along its rim. Only the colours change with the seasons.
+  const LAND_W = 400;
+  const landRidge = (x) => 52 + 5 * Math.sin(x / 55 + 1) + 3 * Math.sin(x / 23 + 0.4);
+  const landHill = (x) => 90 + 7 * Math.sin(x / 70 + 2.4) + 2.5 * Math.sin(x / 31);
+  const landMeadow = (x) => 126 + 4.5 * Math.sin(x / 80 + 0.6) + 1.6 * Math.sin(x / 27 + 1);
+  function landBand(fn) {
+    let d = `M-12 ${r1(fn(-12))}`;
+    for (let x = -4; x <= LAND_W + 12; x += 8) d += `L${x} ${r1(fn(x))}`;
+    return d + `L${LAND_W + 12} 160L-12 160Z`;
+  }
+  // A fir seen from afar: three tiers, slightly uneven.
+  function landFir(x, y, h, rnd) {
+    const w = h * (0.3 + rnd() * 0.06);
+    const t = (f) => r1(y - h * f);
+    return `M${r1(x)} ${t(1)}L${r1(x + w * 0.5)} ${t(0.62)}L${r1(x + w * 0.3)} ${t(0.6)}` +
+      `L${r1(x + w * 0.78)} ${t(0.26)}L${r1(x + w * 0.5)} ${t(0.25)}L${r1(x + w)} ${r1(y)}` +
+      `L${r1(x - w)} ${r1(y)}L${r1(x - w * 0.5)} ${t(0.25)}L${r1(x - w * 0.78)} ${t(0.26)}` +
+      `L${r1(x - w * 0.3)} ${t(0.6)}L${r1(x - w * 0.5)} ${t(0.62)}Z`;
+  }
+  // A broadleaf crown seen from afar: a few overlapping puffs.
+  function landCrown(x, y, h, rnd) {
+    const r = h * 0.34;
+    const cy = y - h + r * 1.05;
+    return oval(x, cy, r * (0.95 + rnd() * 0.15), r) +
+      oval(x - r * 0.62, cy + r * 0.62, r * 0.82, r * 0.74) +
+      oval(x + r * 0.6, cy + r * 0.58, r * 0.84, r * 0.76) +
+      oval(x, cy + r * 0.9, r * 0.9, r * 0.6);
+  }
+  function landMarkup() {
+    const rnd = mulberry32(hashStr('lichtung'));
+    const L = lightDir() || 0.4;
+    const by = { far: {}, mid: {}, grove: {} };
+    const add = (layer, k, d) => { by[layer][k] = (by[layer][k] || '') + d; };
+    // Far tree line along the ridge.
+    for (let x = -6; x < LAND_W + 8; x += 5 + rnd() * 4) {
+      const h = 7 + rnd() * 8;
+      const y = landRidge(x) + 3;
+      if (rnd() < 0.45) add('far', 'kc', landFir(x, y, h * 1.2, rnd));
+      else add('far', ['k1', 'k2', 'k3'][Math.floor(rnd() * 3)], landCrown(x, y, h, rnd));
+    }
+    // Groups of trees on the nearer hill, leaving the middle open behind today's tree.
+    for (const [a, b] of [[-10, 120], [272, 410]]) {
+      for (let x = a; x < b; x += 9 + rnd() * 9) {
+        const h = 13 + rnd() * 12;
+        const y = landHill(x) + 4;
+        if (rnd() < 0.4) add('mid', 'kc', landFir(x, y, h * 1.25, rnd));
+        else add('mid', ['k1', 'k2', 'k3'][Math.floor(rnd() * 3)], landCrown(x, y, h, rnd));
+      }
+    }
+    // A grove at each edge, partly out of the picture, framing the clearing.
+    let trunks = '';
+    let lights = '';
+    let snow = '';
+    const grove = [[-16, 'fir', 84], [14, 'crown', 66], [44, 'fir', 50], [66, 'bush', 20],
+      [416, 'crown', 86], [386, 'fir', 70], [357, 'crown', 46], [335, 'bush', 18]];
+    for (const [x, kind, h] of grove) {
+      const y = landMeadow(x) + 3;
+      if (kind === 'fir') {
+        add('grove', 'kc', landFir(x, y, h, rnd));
+        trunks += `M${r1(x - h * 0.03)} ${r1(y)}L${r1(x - h * 0.03)} ${r1(y - h * 0.06)}L${r1(x + h * 0.03)} ${r1(y - h * 0.06)}L${r1(x + h * 0.03)} ${r1(y)}Z`;
+        // Snow lies on the upper edge of each tier, thicker toward the stem.
+        const w = h * 0.33;
+        for (const [ty, tw] of [[1, 0.5], [0.6, 0.78], [0.25, 1]]) {
+          const yt = y - h * ty;
+          const dy = h * (ty === 1 ? 0.2 : 0.12);
+          snow += `M${r1(x)} ${r1(yt + (ty === 1 ? 0 : dy * 0.2))}L${r1(x + w * tw * 0.62)} ${r1(yt + dy * 1.15)}` +
+            `Q${r1(x)} ${r1(yt + dy * 0.75)} ${r1(x - w * tw * 0.62)} ${r1(yt + dy * 1.15)}Z`;
+        }
+      } else {
+        const k = kind === 'bush' ? 'k2' : ['k1', 'k3'][Math.floor(rnd() * 2)];
+        add('grove', k, landCrown(x, kind === 'bush' ? y + 2 : y - h * 0.22, kind === 'bush' ? h : h * 0.8, rnd));
+        if (kind !== 'bush') trunks += band(x, y, x + (rnd() - 0.5) * 2, y - h * 0.4, h * 0.07, h * 0.045);
+        const r = h * 0.8 * 0.34;
+        lights += oval(x + L * r * 0.45, y - h * 0.22 - h * 0.8 + r * 0.8, r * 0.55, r * 0.4);
+      }
+    }
+    // Grass along the rim of the meadow, and a few flowers in spring and summer.
+    let tufts = '';
+    let blooms = '';
+    for (let x = 2; x < LAND_W; x += 7 + rnd() * 10) {
+      const y = landMeadow(x) + 2 + rnd() * 3;
+      const h = 3 + rnd() * 3.5;
+      tufts += `M${r1(x)} ${r1(y)}q-1.2 ${r1(-h * 0.6)} -2.6 ${r1(-h)}M${r1(x)} ${r1(y)}q0.6 ${r1(-h * 0.7)} 2 ${r1(-h * 0.95)}`;
+      if (rnd() < 0.22) blooms += `<circle class="bloom${rnd() < 0.5 ? ' alt' : ''}" cx="${r1(x + 1)}" cy="${r1(y - h)}" r="1.3"/>`;
+    }
+    const layer = (name) => Object.entries(by[name]).map(([k, d]) => `<path class="${k}" d="${d}"/>`).join('');
+    return `<g class="far"><path class="kg" d="${landBand(landRidge)}"/>${layer('far')}</g>` +
+      `<g class="mid"><path class="kg" d="${landBand(landHill)}"/>${layer('mid')}</g>` +
+      `<g class="grove"><path class="trunk" d="${trunks}"/>${layer('grove')}<path class="k1 lhi" d="${lights}"/><path class="snowcap" d="${snow}"/></g>` +
+      `<path class="meadow" d="${landBand(landMeadow)}"/>` +
+      `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g>`;
+  }
+  let landKey = '';
+  function renderLand() {
+    const key = lightDir() + '';
+    if (key === landKey) return;
+    landKey = key;
+    heroLand.innerHTML = landMarkup();
+  }
+
   // In the timer the sun runs a lower, narrower path, so it stays clear of the label on top.
-  function heroSkyMarkup() {
+  // The sky is as tall as the clearing, so the sun rises and sets at the real horizon
+  // (the far ridge) and at noon stands high, but below the title and the status.
+  function heroSkyMarkup(units, unitPx, below) {
     const tod = timeOfDay();
     const p = sunPos();
-    // At noon the sun stands well below the status label, so the two never touch.
-    const sun = p ? [64 + (p[0] - 40) / 320 * 272, 172 - (42 - p[1]) / 30 * 76] : null;
-    return skyMarkup(tod, sun, 175, 150, [318, 70], [276, 250, 150]) + airMarkup('hero', 200, 290, 5);
+    const horizon = units - 104 / unitPx;
+    const high = Math.max(150, below / unitPx + 36);
+    // November days are short: the sun stays low for longer and climbs late.
+    const lift = p ? Math.pow((42 - p[1]) / 30, 1.7) : 0;
+    const sun = p ? [64 + (p[0] - 40) / 320 * 272, horizon - 12 - lift * Math.max(20, horizon - 12 - high)] : null;
+    return skyMarkup(tod, sun, horizon + 6, horizon - 16, [318, high - 6], [276, horizon + 14, Math.min(170, horizon - high + 30)]) +
+      airMarkup('hero', horizon - 70, horizon + 40, 6);
   }
 
   // Grass grows with the forest: each tree adds one tuft per full learned hour,
@@ -4129,6 +4417,25 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     return `<path class="cloud" d="${base}"/><path class="cloud-shade" d="${shade}"/>`;
   }
 
+  // Fair-weather clouds: soft heaps of puffs with a gentle shadow underneath, no hard base.
+  function fairCloudsMarkup(seed) {
+    const rnd = mulberry32(hashStr(seed + '#fair'));
+    let base = '';
+    let shade = '';
+    let lit = '';
+    const spots = [[60 + rnd() * 60, 30 + rnd() * 20, 46 + rnd() * 14], [250 + rnd() * 80, 52 + rnd() * 20, 32 + rnd() * 10]];
+    for (const [x, y, w] of spots) {
+      const puffs = [[-0.42, 0.1, 0.24], [-0.16, -0.08, 0.32], [0.16, -0.14, 0.3], [0.42, 0.06, 0.22], [0, 0.14, 0.34], [-0.28, 0.16, 0.2], [0.28, 0.16, 0.22]];
+      for (const [dx, dy, r] of puffs) {
+        const rr = r * w * (0.92 + rnd() * 0.16);
+        base += oval(x + dx * w, y + dy * w, rr, rr * 0.82);
+        shade += oval(x + dx * w, y + dy * w + rr * 0.3, rr * 0.92, rr * 0.6);
+        if (dy < 0) lit += oval(x + dx * w - rr * 0.18, y + dy * w - rr * 0.22, rr * 0.55, rr * 0.38);
+      }
+    }
+    return `<path class="fair-shade" d="${shade}"/><path class="fair" d="${base}"/><path class="fair-lit" d="${lit}"/>`;
+  }
+
   // A rainbow after the rain, behind the hills.
   function rainbowMarkup(cx, cy, r) {
     const cls = ['rb0', 'rb1', 'rb2', 'rb3', 'rb4', 'rb5'];
@@ -4208,7 +4515,17 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // The intro line is for the very first start only.
     ledeEl.hidden = countDays(state) > 0 || !!state.session;
     stageEl.dataset.tod = timeOfDay();
-    heroSky.innerHTML = heroSkyMarkup();
+    app.dataset.tod = stageEl.dataset.tod;
+    const unitPx = (stageEl.clientWidth || 400) / 400;
+    const units = Math.max(300, Math.round((stageEl.clientHeight || 300) / unitPx));
+    // Sun, moon and clouds keep below the title and the status.
+    const statusRow = statusEl.parentElement;
+    const below = statusRow.offsetTop + statusRow.offsetHeight;
+    heroSky.setAttribute('viewBox', `0 0 400 ${units}`);
+    heroSky.innerHTML = heroSkyMarkup(units, unitPx, below);
+    heroClouds.innerHTML = fairCloudsMarkup('fair' + hk);
+    heroClouds.style.top = Math.round(below + 4) + 'px';
+    renderLand();
 
     if (tsec <= 0 && !state.session) {
       heroHint.textContent = streak.n > 0
@@ -4658,7 +4975,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
   function tick() {
     const shown = fmtClock(Math.floor(sessionMs() / 1000));
-    clockEl.textContent = shown;
+    // Leading zeros recede, so the digits that count stand out.
+    const lead = shown === '00:00:00' ? 8 : shown.startsWith('00:00:') ? 6 : shown.startsWith('00:') ? 3 : 0;
+    clockEl.innerHTML = lead ? `<span class="z">${shown.slice(0, lead)}</span>${shown.slice(lead)}` : shown;
     tabTimerLabel.textContent = !state.session ? 'Timer' : isRunning() ? shown : 'Pausiert';
     const hk = heroDay();
     const tsec = liveSec(hk);
@@ -4861,6 +5180,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     closeTip();
     const before = Object.keys(views).find((k) => !views[k].hidden);
     for (const [k, v] of Object.entries(views)) v.hidden = k !== name;
+    app.dataset.tab = name;
     // The new view fades in briefly instead of jumping.
     if (before && before !== name) {
       const v = views[name];
@@ -4873,6 +5193,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       t.tabIndex = t.dataset.tab === name ? 0 : -1;
     });
     window.scrollTo(0, 0);
+    // The sky is measured against the clearing, which has no size while hidden.
+    if (name === 'timer') renderHero();
     if (name === 'forest' && forestDirty) renderForest();
     if (name === 'weeks' && ringAnimatePending) {
       ringAnimatePending = false;
@@ -5063,6 +5385,13 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     showTab('forest');
     updateUI();
     scrollToNewest();
+  });
+
+  // A turned phone or a resized window gives the clearing a new shape.
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (!views.timer.hidden) renderHero(); }, 150);
   });
 
   // ---------- a tap on a tree, an animal or a river tells its story ----------
