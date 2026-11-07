@@ -28,7 +28,14 @@
   --gold-text: #8a6200;
   --birch: #efe9df;
   --conifer: #2f6a48;
-  --pine: #4a7a63;
+  --pine: #437858;
+  --kirsch-spring: #f3c1cf;
+  --beaver: #6e4a33;
+  --seq-bark: #9a4f33;
+  --seq-leaf: #3e6e50;
+  --kirsch-summer: #4d8b47;
+  --kirsch-autumn: #d4583a;
+  --cherry-bark: #7c4538;
   --willow: #8fb24e;
   --willow-spring: #acd064;
   --willow-autumn: #c6bf4e;
@@ -85,7 +92,14 @@
     --gold-text: #f0c24f;
     --birch: #d9d2c5;
     --conifer: #2f7350;
-    --pine: #4d8676;
+    --pine: #4b8a66;
+    --kirsch-spring: #dfa0b4;
+    --beaver: #9c7353;
+    --seq-bark: #a65a41;
+    --seq-leaf: #3d7454;
+    --kirsch-summer: #4f9a55;
+    --kirsch-autumn: #e06c4c;
+    --cherry-bark: #a8695a;
     --willow: #7fa548;
     --willow-spring: #93b95a;
     --willow-autumn: #b9b04a;
@@ -140,7 +154,14 @@
   --gold-text: #f0c24f;
   --birch: #d9d2c5;
   --conifer: #2f7350;
-  --pine: #4d8676;
+  --pine: #4b8a66;
+  --kirsch-spring: #dfa0b4;
+  --beaver: #9c7353;
+  --seq-bark: #a65a41;
+  --seq-leaf: #3d7454;
+  --kirsch-summer: #4f9a55;
+  --kirsch-autumn: #e06c4c;
+  --cherry-bark: #a8695a;
   --willow: #7fa548;
   --willow-spring: #93b95a;
   --willow-autumn: #b9b04a;
@@ -327,7 +348,9 @@ body {
 .land .grove path.snowcap { fill: color-mix(in srgb, var(--win-snow) var(--grove-k), var(--field-sky)); display: none; }
 .app[data-season="winter"] .land .grove path.snowcap { display: block; }
 .land path.meadow { fill: var(--hero-body); }
-.land path.tuft { fill: none; stroke: color-mix(in srgb, var(--hero-body) 62%, var(--c)); stroke-width: 1.2; stroke-linecap: round; }
+.land path.tuft { fill: color-mix(in srgb, var(--grass-c) 78%, var(--hero-body)); }
+.stage .land path.gf { fill: color-mix(in srgb, var(--grass-c) 88%, #1a2a10); }
+.stage .land path.gb { fill: color-mix(in srgb, var(--grass-c) 62%, #0d1d0f); }
 .land circle.bloom { fill: var(--spr-flower); display: none; }
 .land circle.bloom.alt { fill: var(--sum-poppy); }
 .app:is([data-season="spring"], [data-season="summer"]) .land circle.bloom { display: block; }
@@ -663,6 +686,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   font: inherit;
   font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
   transform: translateX(-50%);
   animation: to-today-in 220ms cubic-bezier(.23, 1, .32, 1);
 }
@@ -676,6 +700,16 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .gt-c { stop-color: #fff1b8; stop-opacity: 0; }
 @keyframes today-glow { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 .sign-post { fill: color-mix(in srgb, var(--bark) 85%, #000); }
+.seq-bark, .seq-root { fill: var(--seq-bark); }
+.seq-bark-lit { fill: color-mix(in srgb, var(--seq-bark) 78%, #ffd2a8); opacity: 0.6; }
+.seq-furrow { fill: none; stroke: color-mix(in srgb, var(--seq-bark) 58%, #1a0a04); stroke-width: 1.5; stroke-linecap: round; opacity: 0.75; }
+.seq-limb { fill: color-mix(in srgb, var(--seq-bark) 70%, #1a0a04); }
+.seq-leaf { fill: var(--seq-leaf); }
+.seq-shade { fill: color-mix(in srgb, var(--seq-leaf) 62%, #06120a); }
+.seq-under { fill: color-mix(in srgb, var(--seq-leaf) 64%, #06120a); opacity: 0.6; }
+.seq-lit { fill: color-mix(in srgb, var(--seq-leaf) 70%, #eaf5c8); opacity: 0.75; }
+.seq-spark { fill: #fffbe6; stroke: var(--gold); stroke-width: 0.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: twinkle 4.2s ease-in-out infinite; }
+.mile-text { font-size: 12px; font-weight: 700; fill: color-mix(in srgb, var(--bark) 60%, #1a0a04); }
 .sign-board { fill: color-mix(in srgb, var(--bark) 62%, #e8c48e); }
 .sign-grain { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #000); stroke-width: 0.5; opacity: 0.35; }
 .sign-nail { fill: color-mix(in srgb, var(--bark) 60%, #000); }
@@ -760,6 +794,19 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .leaf.t1, .lhi.t1, .lhi2.t1, .lshade.t1 { --tone: var(--t1); }
 .leaf.t2, .lhi.t2, .lhi2.t2, .lshade.t2 { --tone: var(--t2); }
 .leaf.t0, .leaf.t1, .leaf.t2 { fill: var(--tone); }
+.leaf.tk, .lhi.tk, .lhi2.tk, .lshade.tk { --tone: var(--kirsch); }
+.leaf.tk { fill: var(--tone); }
+.app { --kirsch: var(--kirsch-summer); }
+.app[data-season="spring"] { --kirsch: var(--kirsch-spring); }
+.app[data-season="autumn"] { --kirsch: var(--kirsch-autumn); }
+.cherry .wood { fill: var(--cherry-bark); }
+.cherry-band { fill: none; stroke: color-mix(in srgb, var(--cherry-bark) 50%, #f3dfd2); stroke-width: 0.9; stroke-linecap: round; opacity: 0.85; }
+.blossom { fill: #fff9fb; }
+.blossom.pk { fill: #f2a3ba; }
+.petal { fill: #f7c9d6; }
+.cherry-fruit { fill: #c41f33; }
+.cherry-hi { fill: #ffffff; opacity: 0.7; }
+.cherry-stalk { fill: none; stroke: #5f6d2e; stroke-width: 0.6; stroke-linecap: round; }
 .lshade { fill: color-mix(in srgb, var(--tone, var(--leaf)) 70%, var(--shade-mix)); }
 .lhi { fill: color-mix(in srgb, var(--tone, var(--leaf)) 86%, var(--light-mix)); }
 .lhi2 { fill: color-mix(in srgb, var(--tone, var(--leaf)) 70%, var(--light-mix)); }
@@ -809,7 +856,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .needle { fill: var(--conifer); }
 .pine-needle { fill: var(--pine); }
 .pine-shade { fill: color-mix(in srgb, var(--pine) 72%, #06120a); }
-.pine-hi { fill: color-mix(in srgb, var(--pine) 80%, #e4f2e2); }
+.pine-hi { fill: color-mix(in srgb, var(--pine) 82%, #e6f4c8); }
 .pine-hi2 { fill: color-mix(in srgb, var(--pine) 64%, #eef8ec); }
 .pine-fringe { fill: none; stroke: var(--pine); stroke-width: 0.9; stroke-linecap: round; }
 .pine-fringe.low { stroke: color-mix(in srgb, var(--pine) 66%, #06120a); }
@@ -1085,6 +1132,76 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .badger-leg { fill: none; stroke: #2c2926; stroke-width: 2.4; stroke-linecap: round; }
 .badger-face { fill: #f2efe8; }
 .fawn-spot { fill: none; stroke: var(--animal-light); stroke-width: 1.5; stroke-linecap: round; }
+.beaver { fill: var(--beaver); }
+.beaver-hi { fill: color-mix(in srgb, var(--beaver) 76%, #f2d9bb); }
+.beaver-shade { fill: color-mix(in srgb, var(--beaver) 70%, #140a04); }
+.beaver-tail { fill: #3d322c; }
+.beaver-tail-x { fill: none; stroke: #5a4a40; stroke-width: 0.5; }
+.beaver-teeth { fill: #e2902f; }
+.beaver-paw { fill: none; stroke: color-mix(in srgb, var(--beaver) 60%, #140a04); stroke-width: 1.6; stroke-linecap: round; }
+.gnaw { fill: none; stroke: color-mix(in srgb, var(--bark) 50%, #f0dcb8); stroke-width: 0.6; stroke-linecap: round; }
+.mp-rim { fill: color-mix(in srgb, var(--shade) 45%, var(--ground)); }
+.mp-water { fill: var(--water); }
+.mp-hi { fill: none; stroke: color-mix(in srgb, var(--water) 45%, #ffffff); stroke-width: 0.7; stroke-linecap: round; }
+.app[data-season="winter"] .mp-water { fill: var(--win-ice); }
+.duck-grey { fill: #c4c0b6; }
+.duck-chest { fill: #7d4b34; }
+.duck-tail { fill: #2d2b28; }
+.duck-green { fill: #2c6c48; }
+.duck-ring { fill: none; stroke: #ffffff; stroke-width: 0.7; stroke-linecap: round; }
+.duck-bill { fill: #e5b03a; }
+.duck-hen { fill: #a07b54; }
+.duck-spot { fill: none; stroke: #6c5034; stroke-width: 0.7; stroke-linecap: round; }
+.duck-wing { fill: color-mix(in srgb, #000 18%, transparent); }
+.frog { fill: #5f9c3e; }
+.frog-hi { fill: #9ccb6a; }
+.frog-shade { fill: #477a2e; }
+.frog-belly { fill: #d6e6a4; }
+.frog-eye { fill: #f4e7a2; }
+.frog-mouth { fill: none; stroke: #2f5420; stroke-width: 0.5; stroke-linecap: round; }
+.lilypad-s { fill: #4f8f4a; }
+.lilypad-vein { fill: none; stroke: #6fae64; stroke-width: 0.4; }
+.lily-bud { fill: #f5c3d2; }
+.flower-stalk { fill: #5b9446; stroke: #5b9446; stroke-width: 0.8; stroke-linecap: round; }
+.petal-w { fill: #fbf6ea; }
+.bloom-c { fill: #f0b83a; }
+.bf-orange { fill: #e2782c; }
+.bf-blue { fill: #5f8fe2; }
+.bf-mark { fill: none; stroke: #2a2320; stroke-width: 0.6; stroke-linecap: round; }
+.bf-body { fill: none; stroke: #2a2320; stroke-width: 0.6; stroke-linecap: round; }
+
+/* Animals roam: walkers go along their row towards the middle, pause, turn and come
+   back; ducks glide on their pond, butterflies flutter round their flower, the frog
+   jumps now and then. Only the part of the forest on screen moves. */
+.field .walk { animation: walk var(--wd) ease-in-out var(--wo) infinite; }
+.field .walk > .face { transform-box: fill-box; transform-origin: center; animation: face var(--wd) steps(1, end) var(--wo) infinite; }
+@keyframes walk { 0%, 8% { transform: translateX(0); } 42%, 58% { transform: translateX(var(--dx)); } 92%, 100% { transform: translateX(0); } }
+@keyframes face { 0% { transform: scaleX(var(--f0)); } 50% { transform: scaleX(var(--f1)); } 100% { transform: scaleX(var(--f0)); } }
+.field .swim { animation: swim 14s ease-in-out infinite; }
+.field .swim.s2 { animation-duration: 17s; animation-delay: -6s; }
+.field .swim > .face { transform-box: fill-box; transform-origin: center; animation: swim-face 14s steps(1, end) infinite; }
+.field .swim.s2 > .face { animation-duration: 17s; animation-delay: -6s; }
+@keyframes swim { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(2.6px, -0.3px); } 50% { transform: translate(4.4px, 0); } 75% { transform: translate(2px, 0.3px); } }
+@keyframes swim-face { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
+.field .bf-fly { animation: flutter 9s ease-in-out infinite; }
+.field .bf-fly.f2 { animation-duration: 11s; animation-delay: -4s; animation-direction: reverse; }
+@keyframes flutter {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(6px, -4px); }
+  40% { transform: translate(11px, 2px); }
+  60% { transform: translate(5px, 6px); }
+  80% { transform: translate(-2px, 2px); }
+}
+.field .bf-wing { transform-box: fill-box; animation: wingbeat 0.32s ease-in-out infinite alternate; }
+.field .bf-wing.w-l { transform-origin: 100% 50%; }
+.field .bf-wing.w-r { transform-origin: 0% 50%; }
+@keyframes wingbeat { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
+.field .hop-frog { animation: frog-hop 8s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes frog-hop { 0%, 82%, 100% { transform: translate(0, 0); } 86% { transform: translate(-3px, -7px); } 90% { transform: translate(-6px, 0); } 94% { transform: translate(-3px, -4px); } 97% { transform: translate(0, 0); } }
+.field-sections > svg:not(.live) :is(.walk, .face, .swim, .bf-fly, .bf-wing, .hop-frog, .seq-spark) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .field :is(.walk, .walk > .face, .swim, .swim > .face, .bf-fly, .bf-wing, .hop-frog) { animation: none; }
+}
 
 /* Now and then an animal in the forest moves a little: an ear, a tail, a hop, a blink. */
 .field :is(.a-ear, .a-tail, .a-flick, .a-blink, .a-sniff, .a-hop, .a-peck) { transform-box: fill-box; animation-delay: var(--d, 0s); animation-iteration-count: infinite; }
@@ -1432,6 +1549,24 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .hill.far { fill: color-mix(in srgb, var(--ground) 50%, var(--field-sky)); }
 .haze { fill: var(--field-sky); }
 .mound { fill: color-mix(in srgb, var(--shade) 24%, var(--ground)); }
+.mound-rim { fill: none; stroke: color-mix(in srgb, var(--ground) 55%, #fbffe6); stroke-width: 1.4; opacity: 0.36; stroke-linecap: round; }
+.mound-glow { fill: none; stroke: color-mix(in srgb, var(--ground) 72%, #fbffe6); stroke-width: 12; opacity: 0.2; transform: translateY(5px); }
+.mound-shade { fill: none; stroke: color-mix(in srgb, var(--shade) 40%, var(--ground)); stroke-width: 16; opacity: 0.18; transform: translateY(26px); }
+.mpatch { fill: color-mix(in srgb, var(--shade) 30%, var(--ground)); opacity: 0.45; }
+.mpatch.lt { fill: color-mix(in srgb, var(--ground) 70%, #fbffe6); opacity: 0.4; }
+/* Grass: tufts of tapering blades, darker behind and lighter in front, in the colour
+   of the season. In winter dry stalks poke through the snow. */
+:is(.field, .stage) { --grass-c: color-mix(in srgb, var(--leaf-2) 72%, var(--ground)); }
+.app[data-season="spring"] :is(.field, .stage) { --grass-c: var(--spr-grass); }
+.app[data-season="summer"] :is(.field, .stage) { --grass-c: var(--sum-grass); }
+.app[data-season="autumn"] :is(.field, .stage) { --grass-c: var(--aut-grass); }
+.app[data-season="winter"] :is(.field, .stage) { --grass-c: color-mix(in srgb, var(--aut-grass) 55%, var(--ground)); }
+.gb { fill: color-mix(in srgb, var(--grass-c) 72%, #0d1d0f); }
+.gf { fill: var(--grass-c); }
+.clover { fill: color-mix(in srgb, var(--grass-c) 70%, var(--ground)); opacity: 0.8; }
+.app[data-season="winter"] .clover { display: none; }
+.flower-heart { fill: #fff4c4; }
+.app[data-season="winter"] .flower-heart { display: none; }
 .mound.alt { fill: color-mix(in srgb, var(--shade) 9%, var(--ground)); }
 .app[data-season="winter"] .mound { fill: color-mix(in srgb, var(--win-snow-b) 30%, var(--ground)); }
 .app[data-season="winter"] .mound.alt { fill: color-mix(in srgb, var(--win-snow-b) 12%, var(--ground)); }
@@ -1783,6 +1918,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   const ROW_H = 128;         // height of a golden-tree row
   const SLOT_ROW_H = 96;     // height of a row of trees; tall trees overlap the row behind
   const RIVER_H = 104;       // height of a river band; rivers run across it in different courses
+  const MILE_H = 150;        // height of a milestone row: the giant tree reaches far up behind it
+  const MILESTONE_SEC = 100 * 3600; // every 100 hours in total a giant tree grows
   const WEEK_GOAL_SEC = 40 * 3600;
   const FULL_TREE_MIN = 480; // 8 hours: fully grown, top level
   const MAX_LEVEL = 8;       // one level per full hour
@@ -2208,6 +2345,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     badger: ['ein', 'Dachs'],
     kingfisher: ['ein', 'Eisvogel'],
     family: ['eine', 'Rehfamilie'],
+    beaver: ['ein', 'Biber'],
+    ducks: ['ein', 'Entenpaar'],
+    frog: ['ein', 'Frosch'],
+    butterflies: ['zwei', 'Schmetterlinge'],
   };
   // From this day on, an animal day may bring an animal that belongs to that day's tree:
   // a squirrel under a broadleaf tree, a woodpecker on a birch, a badger by a fir,
@@ -2244,13 +2385,33 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // mushroom get an animal instead; all other days keep their discovery.
   const ANIMALS = ['fox', 'deer', 'rabbit', 'owl', 'bird', 'hedgehog'];
 
+  // From this day on, animal days can also bring a beaver, a pair of ducks, a frog or
+  // two butterflies. Butterflies only come from April to September and the frog from
+  // March to October; the rest of the year a beaver or ducks come in their place.
+  // Earlier days keep exactly what they had.
+  const NEW_FINDS_FROM = '2026-11-08';
+  const ANIMALS2 = ['fox', 'deer', 'rabbit', 'owl', 'bird', 'hedgehog', 'beaver', 'ducks', 'frog', 'butterflies'];
+  function seasonalFind(key, kind) {
+    const m = parseKey(key).getMonth() + 1;
+    if (kind === 'butterflies' && (m < 4 || m > 9)) return 'ducks';
+    if (kind === 'frog' && (m < 3 || m > 10)) return 'beaver';
+    return kind;
+  }
+  function treeFindFor(key) {
+    const sp = speciesFor(key);
+    // Butterflies visit a cherry tree; in the cold months a bird sits by it instead.
+    if (sp === 'kirsche') return seasonalFind(key, 'butterflies') === 'butterflies' ? 'butterflies' : 'bird';
+    return TREE_FIND[sp];
+  }
+
   function discoveryFor(key) {
     if (dayIndex(key) % 4 !== 0) return null;
     const pick = mulberry32(hashStr(key + '#kind'))();
     const kind = KINDS[Math.floor(pick * KINDS.length)];
     let found = kind;
     if (kind === 'pond' || kind === 'mushroom') found = ANIMALS[hashStr(key + '#animal') % ANIMALS.length];
-    if (found !== 'river' && key >= TREE_FINDS_FROM && hashStr(key + '#tree-find') % 5 < 2) found = TREE_FIND[speciesFor(key)];
+    if (found !== 'river' && key >= NEW_FINDS_FROM) found = seasonalFind(key, ANIMALS2[hashStr(key + '#animal2') % ANIMALS2.length]);
+    if (found !== 'river' && key >= TREE_FINDS_FROM && hashStr(key + '#tree-find') % 5 < 2) found = treeFindFor(key);
     return found;
   }
 
@@ -2276,8 +2437,14 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   const PINES_FROM = '2026-11-06';
   // From this day on weeping willows grow too, and spruces a little less often.
   const WILLOWS_FROM = '2026-11-07';
+  // From this day on cherry trees grow too.
+  const CHERRIES_FROM = '2026-11-09';
   function speciesFor(key) {
     if (key.indexOf('#gold') !== -1) return 'laub';
+    if (key >= CHERRIES_FROM) {
+      const m = hashStr(key + '#species4.200') % 20;
+      return m < 8 ? 'laub' : m < 11 ? 'kiefer' : m < 13 ? 'tanne' : m < 15 ? 'weide' : m < 17 ? 'birke' : 'kirsche';
+    }
     if (key >= WILLOWS_FROM) {
       const m = hashStr(key + '#species3') % 20;
       return m < 9 ? 'laub' : m < 13 ? 'kiefer' : m < 15 ? 'tanne' : m < 17 ? 'weide' : 'birke';
@@ -2662,7 +2829,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         base += oval(x, y, ex, ey);
         // Light on the top of each tuft, more on the sunny side of the pad.
         const face = u * lx * 0.6 + 0.5;
-        if (face > 0.2) lit += oval(x + ex * 0.12 * lx, y - ey * 0.3, ex * 0.7, ey * 0.48);
+        if (face > 0.35) lit += oval(x + ex * 0.16 * lx, y - ey * 0.36, ex * 0.52, ey * 0.32);
         if (fineDetail && face > 0.55) lit2 += oval(x + ex * 0.2 * lx, y - ey * 0.44, ex * 0.32, ey * 0.22);
         if (snow) snowD += oval(x, y - ey * 0.55, ex * 0.86, ey * 0.34);
         top = Math.min(top, y - ey);
@@ -2880,22 +3047,67 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     if (species === 'kiefer') return buildPine(minutes, key);
     if (species === 'weide') return buildWillow(minutes, key);
     if (species === 'birke') return buildBirch(minutes, key);
+    if (species === 'kirsche') return buildBroadleaf(minutes, key, false, true);
     return buildBroadleaf(minutes, key, false);
   }
 
-  function buildBroadleaf(minutes, key, birch) {
+  // Blossom in spring, cherries in summer, on top of a cherry tree's crown.
+  function cherryExtras(list, level, rnd) {
+    const season = seasonNow();
+    if (season === 'spring') {
+      let white = '';
+      let pink = '';
+      for (const [x, y, ex, ey] of list) {
+        const n = Math.round((fineDetail ? 1.1 : 0.45) * ex);
+        for (let i = 0; i < n; i++) {
+          const a = rnd() * Math.PI * 2;
+          const d = Math.sqrt(rnd()) * 0.92;
+          const px = x + Math.cos(a) * ex * d;
+          const py = y + Math.sin(a) * ey * d;
+          const r = fineDetail ? 1.3 + rnd() * 0.9 : 2 + rnd();
+          if (Math.sin(a) < 0.2 || rnd() < 0.3) white += oval(px, py, r, r * 0.9);
+          else pink += oval(px, py, r * 0.9, r * 0.8);
+        }
+      }
+      return `<path class="blossom pk" d="${pink}"/><path class="blossom" d="${white}"/>`;
+    }
+    if (season === 'summer') {
+      let stalks = '';
+      let fruit = '';
+      let shine = '';
+      const r = fineDetail ? 1.8 : 2.4;
+      for (const [x, y, ex, ey] of list) {
+        const n = fineDetail ? 2 + Math.floor(level / 3) : 1 + (level >= 5 ? 1 : 0);
+        for (let i = 0; i < n; i++) {
+          const px = x + (rnd() - 0.5) * ex * 1.3;
+          const py = y + ey * (0.25 + rnd() * 0.5);
+          const s1 = [px - r * 0.9, py + r * 2.2];
+          const s2 = [px + r * 0.9, py + r * 2.6];
+          stalks += `M${r1(px)} ${r1(py)}Q${r1(px - r * 0.4)} ${r1(py + r)} ${r1(s1[0])} ${r1(s1[1] - r)}M${r1(px)} ${r1(py)}Q${r1(px + r * 0.5)} ${r1(py + r)} ${r1(s2[0])} ${r1(s2[1] - r)}`;
+          fruit += oval(s1[0], s1[1], r, r) + oval(s2[0], s2[1], r, r);
+          shine += oval(s1[0] - r * 0.35, s1[1] - r * 0.35, r * 0.3, r * 0.3) + oval(s2[0] - r * 0.35, s2[1] - r * 0.35, r * 0.3, r * 0.3);
+        }
+      }
+      return `<path class="cherry-stalk" d="${stalks}"/><path class="cherry-fruit" d="${fruit}"/><path class="cherry-hi" d="${shine}"/>`;
+    }
+    return '';
+  }
+
+  // A cherry tree is drawn like a broadleaf tree, a little wider and lower, with reddish
+  // bark banded across, blossom in spring, red cherries in summer, red leaves in autumn.
+  function buildBroadleaf(minutes, key, birch, cherry) {
     const table = birch ? BIRKE : LAUB;
     const { level, frac } = levelOf(minutes);
     const own = key.indexOf('#gold') === -1;
     const rnd = mulberry32(hashStr(key));
     // Each tree gets one of three leaf tones; birches keep their own; golden trees stay gold.
-    const tone = !own ? '' : birch ? ' t2' : ' t' + (hashStr(key + '#tone') % 3);
+    const tone = !own ? '' : cherry ? ' tk' : birch ? ' t2' : ' t' + (hashStr(key + '#tone') % 3);
     const L = lightDir();
     const snow = own && seasonNow() === 'winter';
     const vary = 0.94 + rnd() * 0.12;
-    const h = grownValue(table, level, frac, 0) * vary;
-    const rx = grownValue(table, level, frac, 1) * vary;
-    const ry = grownValue(table, level, frac, 2) * vary;
+    const h = grownValue(table, level, frac, 0) * vary * (cherry ? 0.92 : 1);
+    const rx = grownValue(table, level, frac, 1) * vary * (cherry ? 1.14 : 1);
+    const ry = grownValue(table, level, frac, 2) * vary * (cherry ? 0.9 : 1);
     const w = grownValue(table, level, frac, 3);
     const masses = table[level][4];
     const away = L > 0 ? -1 : L < 0 ? 1 : -1; // the shaded side of the trunk
@@ -2971,7 +3183,15 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       // Leaf masses, from the back (top) to the front (bottom).
       let list;
       if (birch) list = BIRCH_LOBES[masses].map(([dx, dy, s]) => [cx + dx * rx, cy + dy * ry, rx * s * 1.2, ry * s * 0.75]);
-      else if (masses === 1) list = [[cx, cy, rx, ry]];
+      else if (masses === 1) {
+        // A young crown is not one ball: a top and two shoulders, a little uneven, so it
+        // reads as leaves on branches.
+        const tilt = (rnd() - 0.5) * 0.16;
+        list = [[cx + rx * tilt, cy - ry * 0.3, rx * 0.74, ry * 0.6],
+          [cx - rx * (0.38 + rnd() * 0.06), cy + ry * (0.14 + tilt), rx * 0.62, ry * 0.56],
+          [cx + rx * (0.4 + rnd() * 0.06), cy + ry * (0.12 - tilt), rx * 0.6, ry * 0.54],
+          [cx, cy + ry * 0.22, rx * 0.5, ry * 0.46]];
+      }
       else {
         list = [[cx, cy + ry * 0.05, rx * 0.72, ry * 0.62]].concat(
           LOBES[masses].map(([dx, dy, s]) => [cx + dx * rx + (rnd() - 0.5) * rx * 0.08, cy + dy * ry + (rnd() - 0.5) * ry * 0.08,
@@ -3000,11 +3220,11 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         }
         woodExtra += `<path class="birch-mark" d="${m2}"/>`;
       }
-      // Main limbs: the fork shows below the crown from level 4 on.
-      if (!birch && level >= 4) {
+      // Main limbs: the fork shows below the crown from level 3 on.
+      if (!birch && level >= 3) {
         const forkY = crownBottom + 3 + level * 1.4;
         const fx = 100 + (cx - 100) * ((214 - forkY) / (214 - cy));
-        const targets = masses === 1 ? [[cx - rx * 0.45, cy + ry * 0.15], [cx + rx * 0.45, cy + ry * 0.1]] : list.slice(1).map(([x, y]) => [x, y]);
+        const targets = masses === 1 ? [[cx - rx * 0.4, cy + ry * 0.18], [cx + rx * 0.42, cy + ry * 0.14]] : list.slice(1).map(([x, y]) => [x, y]);
         for (const [x, y] of targets) {
           wood += band(fx, forkY, x, y, w * 0.6, w * 0.26);
           // In winter snow lies along the top of the limbs that lean out far enough.
@@ -3049,6 +3269,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
           top = Math.min(top, m.top);
           half = Math.max(half, Math.abs(x - 100) + ex * 1.12);
         }
+        if (cherry && own && level >= 2) front += cherryExtras(list, level, rnd);
       }
       // Hanging birch twigs with small leaves.
       if (birch && level >= 4) {
@@ -3089,6 +3310,18 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         }
         woodExtra += `<path class="birch-mark" d="${m}"/>`;
         if (level >= 6) woodExtra += `<path class="birch-foot" d="M${r1(100 - w / 2)} 214L${r1(100 - w * 0.47)} ${r1(214 - th * 0.18)}Q100 ${r1(214 - th * 0.24)} ${r1(100 + w * 0.47)} ${r1(214 - th * 0.17)}L${r1(100 + w / 2)} 214Z"/>`;
+      } else if (cherry && level >= 2) {
+        // Cherry bark: short pale bands across the trunk.
+        let m = '';
+        const marks = 3 + level;
+        for (let i = 0; i < marks; i++) {
+          const t = 0.08 + (i + rnd() * 0.5) / marks * 0.8;
+          const x = 100 + (cx - 100) * t;
+          const y = 214 - th * t;
+          const ww = w + (w * 0.6 - w) * t;
+          m += `M${r1(x - ww * (0.15 + rnd() * 0.25))} ${r1(y)}h${r1(ww * (0.3 + rnd() * 0.25))}`;
+        }
+        woodExtra += `<path class="cherry-band" d="${m}"/>`;
       } else if (level >= 2) {
         let d = '';
         const lines = Math.min(5, level - 1);
@@ -3144,7 +3377,17 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       }
       fallen = `<path class="leaf fallen${tone}" d="${fallen}"/>`;
     }
-    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}"${birch ? ' class="birch"' : ''}>` +
+    // Under a cherry in spring, petals lie in the grass.
+    if (cherry && own && level >= 2 && seasonNow() === 'spring') {
+      let petals = '';
+      const spread = Math.min(62, 14 + rx);
+      for (let i = 0; i < (fineDetail ? 14 : 6) + level; i++) {
+        const u = rnd() * 2 - 1;
+        petals += oval(100 + u * spread * (0.3 + rnd() * 0.7), 214 + (rnd() - 0.5) * 4, 1.6, 1);
+      }
+      fallen += `<path class="petal" d="${petals}"/>`;
+    }
+    return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}"${birch ? ' class="birch"' : cherry ? ' class="cherry"' : ''}>` +
       shadowMarkup(level === 0 ? 12 : Math.min(62, 14 + rx)) + fallen + stake +
       `<g class="wood-g">${wood ? `<path class="wood" d="${wood}"/>` : ''}${roots}${woodExtra}${twigs}</g>` +
       crown + front + `</g>`;
@@ -3237,16 +3480,20 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const ey = y0 - len * 0.28 + droop;
       branches += `M${r1(x0)} ${r1(y0)}Q${r1(cx)} ${r1(cy)} ${r1(ex)} ${r1(ey)}`;
       const at = (t) => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * ex, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * ey];
-      const r = (3 + level * 0.46) * (0.85 + rnd() * 0.3);
+      // Birch leaves are small and the crown is airy: smaller clumps, more hanging strands.
+      const r = (2.7 + level * 0.4) * (0.85 + rnd() * 0.3);
       // Leaves hang a little below the branch, more of them towards its end.
       const spots = !fineDetail ? (level >= 4 ? [0.5, 0.72, 0.95] : [0.6, 0.95]) : level >= 4 ? [0.38, 0.58, 0.76, 0.94] : [0.5, 0.75, 0.97];
       for (const t of spots) {
         const [x, y] = at(t);
         cluster(x + (rnd() - 0.5) * 3, y + r * (0.35 + rnd() * 0.45), r * (0.75 + t * 0.35) * (0.85 + rnd() * 0.3));
       }
-      if (level >= 3) {
-        const strands = level >= 6 && fineDetail ? 2 : 1;
-        for (let k = 0; k < strands; k++) strand(ex - side * k * 3, ey + r * 0.6, 6 + level * 1.6 + rnd() * 5, side);
+      if (level >= 2) {
+        const strands = fineDetail ? (level >= 6 ? 3 : 2) : (level >= 5 ? 2 : 1);
+        for (let k = 0; k < strands; k++) {
+          const [sx, sy] = at(0.97 - k * 0.22);
+          strand(sx - side * k * 1.5, sy + r * 0.55, 8 + level * 2.1 + rnd() * 6 - k * 2, side);
+        }
       }
       half = Math.max(half, Math.abs(ex - 100) + r);
       return thick;
@@ -3570,6 +3817,91 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
   // Small 40x30 animal sprites, standing on y = 30, lit from the upper right.
   const SPRITES = {
+    beaver: `
+      <ellipse class="a-shadow" cx="20" cy="29.8" rx="16" ry="1.4"/>
+      <path class="stump" d="M33.2 29.7L33.8 24.2L35.2 21.4L36.4 18.4L37.8 21.2L39.4 24.4L39.8 29.7Z"/>
+      <path class="stump-top" d="M35.2 21.4L36.4 18.4L37.8 21.2L36.6 22.6Z"/>
+      <path class="gnaw" d="M34.4 23.4l1.4 .8M38.6 23.2l-1.4 .9M34.2 26l1.2 .4"/>
+      <path class="stump-top" d="M31.4 29.6l1.4 -.5l.4 .5ZM29.2 29.7l.9 -.6l.6 .6Z"/>
+      <g class="a-tail up">
+      <path class="beaver-tail" d="M9.6 25.2C6 23.6 1.4 24.4 .6 26.8C1.6 29.2 6.8 29.2 10.4 27.4Z"/>
+      <path class="beaver-tail-x" d="M2.4 25.6l2 3M4.6 25l2 3.4M6.8 24.8l1.8 3.2M2 27.6l6.6 -1.2"/>
+      </g>
+      <path class="beaver" d="M8 23.2C8 17.4 13 15 19 15.2C24.6 15.4 28.4 17.6 28.6 22.6C28.8 26.8 25 29.4 18.6 29.4C12 29.4 8 27.2 8 23.2Z"/>
+      <path class="beaver-shade" d="M8.4 25C10 28 14 29.4 18.6 29.4C24 29.4 27.6 27.6 28.4 24.6C26 27 22 27.8 18 27.6C13.4 27.4 10.4 26.6 8.4 25Z"/>
+      <path class="beaver-hi" d="M11 18.4C13.6 16 18 15.4 21.6 15.8C18 16.6 14 17.6 11 18.4Z"/>
+      <g class="a-sniff">
+      <circle class="beaver" cx="28.4" cy="20.4" r="4.8"/>
+      <ellipse class="beaver-hi" cx="31.6" cy="22" rx="2.6" ry="2.1"/>
+      <circle class="beaver" cx="25.6" cy="16.4" r="1.3"/>
+      <circle class="animal-dark" cx="33.8" cy="21" r="0.9"/>
+      <rect class="beaver-teeth" x="31.6" y="23.4" width="1.6" height="1.8" rx="0.3"/>
+      <circle class="animal-dark" cx="29.6" cy="19" r="0.8"/>
+      <circle class="eye-hi" cx="29.85" cy="18.75" r="0.26"/>
+      </g>
+      <path class="beaver-paw" d="M27 26.6l.8 2.4M11.6 27.8l-1.2 1.8"/>`,
+    ducks: `
+      <ellipse class="mp-rim" cx="20" cy="26.4" rx="19.6" ry="4.4"/>
+      <ellipse class="mp-water" cx="20" cy="26" rx="19" ry="3.9"/>
+      <path class="mp-hi" d="M4.6 26.6q3 1 6 0M27 27.4q3 1 6.4 0M15 28.6q2.4 .7 5 0"/>
+      <g class="swim s1"><g class="face">
+      <path class="duck-hen" d="M5.6 24.6Q5.8 20.8 10.6 20.6L14.6 21Q17 21.6 16.6 23.4Q15.8 25.4 11.2 25.4Q7 25.4 5.6 24.6Z"/>
+      <path class="duck-spot" d="M8.4 22.6l1.2 -.4M10.6 23l1.2 -.4M12.6 22.4l1.1 -.3M9.4 24.2l1 -.3"/>
+      <path class="duck-hen" d="M14.4 21.6Q14.2 18.8 15.6 17.6Q17.6 16.4 18.6 18.4Q18.8 20.4 16.6 21.6Z"/>
+      <path class="duck-bill" d="M18.4 18.6L20.6 19.2L18.6 19.9Z"/>
+      <circle class="animal-dark" cx="17.3" cy="18.2" r="0.55"/>
+      <path class="duck-wing" d="M8 22.2Q11 20.8 14 22Q11.4 23.6 8 22.2Z"/>
+      </g></g>
+      <g class="swim s2"><g class="face">
+      <path class="duck-grey" d="M21.4 25Q21.6 20.8 26.6 20.6L31 21Q33.6 21.6 33.2 23.6Q32.4 25.8 27.4 25.8Q23 25.8 21.4 25Z"/>
+      <path class="duck-chest" d="M30 21Q33.6 21.4 33.2 23.8Q32.6 25.4 30.2 25.6Q31.2 23 30 21Z"/>
+      <path class="duck-tail" d="M21.6 23.6Q20.6 22.4 21.4 21.4Q22.6 22.4 22.6 23.6Z"/>
+      <path class="duck-wing" d="M23.6 22.4Q27 21 30.2 22.2Q27.4 24 23.6 22.4Z"/>
+      <path class="duck-green" d="M30.8 21.4Q30.4 18.6 32 17.4Q34.2 16.4 35 18.6Q35.2 20.4 33 21.6Z"/>
+      <path class="duck-ring" d="M30.8 21.2Q32 21.8 33.2 21.4"/>
+      <path class="duck-bill" d="M34.8 18.8L37.2 19.4L35 20.2Z"/>
+      <circle class="animal-dark" cx="33.6" cy="18.4" r="0.55"/>
+      <circle class="eye-hi" cx="33.75" cy="18.25" r="0.2"/>
+      </g></g>`,
+    frog: `
+      <ellipse class="mp-rim" cx="20" cy="26.4" rx="17.6" ry="4.2"/>
+      <ellipse class="mp-water" cx="20" cy="26" rx="17" ry="3.7"/>
+      <path class="mp-hi" d="M5.4 27q2.6 .9 5.2 0M30 27.4q2.4 .8 4.8 0"/>
+      <path class="lilypad-s" d="M20 26.2L28.6 25.2A9 2.8 0 1 1 28.3 27.3Z"/>
+      <path class="lilypad-vein" d="M20 26.2l-6 1M20 26.2l-4 -1.6M20 26.2l5 1.4"/>
+      <circle class="lily-bud" cx="8" cy="25.6" r="1.5"/>
+      <g class="hop-frog">
+      <path class="frog" d="M14.6 24.6Q13.6 21 16 19.4Q18.6 17.6 22.4 18.2Q26 19 26.2 22.4Q26.4 25 23.6 25.6Q19 26.2 14.6 24.6Z"/>
+      <path class="frog-belly" d="M16.6 24.4Q19.6 25.4 23.4 24.8Q22.6 22.6 19.8 22.6Q17.4 22.8 16.6 24.4Z"/>
+      <path class="frog-shade" d="M13.6 25.4Q12.2 22.6 14.8 21.8Q16 24.2 18 25.2Q15.6 26.2 13.6 25.4ZM27 25.2Q28.6 22.6 25.8 21.6Q24.8 24 23 25Q25 26 27 25.2Z"/>
+      <circle class="frog" cx="17.6" cy="18.4" r="2.2"/>
+      <circle class="frog" cx="22.6" cy="18.2" r="2.2"/>
+      <circle class="frog-eye" cx="17.6" cy="18.1" r="1.25"/>
+      <circle class="frog-eye" cx="22.6" cy="17.9" r="1.25"/>
+      <circle class="animal-dark" cx="17.8" cy="18.1" r="0.65"/>
+      <circle class="animal-dark" cx="22.8" cy="17.9" r="0.65"/>
+      <path class="frog-mouth" d="M17.4 21.6Q20.2 22.8 23 21.4"/>
+      <path class="frog-hi" d="M18.4 19.6Q20.4 19 22.4 19.6Q20.4 20.2 18.4 19.6Z"/>
+      </g>`,
+    butterflies: `
+      <ellipse class="a-shadow" cx="20" cy="29.8" rx="7" ry="1.1"/>
+      <path class="flower-stalk" d="M20 29.6Q19.4 24 20.4 17.6M20 25.4Q17 23.8 15.6 24.8Q17.4 26.6 20 25.6M20.2 22Q23 20.6 24.4 21.6Q22.8 23.4 20.2 22.2"/>
+      <g class="bloom-head">
+      <circle class="petal-w" cx="20.4" cy="15.2" r="2"/><circle class="petal-w" cx="22.6" cy="16.8" r="2"/><circle class="petal-w" cx="21.8" cy="19.2" r="2"/>
+      <circle class="petal-w" cx="19" cy="19.2" r="2"/><circle class="petal-w" cx="18.2" cy="16.8" r="2"/>
+      <circle class="bloom-c" cx="20.4" cy="17.4" r="1.5"/>
+      </g>
+      <g class="bf-fly f1"><g class="bf">
+      <path class="bf-wing w-l bf-orange" d="M11 9.6Q6.4 5.4 5.2 8.6Q5 11.8 10.8 10.8ZM10.8 10.6Q7 12.4 7.8 14.2Q9.6 15 11 11.2Z"/>
+      <path class="bf-wing w-r bf-orange" d="M11.4 9.6Q16 5.4 17.2 8.6Q17.4 11.8 11.6 10.8ZM11.6 10.6Q15.4 12.4 14.6 14.2Q12.8 15 11.4 11.2Z"/>
+      <path class="bf-mark" d="M7 8.2l1.4 .4M15.4 8.2l-1.4 .4M6.8 9.6l1 .2M15.6 9.6l-1 .2"/>
+      <path class="bf-body" d="M11.2 8.4V12.6M11.2 8.6L10 6.4M11.2 8.6L12.4 6.4"/>
+      </g></g>
+      <g class="bf-fly f2"><g class="bf">
+      <path class="bf-wing w-l bf-blue" d="M29 5.2Q25.6 2.2 24.8 4.6Q24.6 7 28.8 6.2ZM28.8 6Q26 7.4 26.6 8.8Q28 9.4 29 6.6Z"/>
+      <path class="bf-wing w-r bf-blue" d="M29.4 5.2Q32.8 2.2 33.6 4.6Q33.8 7 29.6 6.2ZM29.6 6Q32.4 7.4 31.8 8.8Q30.4 9.4 29.4 6.6Z"/>
+      <path class="bf-body" d="M29.2 4.2V7.8M29.2 4.4L28.3 2.8M29.2 4.4L30.1 2.8"/>
+      </g></g>`,
     fox: `
       <ellipse class="a-shadow" cx="20" cy="29.8" rx="13" ry="1.5"/>
       <g class="a-tail">
@@ -3817,8 +4149,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         }
         out += `<path class="fern" d="${d}"/>`;
       } else {
-        const h = (5 + rnd() * 4) * s;
-        out += `<path class="blade" d="M${r1(x)} ${r1(y)}q-2 ${r1(-h * 0.6)} -4 ${r1(-h)}M${r1(x)} ${r1(y)}q1 ${r1(-h * 0.7)} 3 ${r1(-h * 0.9)}M${r1(x)} ${r1(y)}q0 ${r1(-h * 0.6)} -.5 ${r1(-h * 1.1)}"/>`;
+        const [b, f] = tuftPaths(x, y, (9 + rnd() * 5) * s, rnd);
+        const [b2, f2] = tuftPaths(x + 5 * s, y + 1, (6 + rnd() * 3) * s, rnd);
+        out += `<path class="gb" d="${b}${b2}"/><path class="gf" d="${f}${f2}"/>`;
       }
     }
     return out;
@@ -4233,16 +4566,28 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     let blooms = '';
     for (let x = 2; x < LAND_W; x += 7 + rnd() * 10) {
       const y = landMeadow(x) + 2 + rnd() * 3;
-      const h = 3 + rnd() * 3.5;
-      tufts += `M${r1(x)} ${r1(y)}q-1.2 ${r1(-h * 0.6)} -2.6 ${r1(-h)}M${r1(x)} ${r1(y)}q0.6 ${r1(-h * 0.7)} 2 ${r1(-h * 0.95)}`;
+      const h = 4 + rnd() * 4;
+      const [tb, tf] = tuftPaths(x, y, h, rnd);
+      tufts += tb + tf;
       if (rnd() < 0.22) blooms += `<circle class="bloom${rnd() < 0.5 ? ' alt' : ''}" cx="${r1(x + 1)}" cy="${r1(y - h)}" r="1.3"/>`;
+    }
+    // Big tufts in the front corners frame the clearing, as if seen from the grass.
+    let fb = '';
+    let ff = '';
+    for (const [x0, x1] of [[-6, 46], [352, 406]]) {
+      for (let x = x0; x < x1; x += 7 + rnd() * 6) {
+        const [b, f] = tuftPaths(x, 151, 16 + rnd() * 12, rnd);
+        fb += b;
+        ff += f;
+      }
     }
     const layer = (name) => Object.entries(by[name]).map(([k, d]) => `<path class="${k}" d="${d}"/>`).join('');
     return `<g class="far"><path class="kg" d="${landBand(landRidge)}"/>${layer('far')}</g>` +
       `<g class="mid"><path class="kg" d="${landBand(landHill)}"/>${layer('mid')}</g>` +
       `<g class="grove"><path class="trunk" d="${trunks}"/>${layer('grove')}<path class="k1 lhi" d="${lights}"/><path class="snowcap" d="${snow}"/></g>` +
       `<path class="meadow" d="${landBand(landMeadow)}"/>` +
-      `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g>`;
+      `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g>` +
+      `<path class="gb" d="${fb}"/><path class="gf" d="${ff}"/>`;
   }
   let landKey = '';
   function renderLand() {
@@ -4276,18 +4621,65 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   }
 
   // Tufts spread over one row's strip of ground, between and behind its trees.
+  // One blade of grass: a thin, tapering, slightly bent leaf.
+  function bladePath(x, y, h, lean, w) {
+    const tx = x + lean * h;
+    return `M${r1(x - w)} ${r1(y)}Q${r1(x - w * 0.6 + lean * h * 0.35)} ${r1(y - h * 0.62)} ${r1(tx)} ${r1(y - h)}` +
+      `Q${r1(x + w * 0.4 + lean * h * 0.5)} ${r1(y - h * 0.5)} ${r1(x + w)} ${r1(y)}Z`;
+  }
+  // A tuft: a few darker blades behind, lighter ones in front, fanning out.
+  function tuftPaths(x, y, h, rnd) {
+    let back = '';
+    let front = '';
+    const n = 4 + Math.floor(rnd() * 3);
+    for (let j = 0; j < n; j++) {
+      const u = n > 1 ? j / (n - 1) * 2 - 1 : 0;
+      const bx = x + u * 2.6 + (rnd() - 0.5);
+      const bh = h * (0.62 + rnd() * 0.38) * (1 - Math.abs(u) * 0.25);
+      const lean = u * 0.42 + (rnd() - 0.5) * 0.2;
+      const d = bladePath(bx, y, bh, lean, 0.75 + rnd() * 0.3);
+      if (j % 2) back += d; else front += d;
+    }
+    return [back, front];
+  }
   function grassMarkup(count, seed, yTop, yBot) {
     const rnd = mulberry32(hashStr(seed + '#grass'));
     let out = '';
+    let back = '';
+    let front = '';
+    let flowers = '';
+    let hearts = '';
+    let clover = '';
+    // Soft patches of darker and lighter meadow, so the floor is never one flat colour.
+    for (let i = 0; i < 3; i++) {
+      const cx = 20 + rnd() * 360;
+      const cy = yTop + 6 + rnd() * (yBot - yTop - 6);
+      out += `<ellipse class="mpatch${i % 2 ? ' lt' : ''}" cx="${r1(cx)}" cy="${r1(cy)}" rx="${r1(30 + rnd() * 46)}" ry="${r1(5 + rnd() * 5)}"/>`;
+    }
     for (let i = 0; i < count; i++) {
-      const x = r1(4 + rnd() * 392);
-      const y = r1(yTop + rnd() * (yBot - yTop));
-      const h = r1(5 + rnd() * 5);
-      out += `<path class="blade" d="M${x} ${y}q-2 ${r1(-h * 0.6)} -4 ${r1(-h)}M${x} ${y}q1 ${r1(-h * 0.7)} 3 ${r1(-h * 0.9)}"/>`;
-      if (i % 5 === 4) {
-        out += `<circle class="flower${i % 2 ? '' : ' alt'}" cx="${r1(x + 1)}" cy="${r1(y - h)}" r="2"/>`;
+      const x = 4 + rnd() * 392;
+      const y = yTop + rnd() * (yBot - yTop);
+      const h = 6 + rnd() * 6;
+      const [b, f] = tuftPaths(x, y, h, rnd);
+      back += b;
+      front += f;
+      if (i % 4 === 3) {
+        // A flower on a thin stalk above the tuft.
+        const fx = x + (rnd() - 0.5) * 3;
+        const fy = y - h - 2;
+        flowers += `<circle class="flower${i % 8 === 7 ? ' alt' : ''}" cx="${r1(fx)}" cy="${r1(fy)}" r="2"/>`;
+        hearts += `<circle cx="${r1(fx)}" cy="${r1(fy)}" r="0.8"/>`;
+      }
+      if (i % 3 === 1) {
+        // A few clover leaves low in the grass.
+        const cx = x + 6 + rnd() * 6;
+        const cy = y + 1;
+        clover += oval(cx - 1.3, cy, 1.4, 1.1) + oval(cx + 1.3, cy, 1.4, 1.1) + oval(cx, cy - 1.4, 1.4, 1.1);
       }
     }
+    out += (clover ? `<path class="clover" d="${clover}"/>` : '') +
+      (back ? `<path class="gb" d="${back}"/><path class="gf" d="${front}"/>` : '') +
+      flowers + (hearts ? `<g class="flower-heart">${hearts}</g>` : '');
     if (seasonNow() === 'spring') {
       for (let i = 0; i < 2; i++) {
         out += `<ellipse class="patch" cx="${r1(20 + rnd() * 360)}" cy="${r1(yTop + rnd() * (yBot - yTop))}" rx="${r1(8 + rnd() * 10)}" ry="2.5"/>`;
@@ -4710,6 +5102,11 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     heroSvg.innerHTML = `<g class="sway"><g class="tree${growClass('hero', lvl)}">${markupFor(tsec, hk)}</g></g>`;
     fitTree(heroSvg);
     if (prevLvl !== undefined && prevDay === hk && lvl > prevLvl && isRunning()) celebrateLevel(lvl);
+    // Every 100 hours in total: a giant tree grows in the forest, and the moment is marked.
+    const allSec = Object.keys(state.days).reduce((sum, k) => sum + storedSec(k), 0) + (liveSec(hk) - storedSec(hk));
+    const mile = Math.floor(allSec / MILESTONE_SEC);
+    if (seenLevel.mile !== undefined && mile > seenLevel.mile && isRunning()) celebrateLevel(lvl, `${mile * 100} Stunden! Ein Mammutbaum wächst`);
+    seenLevel.mile = mile;
     levelLine.textContent = levelText(tsec);
 
     const streak = streakDays();
@@ -4758,6 +5155,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
   let forestSections = [];
   let sectionWatch = null;
+  let liveWatch = null;
 
   function renderForest() {
     if (!forestTip.hidden) closeTip();
@@ -4780,6 +5178,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     const items = [];
     const finds = [];
     let month = '';
+    let sum = 0;
     shown.forEach(([key, sec], index) => {
       // A new month starts a new row with a signpost.
       const m = key.slice(0, 7);
@@ -4789,6 +5188,12 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const tree = { type: 'tree', key, sec };
       items.push(tree);
       (goldenByDay[key] || []).forEach((wk, i) => items.push({ type: 'golden', key: key + '#' + wk, family: i === 0 && found.includes('family') }));
+      // Every 100 hours in total, on the day they are reached, a giant tree grows.
+      const before = sum;
+      sum += sec;
+      for (let n = Math.floor(before / MILESTONE_SEC) + 1; n * MILESTONE_SEC <= sum; n++) {
+        items.push({ type: 'milestone', key, hours: n * 100 });
+      }
       for (const kind of found) {
         // Squirrel, woodpecker, badger and kingfisher stay with their tree; the deer family with the golden tree.
         if (COMPANIONS.includes(kind)) tree.companion = kind;
@@ -4827,8 +5232,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         sign = it.key;
         continue;
       }
-      if (it.type === 'river' || it.type === 'golden') {
-        const row = it.type === 'river' ? { type: 'river', h: riverStyle(it.key) === 'brook' ? BROOK_H : RIVER_H, key: it.key } : { type: 'golden', h: ROW_H, item: it };
+      if (it.type === 'river' || it.type === 'golden' || it.type === 'milestone') {
+        const row = it.type === 'river' ? { type: 'river', h: riverStyle(it.key) === 'brook' ? BROOK_H : RIVER_H, key: it.key }
+          : it.type === 'milestone' ? { type: 'milestone', h: MILE_H, item: it } : { type: 'golden', h: ROW_H, item: it };
         if (cur || lastIsBreak()) later.push(row);
         else rows.push(row);
         continue;
@@ -4873,6 +5279,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         let body = '';
         if (row.type === 'river') {
           body += `<g class="pick" data-info="r|${row.key}">${riverMarkup(top, row.h, row.key)}</g>`;
+        } else if (row.type === 'milestone') {
+          body += moundMarkup(top + row.h - 12, 1);
+          body += grassMarkup(10, row.item.key + '#mile', top + row.h - 30, top + row.h + 2);
+          body += milestoneItem(row.item, 200 + (row.item.hours / 100 % 2 ? -34 : 34), top + row.h - 8);
         } else if (row.type === 'golden') {
           // The deer family stands a little further back, beside the golden tree.
           if (row.item.family) {
@@ -4885,7 +5295,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         } else {
           // A soft rise of ground under each row, so the floor is not one flat sheet.
           body += moundMarkup(top + row.h - 12, sr);
-          body += grassMarkup(grassPerRow, row.items[0].key, top + row.h - 30, top + row.h + 2);
+          body += grassMarkup(grassPerRow + 5, row.items[0].key, top + row.h - 30, top + row.h + 2);
           body += decorMarkup(row.items[0].key + '#' + sr, top + row.h - 6);
           body += airMarkup(row.items[0].key + '#' + sr, top + 10, top + row.h - 10, 3);
           const weather = weatherNow();
@@ -4966,6 +5376,12 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         for (const e of entries) if (e.isIntersecting) { fill(e.target); sectionWatch.unobserve(e.target); }
       }, { rootMargin: '900px 0px' });
       els.forEach((el) => { if (!el.dataset.done) sectionWatch.observe(el); });
+      // Only the sections on screen let their animals move.
+      if (liveWatch) liveWatch.disconnect();
+      liveWatch = new IntersectionObserver((entries) => {
+        for (const e of entries) e.target.classList.toggle('live', e.isIntersecting);
+      }, { rootMargin: '80px 0px' });
+      els.forEach((el) => liveWatch.observe(el));
     } else {
       els.forEach(fill);
     }
@@ -5048,7 +5464,157 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // Wide enough to reach both edges even when the row is scaled down for depth;
     // it runs down like a hillside, and the next row's rise covers it.
     const a = n % 2 ? [-22, 4, -16] : [-6, -24, 2];
-    return `<path class="mound${n % 2 ? ' alt' : ''}" d="M-120 ${r1(b)} Q20 ${r1(b + a[0])} 140 ${r1(b + a[1] / 2)} T300 ${r1(b + a[2] / 2)} T520 ${r1(b - 4)} V${r1(b + 400)} H-120Z"/>`;
+    const crest = `M-120 ${r1(b)} Q20 ${r1(b + a[0])} 140 ${r1(b + a[1] / 2)} T300 ${r1(b + a[2] / 2)} T520 ${r1(b - 4)}`;
+    // The crest of each rise catches the light, the slope below it lies in soft shade.
+    return `<path class="mound${n % 2 ? ' alt' : ''}" d="${crest} V${r1(b + 400)} H-120Z"/>` +
+      `<path class="mound-shade" d="${crest}"/><path class="mound-glow" d="${crest}"/><path class="mound-rim" d="${crest}"/>`;
+  }
+
+  // ---------- the giant tree for every 100 hours ----------
+  // A giant sequoia: a massive, reddish, deeply furrowed trunk flaring out at the foot,
+  // bare for a long way up, then a tall, narrow crown of dense dark clumps. A small
+  // wooden plaque at its foot says how many hours it stands for.
+  function sequoiaMarkup(key, hours) {
+    const rnd = mulberry32(hashStr(key + '#sequoia' + hours));
+    const L = lightDir() || 0.5;
+    const snow = seasonNow() === 'winter';
+    const H = 344;
+    const foot = 214;
+    const topY = foot - H;
+    const bend = (rnd() - 0.5) * 8;
+    const stemX = (t) => 100 + bend * t * t;
+    // Massive at the foot, flaring into buttresses, then a long slow taper.
+    const wAt = (t) => 44 * Math.pow(1 - t, 0.9) + 5 + (t < 0.1 ? Math.pow((0.1 - t) / 0.1, 2) * 26 : 0);
+    const yAt = (t) => foot - H * 0.97 * t;
+    let left = '';
+    let right = '';
+    let lit = '';
+    for (let i = 0; i <= 24; i++) {
+      const t = i / 24;
+      const hw = wAt(t) / 2;
+      left += `${i ? 'L' : 'M'}${r1(stemX(t) - hw)} ${r1(yAt(t))}`;
+      right = `L${r1(stemX(t) + hw)} ${r1(yAt(t))}` + right;
+    }
+    // The sunny side of the trunk.
+    let litL = '';
+    let litR = '';
+    for (let i = 0; i <= 14; i++) {
+      const t = i / 14 * 0.7;
+      const hw = wAt(t) / 2;
+      const a = stemX(t) + L * hw * 0.25;
+      const b = stemX(t) + L * hw * 0.92;
+      litL += `${i ? 'L' : 'M'}${r1(a)} ${r1(yAt(t))}`;
+      litR = `L${r1(b)} ${r1(yAt(t))}` + litR;
+    }
+    lit = litL + litR + 'Z';
+    const trunk = left + right + 'Z';
+    // Deep, wavy furrows running up the bark.
+    let furrows = '';
+    for (let k = -4; k <= 4; k++) {
+      const u = k / 4.6 + (rnd() - 0.5) * 0.05;
+      const phase = rnd() * 6;
+      let d = '';
+      const reach = 0.5 + rnd() * 0.25;
+      for (let i = 0; i <= 12; i++) {
+        const t = 0.015 + i / 12 * reach;
+        d += `${i ? 'L' : 'M'}${r1(stemX(t) + u * wAt(t) / 2 + Math.sin(phase + t * 40) * 0.7)} ${r1(yAt(t))}`;
+      }
+      furrows += d;
+    }
+    // The crown: pads of foliage on strong limbs, widest a quarter of the way up,
+    // rounding off at the top.
+    const crownFrom = 0.36;
+    const tiers = 13;
+    const pads = [];
+    let limbs = '';
+    const limb = (t, x, py, r, side) => {
+      limbs += band(stemX(t), yAt(t) + 3, x - side * r * 0.3, py + r * 0.15, Math.max(2, wAt(t) * 0.34), 1.6);
+    };
+    // One or two lower limbs reach out below the crown, with a small pad at their end.
+    for (const side of rnd() < 0.5 ? [-1] : [1, -1]) {
+      const t = crownFrom - 0.04 - rnd() * 0.05;
+      const x = stemX(t) + side * (44 + rnd() * 12);
+      const py = yAt(t) - 6 - rnd() * 6;
+      const r = 11 + rnd() * 3;
+      const sx = stemX(t) + side * wAt(t) * 0.3;
+      const sy = yAt(t) + 6;
+      // Out and a little down from the trunk, then up to the pad.
+      limbs += `M${r1(sx)} ${r1(sy - 3)}Q${r1((sx + x) / 2)} ${r1(sy + 4)} ${r1(x - side * r * 0.2)} ${r1(py + 1)}` +
+        `L${r1(x - side * r * 0.2)} ${r1(py + 4.2)}Q${r1((sx + x) / 2)} ${r1(sy + 8.5)} ${r1(sx)} ${r1(sy + 4)}Z`;
+      pads.push([x, py, r]);
+    }
+    for (let i = 0; i < tiers; i++) {
+      const u = i / (tiers - 1);
+      const t = crownFrom + (1 - crownFrom) * u * 0.97;
+      const y = yAt(t);
+      const env = (60 * Math.pow(1 - u, 0.72) * Math.min(1, 0.62 + u * 2.4) + 8) * (0.82 + rnd() * 0.36);
+      const sides = i % 2 ? [1, -1] : [-1, 1];
+      for (const side of sides) {
+        const x = stemX(t) + side * env * (0.5 + rnd() * 0.2);
+        const r = 8 + env * 0.25 + rnd() * 3;
+        const py = y + (rnd() - 0.3) * 7;
+        limb(t, x, py, r, side);
+        pads.push([x, py, r]);
+      }
+      if (i % 2 === 0 || u > 0.7) pads.push([stemX(t) + (rnd() - 0.5) * 6, y - 4, 8 + env * 0.2]);
+    }
+    pads.push([stemX(1), topY + 12, 9]);
+    let shade = '';
+    let base = '';
+    let under = '';
+    let glow = '';
+    let snowD = '';
+    for (const [cx, cy, r] of pads) {
+      const parts = [[0, 0, 1, 0.62], [-0.62, 0.16, 0.62, 0.44], [0.62, 0.14, 0.64, 0.46], [-0.2, -0.34, 0.6, 0.42], [0.28, -0.3, 0.52, 0.38]];
+      for (const [dx, dy, sx, sy] of parts) {
+        base += oval(cx + dx * r, cy + dy * r, r * sx, r * sy);
+        shade += oval(cx + dx * r - L * r * 0.12, cy + dy * r + r * 0.22, r * sx, r * sy);
+      }
+      // A soft band of shade under each pad, cast on whatever lies below it.
+      under += oval(cx - L * r * 0.1, cy + r * 0.44, r * 0.95, r * 0.22);
+      // Light along the upper edge, stronger on the sunny side.
+      const sunny = (cx - 100) * L >= -6;
+      glow += oval(cx + L * r * 0.24, cy - r * 0.4, r * (sunny ? 0.62 : 0.4), r * 0.16);
+      if (sunny) glow += oval(cx + L * r * 0.66, cy - r * 0.08, r * 0.2, r * 0.13);
+      if (snow) snowD += oval(cx + L * r * 0.05, cy - r * 0.5, r * 0.72, r * 0.18);
+    }
+    // Ferns at the foot.
+    let ferns = '';
+    for (const [fx, dir, sz] of [[58, -1, 1], [68, 1, 0.8], [142, 1, 1], [132, -1, 0.85]]) {
+      for (let k = -3; k <= 3; k++) {
+        const a = k * 0.36 + dir * 0.18;
+        const len = (16 - Math.abs(k) * 2.4) * sz;
+        ferns += `M${fx} ${foot}Q${r1(fx + Math.sin(a) * len * 0.35)} ${r1(foot - len * 0.85)} ${r1(fx + Math.sin(a) * len)} ${r1(foot - Math.cos(a) * len * 0.92)}`;
+      }
+    }
+    // Buttress roots running into the ground.
+    const roots = oval(100 - 24, foot - 1, 14, 5) + oval(100 + 25, foot - 1, 13, 4.6) + oval(100 - 4, foot, 18, 4);
+    // A few sparkles in the crown: this tree is a little special.
+    let sparks = '';
+    for (let i = 0; i < 5; i++) {
+      const [px, py, pr] = pads[Math.floor(rnd() * pads.length)];
+      const x = px + (rnd() - 0.5) * pr * 1.6;
+      const y = py - pr * 0.4 + (rnd() - 0.5) * pr;
+      const k = 3.4;
+      sparks += `<path class="seq-spark" style="animation-delay:-${r1(rnd() * 4)}s" d="M${r1(x)} ${r1(y - k)}Q${r1(x)} ${r1(y)} ${r1(x + k)} ${r1(y)}Q${r1(x)} ${r1(y)} ${r1(x)} ${r1(y + k)}Q${r1(x)} ${r1(y)} ${r1(x - k)} ${r1(y)}Q${r1(x)} ${r1(y)} ${r1(x)} ${r1(y - k)}Z"/>`;
+    }
+    const px = 100 + (hashStr(key + '#plaque') % 2 ? -1 : 1) * 50;
+    const plaque = `<path class="sign-post" d="M${px - 1.8} ${foot + 2}V200h3.6V${foot + 2}Z"/>` +
+      `<rect class="sign-board" x="${px - 21}" y="184" width="42" height="18" rx="3"/>` +
+      `<text class="mile-text" x="${px}" y="197" text-anchor="middle">${hours} h</text>`;
+    return `<g class="sequoia" data-top="${r1(topY - 6)}" data-half="80">` +
+      shadowMarkup(78) +
+      `<path class="seq-root" d="${roots}"/>` +
+      `<path class="seq-bark" d="${trunk}"/><path class="seq-bark-lit" d="${lit}"/><path class="seq-furrow" d="${furrows}"/>` +
+      `<path class="seq-limb" d="${limbs}"/>` +
+      `<path class="seq-shade" d="${shade}"/><path class="seq-leaf" d="${base}"/><path class="seq-under" d="${under}"/><path class="seq-lit" d="${glow}"/>` +
+      (snowD ? `<path class="snow" d="${snowD}"/>` : '') +
+      `<path class="fern" d="${ferns}"/>` + plaque + sparks + `</g>`;
+  }
+  function milestoneItem(it, cx, baseY) {
+    const s = 0.66;
+    return `<g class="pick" data-info="m|${it.key}|${it.hours}" transform="translate(${r1(cx - 100 * s)} ${r1(baseY - 214 * s)}) scale(${s})">` +
+      `<title>Mammutbaum: ${it.hours} Stunden gelernt</title>${sequoiaMarkup(it.key, it.hours)}</g>`;
   }
 
   function treeItem(it, cx, baseY, vary = 1) {
@@ -5144,11 +5710,24 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     return open + `transform="translate(${r1(x)} ${r1(baseY + 3 - 30 * k)}) scale(${k})">` + body;
   }
 
+  // Animals that walk: how far they roam along their row (in forest units) and how long
+  // one round trip takes. They head towards the middle first, then turn and come back.
+  const ROAM = { fox: [64, 30], deer: [40, 40], rabbit: [52, 26], hedgehog: [34, 36], badger: [40, 34], beaver: [0, 0] };
   function animalItem(it, cx, baseY) {
     const [, name] = KIND_INFO[it.kind];
+    const h = hashStr(it.key + '#roam');
+    const roam = ROAM[it.kind];
+    let body = SPRITES[it.kind];
+    if (roam && roam[0]) {
+      const dir = cx < 200 ? 1 : -1;
+      const dist = roam[0] * (0.8 + (h % 40) / 100);
+      const dur = roam[1] * (0.9 + (h % 20) / 100);
+      body = `<g class="walk" style="--dx:${r1(dir * dist)}px;--wd:${r1(dur)}s;--wo:-${h % Math.round(dur)}s;--f0:${dir};--f1:${-dir}">` +
+        `<g class="face">${body}</g></g>`;
+    }
     return `<g class="pick" data-info="a|${it.key}|${it.kind}" transform="translate(${r1(cx - 20)} ${r1(baseY - 30)})">` +
       `<title>${name}, entdeckt ${labelFor(it.key)}</title>` +
-      `<g class="motif${enterClass(it.key + it.kind, it.key === dayKey())}" style="--d:-${hashStr(it.key) % 9}s">${SPRITES[it.kind]}</g></g>`;
+      `<g class="motif${enterClass(it.key + it.kind, it.key === dayKey())}" style="--d:-${hashStr(it.key) % 9}s">${body}</g></g>`;
   }
 
   function renderAll() {
@@ -5269,9 +5848,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // When the tree reaches a new level while the timer runs: it grows with a little burst
   // of leaves (snow in winter), and its new name shows above it for a moment.
   let levelUpTimer = 0;
-  function celebrateLevel(lvl) {
+  function celebrateLevel(lvl, text) {
     const badge = $('levelUp');
-    badge.textContent = `Neue Stufe: ${LEVEL_NAMES[lvl]}`;
+    badge.textContent = text || `Neue Stufe: ${LEVEL_NAMES[lvl]}`;
     badge.classList.remove('show');
     void badge.offsetWidth;
     badge.classList.add('show');
@@ -5597,7 +6176,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   });
 
   // ---------- a tap on a tree, an animal or a river tells its story ----------
-  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Fichte', kiefer: 'Kiefer', weide: 'Trauerweide' };
+  const SPECIES_NAME = { laub: 'Laubbaum', birke: 'Birke', tanne: 'Fichte', kiefer: 'Kiefer', weide: 'Trauerweide', kirsche: 'Kirschbaum' };
   let picked = null;
 
   function longDate(key) {
@@ -5618,6 +6197,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         line(`${LEVEL_NAMES[lvl]}, Level ${lvl} von ${MAX_LEVEL}`) +
         (found.length ? line(`Entdeckt: ${found.map((k) => KIND_INFO[k][1]).join(', ')}`) : '');
     }
+    if (type === 'm') {
+      return `<strong>Mammutbaum</strong>` + line(`Meilenstein: ${extra} Stunden gelernt`) +
+        line(`Erreicht ${key === dayKey() ? 'heute' : key === dayBefore(dayKey(), 1) ? 'gestern' : 'am ' + longDate(key)}`);
+    }
     if (type === 'g') {
       const [day, wk] = key.split('#');
       const fmt = (k) => parseKey(k).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
@@ -5626,7 +6209,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     }
     const kind = type === 'r' ? 'river' : extra;
     const [art, name] = KIND_INFO[kind];
-    return `<strong>${art === 'eine' ? 'Eine' : 'Ein'} ${name}</strong>` + line(`Entdeckt ${key === dayKey() ? 'heute' : key === dayBefore(dayKey(), 1) ? 'gestern' : 'am ' + longDate(key)}`);
+    return `<strong>${art[0].toUpperCase() + art.slice(1)} ${name}</strong>` + line(`Entdeckt ${key === dayKey() ? 'heute' : key === dayBefore(dayKey(), 1) ? 'gestern' : 'am ' + longDate(key)}`);
   }
 
   function closeTip() {
