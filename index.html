@@ -33,6 +33,10 @@
   --beaver: #6e4a33;
   --seq-bark: #9a4f33;
   --seq-leaf: #3e6e50;
+  --mtn: #8197ad;
+  --sky-deep: #6f9cc8;
+  --mtn-snow: #f6f9fc;
+  --mtn-ink: #1d2c44;
   --kirsch-summer: #4d8b47;
   --kirsch-autumn: #d4583a;
   --cherry-bark: #7c4538;
@@ -97,6 +101,10 @@
     --beaver: #9c7353;
     --seq-bark: #a65a41;
     --seq-leaf: #3d7454;
+    --mtn: #5d6e84;
+    --sky-deep: #0b1630;
+    --mtn-snow: #c9d4e0;
+    --mtn-ink: #050a16;
     --kirsch-summer: #4f9a55;
     --kirsch-autumn: #e06c4c;
     --cherry-bark: #a8695a;
@@ -159,6 +167,10 @@
   --beaver: #9c7353;
   --seq-bark: #a65a41;
   --seq-leaf: #3d7454;
+  --mtn: #5d6e84;
+  --sky-deep: #0b1630;
+  --mtn-snow: #c9d4e0;
+  --mtn-ink: #050a16;
   --kirsch-summer: #4f9a55;
   --kirsch-autumn: #e06c4c;
   --cherry-bark: #a8695a;
@@ -329,12 +341,30 @@ body {
 .app[data-tab="timer"][data-tod="night"] .gear { color: var(--night-muted); }
 
 /* The layers of the clearing. Further away means more of the sky's colour in it. */
-.stage {
+:is(.stage, .field) {
   --lt: #4f8f58; --lt2: #3f7d4b; --lt3: #62a05a; --lc: #2f5f45;
 }
-.app[data-season="spring"] .stage { --lt: #78b46e; --lt2: #9cc87c; --lt3: #e3aebd; --lc: #3b6a4f; }
-.app[data-season="autumn"] .stage { --lt: #d48f3e; --lt2: #c8643b; --lt3: #cfb048; --lc: #3c6550; }
-.app[data-season="winter"] .stage { --lt: #a59a90; --lt2: #978c84; --lt3: #b3a99f; --lc: #48675b; }
+.app[data-season="spring"] :is(.stage, .field) { --lt: #78b46e; --lt2: #9cc87c; --lt3: #e3aebd; --lc: #3b6a4f; }
+.app[data-season="autumn"] :is(.stage, .field) { --lt: #d48f3e; --lt2: #c8643b; --lt3: #cfb048; --lc: #3c6550; }
+.app[data-season="winter"] :is(.stage, .field) { --lt: #a59a90; --lt2: #978c84; --lt3: #b3a99f; --lc: #48675b; }
+/* The view at the top of the forest. */
+.mtn .mtn-rock { fill: color-mix(in srgb, var(--mtn) var(--mtn-k), var(--field-sky)); }
+.mtn .mtn-snow { fill: color-mix(in srgb, var(--mtn-snow) var(--mtn-k), var(--field-sky)); }
+.mtn .mtn-shade { fill: var(--mtn-ink); opacity: var(--mtn-sh); }
+.mtn .mtn-line { fill: none; stroke: var(--mtn-ink); stroke-width: 0.8; stroke-linecap: round; opacity: 0.12; }
+.mtn.far-range { --mtn-k: 40%; --mtn-sh: 0.1; }
+.mtn.near-range { --mtn-k: 66%; --mtn-sh: 0.2; }
+.vista-mist { fill: color-mix(in srgb, var(--mtn-snow) 58%, var(--field-sky)); opacity: 0.6; }
+.vista-meadow { fill: var(--ground); }
+.vista path.tuft { fill: color-mix(in srgb, var(--grass-c) 74%, var(--ground)); }
+.vista-clouds { display: none; }
+.vista-clouds .vc-drift { animation: cloud-drift 80s ease-in-out infinite alternate; }
+.app:not([data-weather="rain"]):not([data-weather="snow"]) .field:not([data-tod="night"]) .vista-clouds { display: inline; }
+.vista-clouds .fair { fill: #fdfdfb; }
+.vista-clouds .fair-shade { fill: color-mix(in srgb, var(--field-sky) 50%, #8495a6); opacity: 0.75; }
+.vista-clouds .fair-lit { fill: #ffffff; opacity: 0.8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .vista-clouds { visibility: hidden; } }
+:root[data-theme="dark"] .vista-clouds { visibility: hidden; }
 .land .k1 { --c: var(--lt); }
 .land .k2 { --c: var(--lt2); }
 .land .k3 { --c: var(--lt3); }
@@ -619,7 +649,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   border-radius: 24px;
   border: 1px solid var(--line);
   --field-sky: var(--sky);
-  background: linear-gradient(to bottom, var(--field-sky) 0px, var(--ground) 110px);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--field-sky) 72%, var(--sky-deep)) 0px, var(--field-sky) 120px, color-mix(in srgb, var(--field-sky) 84%, var(--ground)) 150px, var(--ground) 230px);
   /* Rounded clipping without making the field a scroll box, so the snowfall can stay on screen. */
   clip-path: inset(0 round 22px);
 }
@@ -633,7 +663,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     border-radius: 0;
     border-width: 0;
     clip-path: inset(0);
-    background: linear-gradient(to bottom, var(--field-sky) 0px, var(--ground) 110px, var(--ground) calc(100% - 48px), var(--bg) 100%);
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--field-sky) 72%, var(--sky-deep)) 0px, var(--field-sky) 120px, color-mix(in srgb, var(--field-sky) 84%, var(--ground)) 150px, var(--ground) 230px, var(--ground) calc(100% - 48px), var(--bg) 100%);
   }
   .haze { margin: -8px 0 calc(8px - 100vh); }
   /* The page melts into the sky instead of meeting it at a hard line. */
@@ -1173,34 +1203,16 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 /* Animals roam: walkers go along their row towards the middle, pause, turn and come
    back; ducks glide on their pond, butterflies flutter round their flower, the frog
    jumps now and then. Only the part of the forest on screen moves. */
-.field .walk { animation: walk var(--wd) ease-in-out var(--wo) infinite; }
-.field .walk > .face { transform-box: fill-box; transform-origin: center; animation: face var(--wd) steps(1, end) var(--wo) infinite; }
-@keyframes walk { 0%, 8% { transform: translateX(0); } 42%, 58% { transform: translateX(var(--dx)); } 92%, 100% { transform: translateX(0); } }
-@keyframes face { 0% { transform: scaleX(var(--f0)); } 50% { transform: scaleX(var(--f1)); } 100% { transform: scaleX(var(--f0)); } }
-.field .swim { animation: swim 14s ease-in-out infinite; }
-.field .swim.s2 { animation-duration: 17s; animation-delay: -6s; }
-.field .swim > .face { transform-box: fill-box; transform-origin: center; animation: swim-face 14s steps(1, end) infinite; }
-.field .swim.s2 > .face { animation-duration: 17s; animation-delay: -6s; }
-@keyframes swim { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(2.6px, -0.3px); } 50% { transform: translate(4.4px, 0); } 75% { transform: translate(2px, 0.3px); } }
-@keyframes swim-face { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } }
-.field .bf-fly { animation: flutter 9s ease-in-out infinite; }
-.field .bf-fly.f2 { animation-duration: 11s; animation-delay: -4s; animation-direction: reverse; }
-@keyframes flutter {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(6px, -4px); }
-  40% { transform: translate(11px, 2px); }
-  60% { transform: translate(5px, 6px); }
-  80% { transform: translate(-2px, 2px); }
-}
+.field .bf-fly.perched .bf-wing { animation-duration: 1.2s; }
 .field .bf-wing { transform-box: fill-box; animation: wingbeat 0.32s ease-in-out infinite alternate; }
 .field .bf-wing.w-l { transform-origin: 100% 50%; }
 .field .bf-wing.w-r { transform-origin: 0% 50%; }
 @keyframes wingbeat { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
 .field .hop-frog { animation: frog-hop 8s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @keyframes frog-hop { 0%, 82%, 100% { transform: translate(0, 0); } 86% { transform: translate(-3px, -7px); } 90% { transform: translate(-6px, 0); } 94% { transform: translate(-3px, -4px); } 97% { transform: translate(0, 0); } }
-.field-sections > svg:not(.live) :is(.walk, .face, .swim, .bf-fly, .bf-wing, .hop-frog, .seq-spark) { animation-play-state: paused; }
+.field-sections > svg:not(.live) :is(.bf-wing, .hop-frog, .seq-spark) { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .field :is(.walk, .walk > .face, .swim, .swim > .face, .bf-fly, .bf-wing, .hop-frog) { animation: none; }
+  .field :is(.bf-wing, .hop-frog) { animation: none; }
 }
 
 /* Now and then an animal in the forest moves a little: an ear, a tail, a hop, a blink. */
@@ -5263,7 +5275,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
     // Lay out rows top to bottom. Each row only records how to draw itself; the drawing
     // happens when its part of the forest comes into view (see below).
-    let y = 58;
+    let y = VISTA_H;
     let slotRow = 0;
     const slotRows = rows.filter((r) => r.type === 'slots').length;
     const grassPerRow = slotRows ? Math.ceil(grassCount(shown) / slotRows) : 0;
@@ -5343,8 +5355,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     }
     if (!sections.length) sections.push({ y0: 0, y1: y, rows: [] });
     sections[sections.length - 1].y1 += 8;
-    const head = skyMarkup(timeOfDay(), sunPos(), 40) + '<path class="hill far" d="M-10 52 Q70 28 150 44 T300 34 T410 46 V140 H-10Z"/>' +
-      '<path class="hill" d="M-10 76 Q40 50 100 68 T220 60 T330 54 T410 66 V170 H-10Z"/>';
+    const head = vistaMarkup();
 
     fieldEl.dataset.tod = timeOfDay();
     fieldEl.hidden = shown.length === 0;
@@ -5364,6 +5375,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       } finally {
         fineDetail = was;
       }
+      if (liveSvgs.has(el)) startMoving();
     };
     if ('IntersectionObserver' in window) {
       // The first sections are drawn at once, the rest when they come near the screen.
@@ -5378,8 +5390,13 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       els.forEach((el) => { if (!el.dataset.done) sectionWatch.observe(el); });
       // Only the sections on screen let their animals move.
       if (liveWatch) liveWatch.disconnect();
+      liveSvgs.clear();
       liveWatch = new IntersectionObserver((entries) => {
-        for (const e of entries) e.target.classList.toggle('live', e.isIntersecting);
+        for (const e of entries) {
+          e.target.classList.toggle('live', e.isIntersecting);
+          if (e.isIntersecting) liveSvgs.add(e.target); else liveSvgs.delete(e.target);
+        }
+        startMoving();
       }, { rootMargin: '80px 0px' });
       els.forEach((el) => liveWatch.observe(el));
     } else {
@@ -5468,6 +5485,162 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // The crest of each rise catches the light, the slope below it lies in soft shade.
     return `<path class="mound${n % 2 ? ' alt' : ''}" d="${crest} V${r1(b + 400)} H-120Z"/>` +
       `<path class="mound-shade" d="${crest}"/><path class="mound-glow" d="${crest}"/><path class="mound-rim" d="${crest}"/>`;
+  }
+
+  // ---------- the view over the forest ----------
+  // Above the oldest trees the forest opens to a view like the clearing's: two ranges of
+  // mountains far away, snow on their peaks and clouds over them, a ridge and a hill with
+  // lines of trees, and the meadow running down into the forest.
+  const VISTA_H = 204;
+  const VISTA_SKY = 28; // extra sky above the mountains
+  const vRidge = (x) => 110 + 4 * Math.sin(x / 47 + 1.3) + 2.4 * Math.sin(x / 19 + 0.4);
+  const vHill = (x) => 136 + 6 * Math.sin(x / 66 + 2.1) + 2 * Math.sin(x / 29);
+  const vMeadow = (x) => 158 + 3.5 * Math.sin(x / 74 + 0.9) + 1.4 * Math.sin(x / 23 + 1);
+  function vBand(fn, bottom) {
+    let d = `M-14 ${r1(fn(-14))}`;
+    for (let x = -6; x <= 414; x += 8) d += `L${x} ${r1(fn(x))}`;
+    return d + `L414 ${bottom}L-14 ${bottom}Z`;
+  }
+  // A range of mountains: jagged ridges between peaks and saddles, snow on the peaks,
+  // and the faces turned away from the sun in shade.
+  function mountainRange(rnd, top, spread, base, snowDepth, L) {
+    const peaks = [];
+    for (let x = -40 + rnd() * 30; x < 450; x += 58 + rnd() * 52) peaks.push([x, top + rnd() * spread]);
+    const ridge = [];
+    const at = [];
+    peaks.forEach(([px, py], i) => {
+      at.push(ridge.length);
+      ridge.push([px, py]);
+      const next = peaks[i + 1];
+      if (!next) return;
+      const sx = px + (next[0] - px) * (0.4 + rnd() * 0.2);
+      const sy = Math.max(py, next[1]) + 10 + rnd() * 14;
+      for (const [a, b, ax, ay] of [[px, py, sx, sy], [sx, sy, next[0], next[1]]]) {
+        for (let k = 1; k <= 4; k++) {
+          const t = k / 4;
+          if (k === 4 && ax === next[0]) break;
+          ridge.push([a + (ax - a) * t + (rnd() - 0.5) * 3, b + (ay - b) * t + (k < 4 ? (rnd() - 0.5) * 3.4 : 0)]);
+        }
+      }
+    });
+    let body = `M-50 ${base}`;
+    for (const [x, y] of ridge) body += `L${r1(x)} ${r1(y)}`;
+    body += `L460 ${base}Z`;
+    const side = L > 0 ? -1 : 1;
+    let shade = '';
+    let snow = '';
+    let lines = '';
+    at.forEach((idx, i) => {
+      const [px, py] = ridge[idx];
+      // Shade: from the peak down the ridge on the far side of the sun, then back up a
+      // crooked fall line.
+      const end = side < 0 ? (i > 0 ? at[i - 1] : 0) : (i < at.length - 1 ? at[i + 1] : ridge.length - 1);
+      let d = `M${r1(px)} ${r1(py)}`;
+      let lowest = idx;
+      for (let j = idx + side; side < 0 ? j >= end : j <= end; j += side) {
+        d += `L${r1(ridge[j][0])} ${r1(ridge[j][1])}`;
+        if (ridge[j][1] > ridge[lowest][1]) lowest = j;
+        if (j === lowest && j !== idx && ridge[j + side] && ridge[j + side][1] < ridge[j][1] - 4) break;
+      }
+      const lx = ridge[lowest][0];
+      d += `L${r1(lx)} ${base}`;
+      const fx = px + side * (4 + rnd() * 6);
+      const steps = 5;
+      d += `L${r1(fx)} ${base}`;
+      for (let k = steps - 1; k > 0; k--) {
+        const t = k / steps;
+        d += `L${r1(px + (fx - px) * t + (rnd() - 0.5) * 3)} ${r1(py + (base - py) * t)}`;
+      }
+      shade += d + 'Z';
+      // Snow: down to a ragged line below the peak, deeper in the gullies.
+      const depth = snowDepth * (0.75 + rnd() * 0.5);
+      const pts = [[px, py]];
+      let l = idx;
+      while (l > 0 && ridge[l - 1][1] < py + depth) l--;
+      let r = idx;
+      while (r < ridge.length - 1 && ridge[r + 1][1] < py + depth) r++;
+      if (l === idx && r === idx) return;
+      let sd = `M${r1(ridge[l][0])} ${r1(ridge[l][1])}`;
+      for (let j = l + 1; j <= r; j++) sd += `L${r1(ridge[j][0])} ${r1(ridge[j][1])}`;
+      const x0 = ridge[l][0];
+      const x1 = ridge[r][0];
+      const n = 5;
+      for (let k = n - 1; k > 0; k--) {
+        const t = k / n;
+        const x = x0 + (x1 - x0) * t;
+        const reach = 1 - Math.abs(x - px) / Math.max(8, Math.abs(x1 - x0));
+        sd += `L${r1(x + (rnd() - 0.5) * 2)} ${r1(py + depth * (0.45 + reach * 0.5) + (k % 2 ? 2.6 : -1.4) * (0.6 + rnd() * 0.6))}`;
+      }
+      snow += sd + 'Z';
+      // A couple of gullies on the sunny face.
+      for (let g = 0; g < 2; g++) {
+        const t = 0.25 + rnd() * 0.5;
+        const gx = px - side * (6 + rnd() * 16);
+        const gy = py + (base - py) * t * 0.5;
+        lines += `M${r1(gx)} ${r1(gy)}l${r1(-side * (1 + rnd() * 2))} ${r1(6 + rnd() * 8)}l${r1(side * rnd())} ${r1(4 + rnd() * 5)}`;
+      }
+    });
+    return { body, shade, snow, lines };
+  }
+  function vistaMarkup() {
+    const rnd = mulberry32(hashStr('aussicht'));
+    const L = lightDir() || 0.5;
+    const tod = timeOfDay();
+    const season = seasonNow();
+    const deep = season === 'winter' ? 2.2 : season === 'summer' ? 0.7 : season === 'spring' ? 1.1 : 1;
+    // The sun climbs higher than over the clearing; low, it sinks behind the mountains.
+    const p = sunPos();
+    const sun = p ? [p[0], 30 + (p[1] - 12) / 30 * 84] : null;
+    let out = skyMarkup(tod, sun, 146, 104, [334, 30], [286, 150, 112]);
+    out += `<g transform="translate(0 ${VISTA_SKY})">`;
+    const far = mountainRange(rnd, 34, 22, 126, 16 * deep, L);
+    out += `<g class="mtn far-range"><path class="mtn-rock" d="${far.body}"/><path class="mtn-snow" d="${far.snow}"/>` +
+      `<path class="mtn-shade" d="${far.shade}"/></g>`;
+    // Fair-weather clouds hang over the mountains, in front of the far peaks.
+    out += `<g class="vista-clouds" transform="translate(0 -30)"><g class="vc-drift">${fairCloudsMarkup('aussicht')}</g></g>`;
+    const near = mountainRange(rnd, 58, 18, 130, 11 * deep, L);
+    out += `<g class="mtn near-range"><path class="mtn-rock" d="${near.body}"/><path class="mtn-snow" d="${near.snow}"/>` +
+      `<path class="mtn-line" d="${near.lines}"/><path class="mtn-shade" d="${near.shade}"/></g>`;
+    // Low cloud lies in the valley in front of the mountains.
+    let mist = '';
+    for (let x = -20; x < 430; x += 22 + rnd() * 30) {
+      const w = 20 + rnd() * 26;
+      const y = 104 + rnd() * 6;
+      mist += oval(x, y, w, 4 + rnd() * 2.5) + oval(x + w * 0.3, y - 2.6, w * 0.5, 3.4 + rnd() * 2);
+    }
+    out += `<path class="vista-mist" d="${mist}"/>`;
+    // The ridge and the hill with their tree lines, as in the clearing.
+    const by = { far: {}, mid: {} };
+    const add = (layer, k, d) => { by[layer][k] = (by[layer][k] || '') + d; };
+    for (let x = -6; x < 408; x += 5 + rnd() * 4) {
+      const h = 6 + rnd() * 7;
+      const y = vRidge(x) + 3;
+      if (rnd() < 0.5) add('far', 'kc', landFir(x, y, h * 1.25, rnd));
+      else add('far', ['k1', 'k2', 'k3'][Math.floor(rnd() * 3)], landCrown(x, y, h, rnd));
+    }
+    for (let x = -10; x < 412; x += 8 + rnd() * 9) {
+      if (rnd() < 0.22) { x += 18; continue; }
+      const h = 11 + rnd() * 10;
+      const y = vHill(x) + 4;
+      if (rnd() < 0.42) add('mid', 'kc', landFir(x, y, h * 1.25, rnd));
+      else add('mid', ['k1', 'k2', 'k3'][Math.floor(rnd() * 3)], landCrown(x, y, h, rnd));
+    }
+    const layer = (name) => Object.entries(by[name]).map(([k, d]) => `<path class="${k}" d="${d}"/>`).join('');
+    let tufts = '';
+    let blooms = '';
+    for (let x = 2; x < 400; x += 8 + rnd() * 12) {
+      const y = vMeadow(x) + 2 + rnd() * 3;
+      const h = 3.5 + rnd() * 3.5;
+      const [tb, tf] = tuftPaths(x, y, h, rnd);
+      tufts += tb + tf;
+      if (rnd() < 0.2) blooms += `<circle class="bloom${rnd() < 0.5 ? ' alt' : ''}" cx="${r1(x + 1)}" cy="${r1(y - h)}" r="1.2"/>`;
+    }
+    out += `<g class="land vista">` +
+      `<g class="far"><path class="kg" d="${vBand(vRidge, 190)}"/>${layer('far')}</g>` +
+      `<g class="mid"><path class="kg" d="${vBand(vHill, 196)}"/>${layer('mid')}</g>` +
+      `<path class="vista-meadow" d="${vBand(vMeadow, 210)}"/>` +
+      `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g></g></g>`;
+    return out + airMarkup('aussicht', 140, 196, 4);
   }
 
   // ---------- the giant tree for every 100 hours ----------
@@ -5559,6 +5732,17 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       if (i % 2 === 0 || u > 0.7) pads.push([stemX(t) + (rnd() - 0.5) * 6, y - 4, 8 + env * 0.2]);
     }
     pads.push([stemX(1), topY + 12, 9]);
+    // A dark core inside the crown, so no gap shows what stands behind the tree.
+    let coreL = '';
+    let coreR = '';
+    for (let i = 0; i <= 12; i++) {
+      const u = i / 12;
+      const t = crownFrom + (1 - crownFrom) * u * 0.95;
+      const half = (52 * Math.pow(1 - u, 0.72) * Math.min(1, 0.55 + u * 2.4) + 4) * 0.62;
+      coreL += `${i ? 'L' : 'M'}${r1(stemX(t) - half)} ${r1(yAt(t) + 4)}`;
+      coreR = `L${r1(stemX(t) + half)} ${r1(yAt(t) + 4)}` + coreR;
+    }
+    const core = coreL + coreR + 'Z';
     let shade = '';
     let base = '';
     let under = '';
@@ -5607,7 +5791,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       `<path class="seq-root" d="${roots}"/>` +
       `<path class="seq-bark" d="${trunk}"/><path class="seq-bark-lit" d="${lit}"/><path class="seq-furrow" d="${furrows}"/>` +
       `<path class="seq-limb" d="${limbs}"/>` +
-      `<path class="seq-shade" d="${shade}"/><path class="seq-leaf" d="${base}"/><path class="seq-under" d="${under}"/><path class="seq-lit" d="${glow}"/>` +
+      `<path class="seq-shade" d="${core}"/><path class="seq-shade" d="${shade}"/><path class="seq-leaf" d="${base}"/><path class="seq-under" d="${under}"/><path class="seq-lit" d="${glow}"/>` +
       (snowD ? `<path class="snow" d="${snowD}"/>` : '') +
       `<path class="fern" d="${ferns}"/>` + plaque + sparks + `</g>`;
   }
@@ -5710,24 +5894,247 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     return open + `transform="translate(${r1(x)} ${r1(baseY + 3 - 30 * k)}) scale(${k})">` + body;
   }
 
-  // Animals that walk: how far they roam along their row (in forest units) and how long
-  // one round trip takes. They head towards the middle first, then turn and come back.
-  const ROAM = { fox: [64, 30], deer: [40, 40], rabbit: [52, 26], hedgehog: [34, 36], badger: [40, 34], beaver: [0, 0] };
+  // Animals that roam get a wrapper for where they are, how they bob and which way they face.
   function animalItem(it, cx, baseY) {
     const [, name] = KIND_INFO[it.kind];
-    const h = hashStr(it.key + '#roam');
-    const roam = ROAM[it.kind];
     let body = SPRITES[it.kind];
-    if (roam && roam[0]) {
-      const dir = cx < 200 ? 1 : -1;
-      const dist = roam[0] * (0.8 + (h % 40) / 100);
-      const dur = roam[1] * (0.9 + (h % 20) / 100);
-      body = `<g class="walk" style="--dx:${r1(dir * dist)}px;--wd:${r1(dur)}s;--wo:-${h % Math.round(dur)}s;--f0:${dir};--f1:${-dir}">` +
-        `<g class="face">${body}</g></g>`;
-    }
+    if (MOVERS[it.kind]) body = `<g class="roam" data-k="${it.kind}" data-x="${r1(cx)}"><g class="gait"><g class="face">${body}</g></g></g>`;
     return `<g class="pick" data-info="a|${it.key}|${it.kind}" transform="translate(${r1(cx - 20)} ${r1(baseY - 30)})">` +
       `<title>${name}, entdeckt ${labelFor(it.key)}</title>` +
       `<g class="motif${enterClass(it.key + it.kind, it.key === dayKey())}" style="--d:-${hashStr(it.key) % 9}s">${body}</g></g>`;
+  }
+
+  // ---------- animals on the move ----------
+  // Each animal wanders about its spot: it picks a place nearby, heads there on a gently
+  // curving course, slows as it arrives, rests a while (sniffs, grazes, looks round) and
+  // sets off again. Walkers bob with their steps, hares and squirrels bound in arcs,
+  // ducks glide and rock on the pond, butterflies flit about and settle on the flower.
+  // Only animals in the part of the forest on screen move; with reduced motion none do.
+  const MOVERS = {
+    fox: { rx: 50, ry: 9, v: 14, acc: 2.2, rest: [1, 3.5], gait: 'step', bob: 0.7, stride: 9, swing: 26, turn: 8 },
+    deer: { rx: 38, ry: 7, v: 8, acc: 1.4, rest: [2.5, 7], gait: 'step', bob: 0.5, stride: 8, swing: 20, turn: 5 },
+    badger: { rx: 30, ry: 6, v: 7, acc: 1.8, rest: [2, 5], gait: 'step', bob: 0.5, stride: 4.5, swing: 24, turn: 7 },
+    hedgehog: { rx: 24, ry: 5, v: 5, acc: 2.2, rest: [1.5, 4.5], gait: 'step', bob: 0.3, stride: 2.6, swing: 30, turn: 7 },
+    rabbit: { rx: 42, ry: 8, v: 20, acc: 3, rest: [1.5, 5], gait: 'hop', bob: 5, stride: 9, turn: 12 },
+    squirrel: { rx: 28, ry: 5, v: 20, acc: 3.4, rest: [2.5, 7], gait: 'hop', bob: 3.6, stride: 7, turn: 12 },
+    duck: { rx: 4.4, ry: 0.6, v: 1.6, acc: 0.8, rest: [1, 4], gait: 'glide', turn: 2.5 },
+    butterfly: { rx: 13, ry: 8, v: 13, acc: 3.2, rest: [0.6, 2.4], gait: 'fly', turn: 20 },
+  };
+  const clampTo = (v, a, b) => Math.max(a, Math.min(b, v));
+  function makeMover(el) {
+    const kind = el.dataset.k || (el.classList.contains('swim') ? 'duck' : 'butterfly');
+    const m = MOVERS[kind];
+    const a = {
+      el, m, kind, gait: el.querySelector(':scope > .gait'), face: el.querySelector('.face, .bf'),
+      x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, rest: Math.random() * 2, f: 1, ft: 1,
+      gp: Math.random(), t: Math.random() * 50, ph: Math.random() * 6.3, perch: null,
+    };
+    if (kind === 'duck') {
+      // Two ducks share a small pond: each keeps to its half.
+      const s1 = el.classList.contains('s1');
+      Object.assign(a, { minX: -4, maxX: s1 ? 4 : 2.4, minY: -0.6, maxY: 0.6, still: seasonNow() === 'winter' });
+    } else if (kind === 'butterfly') {
+      // The flower head, seen from where each butterfly starts.
+      a.perch = el.classList.contains('f1') ? [9, 5.4] : [-8.6, 9.6];
+      Object.assign(a, { minX: -14, maxX: 14, minY: -10, maxY: a.perch[1] });
+    } else {
+      const home = Number(el.dataset.x) || 200;
+      Object.assign(a, { minX: Math.max(-m.rx, 24 - home), maxX: Math.min(m.rx, 376 - home), minY: -m.ry, maxY: m.ry * 0.6 });
+      // The shadow stays on the ground while the animal bobs and hops above it.
+      const sh = el.querySelector('.a-shadow');
+      if (sh) { el.insertBefore(sh, el.firstChild); a.shadow = sh; }
+      if (m.gait === 'step') a.legs = splitLegs(el);
+      // Start somewhere about the spot, facing into the open.
+      a.x = clampTo((Math.random() - 0.5) * m.rx, a.minX, a.maxX);
+      a.f = a.ft = (Number(el.dataset.x) || 200) + a.x < 200 ? 1 : -1;
+    }
+    // The face turns about its own middle.
+    try {
+      const bb = a.face.getBBox();
+      a.cx = bb.x + bb.width / 2;
+      a.cy = bb.y + bb.height / 2;
+      a.by = bb.y + bb.height;
+    } catch (e) {
+      a.cx = 20;
+      a.cy = 20;
+      a.by = 28;
+    }
+    pickTarget(a);
+    return a;
+  }
+  // Only write what changed, so an animal standing still costs nothing.
+  function setT(a, key, node, value) {
+    if (a[key] === value) return;
+    a[key] = value;
+    node.setAttribute('transform', value);
+  }
+  // The legs of a walker are drawn as a few paths with two legs each. Split them into
+  // one path per leg, so each can swing from its hip; paws go with the leg they end.
+  function splitLegs(el) {
+    const parts = [];
+    el.querySelectorAll('path[class*="leg"]').forEach((path) => {
+      const subs = (path.getAttribute('d') || '').match(/M[^M]+/g);
+      if (!subs || subs.length < 2) return;
+      for (const d of subs) {
+        const n = d.slice(1).match(/-?[\d.]+/g);
+        const q = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        q.setAttribute('class', path.getAttribute('class'));
+        q.setAttribute('d', d);
+        path.parentNode.insertBefore(q, path);
+        parts.push({ el: q, x: Number(n[0]), y: Number(n[1]) });
+      }
+      path.remove();
+    });
+    if (!parts.length) return null;
+    // A leg's hip is the top of the highest part right above it.
+    const hips = [];
+    for (const pt of parts) {
+      const owner = parts.filter((o) => Math.abs(o.x - pt.x) < 1.3).sort((a, b) => a.y - b.y)[0];
+      pt.px = owner.x;
+      pt.py = owner.y;
+      if (!hips.includes(owner)) hips.push(owner);
+    }
+    // Diagonal pairs swing together, as in a trot.
+    hips.sort((a, b) => a.x - b.x);
+    hips.forEach((h, i) => { h.phase = (i === 0 || i === 3) ? 0 : Math.PI; });
+    for (const pt of parts) {
+      const owner = hips.find((h) => h.x === pt.px && h.y === pt.py);
+      pt.phase = owner ? owner.phase : 0;
+    }
+    return parts;
+  }
+  function pickTarget(a) {
+    const m = a.m;
+    if (a.perch && Math.random() < 0.35) {
+      [a.tx, a.ty] = a.perch;
+      return;
+    }
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const r = 0.35 + Math.sqrt(Math.random()) * 0.65;
+      const tx = clampTo(Math.cos(ang) * r * m.rx, a.minX, a.maxX);
+      const ty = clampTo(Math.sin(ang) * r * m.ry, a.minY, a.maxY);
+      // Mostly onward, in the direction it already faces, so it doesn't keep turning.
+      const ahead = (tx - a.x) * a.ft > 0 || Math.random() < 0.35;
+      if ((ahead && Math.hypot((tx - a.x) / m.rx, (ty - a.y) / Math.max(1, m.ry)) > 0.4) || i === 7) {
+        a.tx = tx;
+        a.ty = ty;
+        return;
+      }
+    }
+  }
+  function stepMover(a, dt) {
+    const m = a.m;
+    a.t += dt;
+    if (a.still) return;
+    if (a.rest > 0) {
+      a.rest -= dt;
+      const k = Math.exp(-5 * dt);
+      a.vx *= k;
+      a.vy *= k;
+      // Standing about: now and then it looks the other way.
+      if (m.gait !== 'fly' && Math.random() < dt * 0.1) a.ft = -a.ft;
+      if (a.rest <= 0) pickTarget(a);
+    } else {
+      const dx = a.tx - a.x;
+      const dy = a.ty - a.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 0.08 * m.v + 0.2) {
+        a.rest = m.rest[0] + Math.random() * (m.rest[1] - m.rest[0]) * (a.perch && a.tx === a.perch[0] ? 2 : 1);
+      } else {
+        // Toward the target, but the course swings slowly from side to side.
+        const fly = m.gait === 'fly';
+        const wob = Math.sin(a.t * (fly ? 2.4 : 0.7) + a.ph) * (fly ? 1 : 0.5) * Math.min(1, d / 8);
+        const c = Math.cos(wob);
+        const sn = Math.sin(wob);
+        const sp = m.v * Math.min(1, 0.25 + d / (m.v * 0.8));
+        const ux = dx / d;
+        const uy = dy / d;
+        const k = 1 - Math.exp(-m.acc * dt);
+        a.vx += ((ux * c - uy * sn) * sp - a.vx) * k;
+        a.vy += ((ux * sn + uy * c) * sp - a.vy) * k;
+      }
+    }
+    const speed = Math.hypot(a.vx, a.vy);
+    const moving = Math.min(1, speed / (m.v * 0.4));
+    let lift = 0;
+    let tilt = 0;
+    let adv = 1;
+    if (m.gait === 'step') {
+      a.gp += speed * dt / m.stride;
+      const w = a.gp * Math.PI * 2;
+      lift = -Math.abs(Math.sin(w)) * m.bob * moving;
+      tilt = Math.sin(w) * 1.2 * moving;
+      if (a.legs && (moving > 0.02 || a.legsOut)) {
+        for (const leg of a.legs) {
+        const v = `rotate(${Math.round(Math.sin(w + leg.phase) * m.swing * moving * 10) / 10} ${leg.px} ${leg.py})`;
+        if (leg.last !== v) { leg.last = v; leg.el.setAttribute('transform', v); }
+      }
+        a.legsOut = moving > 0.02;
+      }
+    } else if (m.gait === 'hop') {
+      // A bound: off the ground for half of each stride, fastest at the top of the arc.
+      a.gp += Math.max(speed, moving * m.v * 0.5) * dt / m.stride;
+      const air = Math.max(0, Math.sin(a.gp * Math.PI * 2));
+      adv = 0.3 + air * 1.6;
+      lift = -air * m.bob * moving;
+      tilt = -Math.cos(a.gp * Math.PI * 2) * 7 * moving * (air > 0 ? 1 : 0.3);
+    } else if (m.gait === 'glide') {
+      tilt = Math.sin(a.t * 1.3 + a.ph) * 2.2;
+    } else {
+      const perched = a.rest > 0 && a.perch && a.tx === a.perch[0];
+      lift = perched ? 0 : Math.sin(a.t * 8 + a.ph) * 1.1 + Math.sin(a.t * 3.1) * 0.6;
+      tilt = clampTo(a.vx * 1.6, -22, 22);
+      if (perched !== a.wasPerched) { a.el.classList.toggle('perched', perched); a.wasPerched = perched; }
+    }
+    a.x = clampTo(a.x + a.vx * dt * adv, a.minX, a.maxX);
+    a.y = clampTo(a.y + a.vy * dt * adv, a.minY, a.maxY);
+    if (m.gait !== 'fly' && Math.abs(a.vx) > m.v * 0.12) a.ft = a.vx > 0 ? 1 : -1;
+    a.f += (a.ft - a.f) * (1 - Math.exp(-m.turn * dt));
+    const f = (a.f < 0 ? -1 : 1) * Math.max(0.06, Math.abs(a.f));
+    const n2 = (v) => Math.round(v * 100) / 100;
+    const flip = `translate(${r1(a.cx)} 0) scale(${n2(f)} 1) translate(${r1(-a.cx)} 0)`;
+    if (m.gait === 'step' || m.gait === 'hop') {
+      // Nearer the front, a touch bigger.
+      const sc = n2(1 + a.y * 0.012);
+      setT(a, 'tE', a.el, `translate(${n2(a.x)} ${n2(a.y)}) translate(20 30) scale(${sc}) translate(-20 -30)`);
+      setT(a, 'tG', a.gait, `translate(0 ${n2(lift)}) rotate(${n2(tilt * (f < 0 ? -1 : 1))} 20 27)`);
+      setT(a, 'tF', a.face, flip);
+      if (a.shadow && m.gait === 'hop') {
+        const o = String(n2(0.13 * (1 + lift / (m.bob * 1.6))));
+        if (a.oS !== o) { a.oS = o; a.shadow.style.opacity = o; }
+      }
+    } else if (m.gait === 'glide') {
+      setT(a, 'tE', a.el, `translate(${n2(a.x)} ${n2(a.y)})`);
+      setT(a, 'tF', a.face, `${flip} rotate(${n2(tilt)} ${r1(a.cx)} ${r1(a.by)})`);
+    } else {
+      setT(a, 'tE', a.el, `translate(${n2(a.x)} ${n2(a.y + lift)})`);
+      setT(a, 'tF', a.face, `rotate(${n2(tilt)} ${r1(a.cx)} ${r1(a.cy)})`);
+    }
+  }
+  const liveSvgs = new Set();
+  let moveRAF = 0;
+  let moveLast = 0;
+  function moversOf(svg) {
+    if (!svg.dataset.done) return [];
+    if (!svg._movers) svg._movers = Array.from(svg.querySelectorAll('.roam, .swim, .bf-fly'), makeMover);
+    return svg._movers;
+  }
+  function moveFrame(now) {
+    moveRAF = 0;
+    if (document.hidden || views.forest.hidden) { moveLast = 0; return; }
+    const dt = moveLast ? Math.min(0.05, (now - moveLast) / 1000) : 1 / 60;
+    moveLast = now;
+    let n = 0;
+    for (const svg of liveSvgs) {
+      for (const a of moversOf(svg)) { stepMover(a, dt); n++; }
+    }
+    if (n) moveRAF = requestAnimationFrame(moveFrame);
+    else moveLast = 0;
+  }
+  function startMoving() {
+    if (moveRAF || !liveSvgs.size || reducedMotion()) return;
+    moveRAF = requestAnimationFrame(moveFrame);
   }
 
   function renderAll() {
@@ -5976,6 +6383,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // The sky is measured against the clearing, which has no size while hidden.
     if (name === 'timer') renderHero();
     if (name === 'forest' && forestDirty) renderForest();
+    if (name === 'forest') startMoving();
     requestAnimationFrame(updateToToday);
     if (name === 'weeks' && ringAnimatePending) {
       ringAnimatePending = false;
@@ -6279,6 +6687,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // Screen off or another app: the timer keeps running. Only the moment is noted,
   // in case the app gets closed. Coming back clears it and sends any interrupted save.
   document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) startMoving();
     const s = state.session;
     if (document.visibilityState === 'hidden') {
       // Keep the first moment the app left view.
