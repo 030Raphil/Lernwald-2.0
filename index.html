@@ -1283,7 +1283,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 @keyframes wingbeat { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
 .field .hop-frog { animation: frog-hop 8s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @keyframes frog-hop { 0%, 82%, 100% { transform: translate(0, 0); } 86% { transform: translate(-3px, -7px); } 90% { transform: translate(-6px, 0); } 94% { transform: translate(-3px, -4px); } 97% { transform: translate(0, 0); } }
-.field-sections > svg:not(.live) :is(.bf-wing, .hop-frog, .seq-spark) { animation-play-state: paused; }
+.field-sections > svg:not(.live) :is(.bf-wing, .hop-frog, .seq-spark, .smoke, .bob, .rock, .wheel-turn, .heron-head, .fish-jump, .fish-ring) { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .field :is(.bf-wing, .hop-frog) { animation: none; }
 }
@@ -1356,6 +1356,77 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .bridge-post { fill: none; stroke: color-mix(in srgb, var(--bark) 90%, #1a0f08); stroke-width: 1.5; stroke-linecap: round; }
 .bridge-rail { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #d8b483); stroke-width: 1.2; stroke-linecap: round; }
 .app[data-season="winter"] .bridge-deck { fill: var(--win-snow); }
+.sbridge-deck { fill: color-mix(in srgb, var(--stone) 80%, #8c7f6a); }
+.sbridge-cobble { fill: color-mix(in srgb, var(--stone) 64%, #5a5248); opacity: 0.45; }
+.sbridge-face { fill: color-mix(in srgb, var(--stone) 70%, #3c4046); }
+.sbridge-wall { fill: color-mix(in srgb, var(--stone) 82%, #6d6457); }
+.sbridge-top { fill: color-mix(in srgb, var(--stone) 70%, #ffffff); }
+.sbridge-joint { fill: none; stroke: color-mix(in srgb, var(--stone) 55%, #2e2a26); stroke-width: 0.5; opacity: 0.7; }
+.hut-shadow { fill: color-mix(in srgb, var(--water) 50%, #0e2a33); opacity: 0.35; }
+.hut-post { fill: none; stroke: color-mix(in srgb, var(--bark) 82%, #1a0f08); stroke-width: 1.4; stroke-linecap: round; }
+.hut-ring { fill: none; stroke: color-mix(in srgb, var(--water) 55%, #ffffff); stroke-width: 0.6; stroke-linecap: round; opacity: 0.8; }
+.hut-jetty { fill: color-mix(in srgb, var(--bark) 58%, #d8b483); }
+.hut-jetty-line { fill: none; stroke: color-mix(in srgb, var(--bark) 85%, #2b1a0e); stroke-width: 0.5; opacity: 0.7; }
+.hut-floor { fill: color-mix(in srgb, var(--bark) 88%, #1a0f08); }
+.hut-wall { fill: color-mix(in srgb, var(--bark) 64%, #caa070); }
+.hut-plank { fill: none; stroke: color-mix(in srgb, var(--bark) 86%, #2b1a0e); stroke-width: 0.5; opacity: 0.55; }
+.hut-door { fill: color-mix(in srgb, var(--bark) 80%, #1a0f08); }
+.hut-window { fill: color-mix(in srgb, var(--water) 60%, #20323a); }
+.hut-frame { fill: none; stroke: color-mix(in srgb, var(--bark) 70%, #e8c48e); stroke-width: 0.6; }
+.hut-glow { fill: #ffcf6a; opacity: 0; }
+.field:is([data-tod="night"], [data-tod="evening"]) .hut-window { fill: #ffd27a; }
+.field:is([data-tod="night"], [data-tod="evening"]) .hut-glow { opacity: 0.28; }
+.hut-chimney { fill: color-mix(in srgb, var(--stone) 80%, #6d6457); }
+.hut-roof { fill: color-mix(in srgb, var(--fox) 46%, var(--bark)); }
+.hut-roof-in { fill: color-mix(in srgb, var(--bark) 74%, #caa070); }
+.hut-gable { fill: none; stroke: color-mix(in srgb, var(--bark) 86%, #2b1a0e); stroke-width: 0.5; opacity: 0.55; }
+.smoke { fill: #eef1f3; opacity: 0; animation: smoke 4.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes smoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.6); } 20% { opacity: 0.55; } 100% { opacity: 0; transform: translate(4px, -14px) scale(1.8); } }
+.rod { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #1a0f08); stroke-width: 0.8; stroke-linecap: round; }
+.rod-line { fill: none; stroke: color-mix(in srgb, var(--ink) 30%, transparent); stroke-width: 0.35; }
+.float { fill: #d8492f; stroke: #fff; stroke-width: 0.4; }
+.bob { animation: bob 2.6s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(0.7px); } }
+.boat-reflect { fill: color-mix(in srgb, var(--water) 50%, #0e2a33); opacity: 0.4; }
+.boat-hull { fill: color-mix(in srgb, #3d7e88 64%, var(--bark)); }
+.boat-in { fill: color-mix(in srgb, var(--bark) 72%, #1a0f08); }
+.boat-rim { fill: none; stroke: color-mix(in srgb, var(--bark) 50%, #e8d2a8); stroke-width: 0.9; stroke-linecap: round; }
+.boat-seat { fill: none; stroke: color-mix(in srgb, var(--bark) 60%, #d8b483); stroke-width: 1; }
+.oar { fill: none; stroke: color-mix(in srgb, var(--bark) 55%, #d8b483); stroke-width: 0.9; stroke-linecap: round; }
+.rock { animation: rock 4.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 70%; }
+@keyframes rock { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(2deg) translateY(0.6px); } }
+.mill-stone { fill: color-mix(in srgb, var(--stone) 84%, #6d6457); }
+.mill-joint { fill: none; stroke: color-mix(in srgb, var(--stone) 55%, #2e2a26); stroke-width: 0.5; opacity: 0.6; }
+.mill-axle { fill: none; stroke: color-mix(in srgb, var(--bark) 85%, #1a0f08); stroke-width: 2; }
+.wheel-rim { fill: none; stroke: color-mix(in srgb, var(--bark) 80%, #1a0f08); stroke-width: 1.3; }
+.wheel-spoke { fill: none; stroke: color-mix(in srgb, var(--bark) 70%, #2b1a0e); stroke-width: 0.9; }
+.wheel-paddle { fill: none; stroke: color-mix(in srgb, var(--bark) 62%, #d8b483); stroke-width: 1.6; stroke-linecap: round; }
+.wheel-hub { fill: color-mix(in srgb, var(--bark) 85%, #1a0f08); }
+.wheel-turn { animation: wheel 12s linear infinite; transform-box: view-box; transform-origin: 0 0; }
+@keyframes wheel { to { transform: rotate(360deg); } }
+.foam { fill: none; stroke: #ffffff; stroke-width: 0.9; stroke-linecap: round; opacity: 0.7; }
+.heron-ring { fill: none; stroke: color-mix(in srgb, var(--water) 55%, #ffffff); stroke-width: 0.5; opacity: 0.8; }
+.heron-leg { fill: none; stroke: color-mix(in srgb, #b8a27a 70%, var(--bark)); stroke-width: 0.6; stroke-linecap: round; }
+.heron-body { fill: #a9b1b6; }
+.heron-wing { fill: #7f898f; }
+.heron-neck { fill: none; stroke: #d6dadd; stroke-width: 1.6; stroke-linecap: round; }
+.heron-face { fill: #eef0f1; }
+.heron-beak { fill: #d9a531; }
+.heron-crest { fill: none; stroke: #2f3438; stroke-width: 0.6; stroke-linecap: round; }
+.heron-eye { fill: #2f3438; }
+.heron-head { animation: heron 11s ease-in-out infinite; transform-box: fill-box; transform-origin: 20% 100%; }
+@keyframes heron { 0%, 70%, 100% { transform: rotate(0); } 76%, 84% { transform: rotate(16deg); } }
+.fish { fill: color-mix(in srgb, #8c9aa0 70%, var(--water)); }
+.fish-jump { opacity: 0; animation: fish-jump 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes fish-jump {
+  0%, 82% { opacity: 0; transform: translate(-5px, 0) rotate(-50deg); }
+  84% { opacity: 1; transform: translate(-4px, -2px) rotate(-45deg); }
+  88% { transform: translate(0, -6px) rotate(0deg); }
+  92% { opacity: 1; transform: translate(4px, -2px) rotate(45deg); }
+  94%, 100% { opacity: 0; transform: translate(5px, 0) rotate(50deg); }
+}
+.fish-ring { fill: none; stroke: #ffffff; stroke-width: 0.5; opacity: 0; animation: fish-ring 7s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes fish-ring { 0%, 92% { opacity: 0; transform: scale(0.4); } 94% { opacity: 0.8; } 100% { opacity: 0; transform: scale(1.6); } }
 .lilypad { fill: color-mix(in srgb, var(--leaf-2) 80%, #9ccf6a); }
 .lily-flower { fill: #f6c6d4; }
 .shroom-stem { fill: #efe6d6; }
@@ -4553,6 +4624,33 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
           sh += oval(px - 0.7, py - 0.8, rx * 0.55, 0.9);
         }
         crossing = `<path class="step-wet" d="${wet}"/><path class="step-stone" d="${st}"/><path class="stone-hi" d="${sh}"/>`;
+      } else if (hashStr(seed + '#stonebridge') % 2) {
+        // An old stone bridge: a cobbled deck between two low walls of stone blocks.
+        const len = hw + 9;
+        const bw = 9.5;
+        const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
+        let cobbles = '';
+        for (let a = -len + 2; a < len - 1; a += 3.2) {
+          for (let b = -bw + 2.6; b < bw - 2; b += 3.4) {
+            const [px, py] = [x + nx * a + tx * (b + (Math.round(a) % 2 ? 1.2 : 0)), y + ny * a + ty * (b + (Math.round(a) % 2 ? 1.2 : 0))];
+            cobbles += oval(px, py, 1.3, 0.8);
+          }
+        }
+        const wall = (b, w2) => `M${P(-len, b - w2)}L${P(len, b - w2)}L${P(len, b + w2)}L${P(-len, b + w2)}Z`;
+        const up = (d, by) => d.replace(/(-?[\d.]+) (-?[\d.]+)/g, (m0, a, b2) => `${a} ${r1(Number(b2) - by)}`);
+        let joints = '';
+        for (const b of [-bw, bw]) {
+          for (let a = -len + 3; a < len; a += 4.2) {
+            const [px, py] = [x + nx * a + tx * b, y + ny * a + ty * b];
+            joints += `M${r1(px)} ${r1(py - 5.6)}l0 3.6`;
+          }
+        }
+        const face = `M${P(-len, bw + 1.6)}L${P(len, bw + 1.6)}L${P(len, bw + 4.6)}L${P(-len, bw + 4.6)}Z`;
+        crossing = `<path class="bridge-shadow" d="M${P(-hw, -bw - 2)}L${P(hw, -bw - 2)}L${P(hw, bw + 7)}L${P(-hw, bw + 7)}Z"/>` +
+          `<path class="sbridge-face" d="${face}"/><path class="sbridge-deck" d="${deck}"/><path class="sbridge-cobble" d="${cobbles}"/>` +
+          `<path class="sbridge-wall" d="${up(wall(-bw, 1.6), 3.5) + up(wall(bw, 1.6), 3.5)}"/>` +
+          `<path class="sbridge-top" d="${up(wall(-bw, 1.6), 5.5) + up(wall(bw, 1.6), 5.5)}"/>` +
+          `<path class="sbridge-joint" d="${joints}"/>`;
       } else {
         // A small wooden footbridge with planks and a hand rail on each side.
         const len = hw + 8;
@@ -4589,6 +4687,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       }
       lilies = `<path class="lilypad" d="${lilies}"/>` + flower;
     }
+    const life = riverLife(seed, style, centre, normal, halfAt, n, season);
     return `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
       `<path class="bank-wet" d="${ribbon(1.3, 1)}"/>` +
       `<path class="water-fill" d="${ribbon(0, 1)}"/>` +
@@ -4598,7 +4697,178 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       `<path class="stone" d="${stones}"/><path class="stone-hi" d="${stonesHi}"/>` +
       (grass ? `<path class="blade" d="${grass}"/>` : '') +
       (reeds ? `<path class="reed" d="${reeds}"/>` : '') +
-      (tails ? `<path class="cattail" d="${tails}"/>` : '') + lilies + crossing;
+      (tails ? `<path class="cattail" d="${tails}"/>` : '') + lilies + crossing + life;
+  }
+
+  // Life along a river, away from the crossing in the middle: a fishing hut on stilts
+  // with its jetty and a rod out, a rowboat, a water mill with a turning wheel, a grey
+  // heron in the shallows, a fish that jumps now and then. Each river gets its own mix.
+  // What each river gets: always something on one side and something on the other.
+  function riverPlan(seed) {
+    const style = riverStyle(seed);
+    const small = style === 'brook';
+    const winter = seasonNow() === 'winter';
+    const h = hashStr(seed + '#life-kind');
+    const mains = small ? ['mill', 'hut'] : ['hut', 'mill', 'boat', 'hut', 'mill'];
+    // In winter the boats are tied up and the herons have gone.
+    let main = mains[h % mains.length];
+    if (winter && main === 'boat') main = 'jetty';
+    const seconds = (winter ? ['jetty', 'hut', 'jetty', 'mill'] : ['heron', 'jetty', 'heron', 'boat'])
+      .filter((k) => k !== main && !(small && k === 'boat') && !(main === 'boat' && k === 'jetty') && !(main === 'hut' && k === 'mill') && !(main === 'mill' && k === 'hut'));
+    const second = seconds[Math.floor(h / 7) % seconds.length] || 'jetty';
+    return { style, small, winter, main, second, fish: !winter && hashStr(seed + '#fish') % 2 === 0 };
+  }
+  function riverLife(seed, style, centre, normal, halfAt, n, season) {
+    const rnd = mulberry32(hashStr(seed + '#life'));
+    const plan = riverPlan(seed);
+    const { small, winter } = plan;
+    const cold = season === 'autumn' || season === 'winter';
+    // A spot on the left or right third.
+    const spot = (left, lo, hi) => {
+      let best = -1;
+      for (let k = 2; k < n - 2; k++) {
+        const x = centre[k][0];
+        if (left ? (x > lo && x < hi) : (x > 400 - hi && x < 400 - lo)) { best = k; if (rnd() < 0.3) break; }
+      }
+      return best < 0 ? Math.floor(n / 2) : best;
+    };
+    const bankAt = (k, far) => {
+      const [x, y] = centre[k];
+      const [nx, ny] = normal(k);
+      const hw = halfAt(k) * (far ? 1 : -0.9);
+      return [x + nx * hw, y + ny * hw];
+    };
+    const left = rnd() < 0.5;
+    let out = '';
+    const at = (x, y, sc, body) => `<g transform="translate(${r1(x)} ${r1(y)}) scale(${sc})">${body}</g>`;
+    const sc = small ? 1.05 : 1.35;
+    const place = (kind, onLeft) => {
+      if (kind === 'hut') {
+        const [bx, by] = bankAt(spot(onLeft, 34, 96), true);
+        return at(bx, by + 2, sc * (small ? 0.85 : 1), hutMarkup(cold, winter, !small && rnd() < 0.5));
+      }
+      if (kind === 'mill') {
+        const [bx, by] = bankAt(spot(onLeft, 30, 92), true);
+        return at(bx, by + 1, sc * (small ? 0.95 : 1), millMarkup(winter, onLeft));
+      }
+      if (kind === 'boat') {
+        const [x, y] = centre[spot(onLeft, 40, 100)];
+        return at(x, y + 1, sc, boatMarkup(winter, true));
+      }
+      if (kind === 'jetty') {
+        const [bx, by] = bankAt(spot(onLeft, 36, 100), true);
+        return at(bx, by + 1, sc * (small ? 0.85 : 1), jettyMarkup(winter));
+      }
+      const [bx, by] = bankAt(spot(onLeft, 30, 110), false);
+      return at(bx, by - 3, sc, heronMarkup(rnd() < 0.5 ? 1 : -1));
+    };
+    out += place(plan.main, left);
+    out += place(plan.second, !left);
+    // Now and then a fish jumps.
+    if (plan.fish) {
+      const k = spot(rnd() < 0.5, 110, 190);
+      const [x, y] = centre[k];
+      out += at(x, y, sc, `<g class="fish-jump" style="animation-delay:-${(hashStr(seed) % 70) / 10}s"><path class="fish" d="M-2.6 0Q0 -1.6 2.6 0Q0 1.6 -2.6 0ZM2.4 0L4 -1.2L4 1.2Z"/></g>` +
+        `<ellipse class="fish-ring" style="animation-delay:-${(hashStr(seed) % 70) / 10}s" cx="5" cy="0.6" rx="3" ry="1"/>`);
+    }
+    return out;
+  }
+  // A small wooden jetty with a rowboat tied to it (in winter, snow on both).
+  function jettyMarkup(winter) {
+    return `<ellipse class="hut-shadow" cx="1" cy="9" rx="9" ry="2"/>` +
+      `<path class="hut-post" d="M-3 0v12M4 0v12M-3.4 6v7M4.6 6v7"/>` +
+      `<path class="hut-ring" d="M-5 12.2h4M2 12.2h4"/>` +
+      `<path class="hut-jetty" d="M-4 -1L4.4 -1L5.6 12L-4.6 12Z"/><path class="hut-jetty-line" d="M-4.1 2.4H4.7M-4.3 5.6H5M-4.4 8.8H5.3"/>` +
+      `<path class="bridge-side" d="M-4.6 12L5.6 12L5.6 13.4L-4.6 13.4Z"/>` +
+      (winter ? `<path class="snow" d="M-4 -1L4.4 -1L5.6 12L-4.6 12Z" opacity="0.7"/>` : '') +
+      `<g transform="translate(13 11)">${boatMarkup(winter, false)}</g><path class="rod-line" d="M5 10.4Q7 12 4.6 12.8"/>`;
+  }
+  // What a river has along it, in words, for its tip.
+  function riverExtras(seed) {
+    const plan = riverPlan(seed);
+    const out = [];
+    if (plan.style === 'brook') out.push('Trittsteinen');
+    else if (plan.style === 'bridge') out.push(hashStr(seed + '#stonebridge') % 2 ? 'Steinbrücke' : 'Holzbrücke');
+    const word = { hut: 'Angelhütte', mill: 'Wassermühle', boat: 'Ruderboot', jetty: 'Bootssteg', heron: 'Graureiher' };
+    for (const k of [plan.main, plan.second]) if (!out.includes(word[k])) out.push(word[k]);
+    return out;
+  }
+  // A fishing hut on stilts at the water's edge, with a jetty, a rod out over the water,
+  // smoke from the chimney when it is cold and a warm window after dark.
+  function hutMarkup(cold, winter, boat) {
+    let smoke = '';
+    if (cold) for (let i = 0; i < 3; i++) smoke += `<circle class="smoke" style="animation-delay:-${i * 1.6}s" cx="7" cy="-26" r="${2 + i * 0.3}"/>`;
+    return `<ellipse class="hut-shadow" cx="1" cy="5.5" rx="15" ry="2.6"/>` +
+      `<path class="hut-post" d="M-9 -1v8M-1 -1v8.5M8 -1v8M-1.5 1v14M3.5 1v14"/>` +
+      `<path class="hut-ring" d="M-11.5 7.2h5M-3.5 7.6h5M5.5 7.2h5M-3.5 15h4M1.6 15h4"/>` +
+      `<path class="hut-jetty" d="M-3 0L3 0L4.6 14L-2.2 14Z"/><path class="hut-jetty-line" d="M-2.6 3.4H3.3M-2.4 6.8H3.8M-2.3 10.2H4.2"/>` +
+      `<path class="hut-floor" d="M-12.5 -3H12.5V0H-12.5Z"/>` +
+      `<path class="hut-wall" d="M-10.5 -16H10.5V-3H-10.5Z"/>` +
+      `<path class="hut-plank" d="M-6.5 -16V-3M-2.5 -16V-3M1.5 -16V-3M5.5 -16V-3"/>` +
+      `<path class="hut-door" d="M-7.6 -11.6H-2.4V-3H-7.6Z"/>` +
+      `<circle class="hut-glow" cx="5.6" cy="-9.4" r="6"/>` +
+      `<path class="hut-window" d="M3.2 -12H8V-7H3.2Z"/><path class="hut-frame" d="M5.6 -12V-7M3.2 -9.5H8"/>` +
+      `<path class="hut-chimney" d="M5.4 -25H8.6V-18H5.4Z"/>` + smoke +
+      `<path class="hut-roof" d="M-13.6 -14.6L0 -25.4L13.6 -14.6L12 -13.4L0 -22.6L-12 -13.4Z"/>` +
+      `<path class="hut-roof-in" d="M-12 -13.4L0 -22.6L12 -13.4Z"/>` +
+      `<path class="hut-gable" d="M-6 -13.4V-18M-2 -13.4V-21M2 -13.4V-21M6 -13.4V-18"/><circle class="hut-door" cx="0" cy="-17" r="1.5"/>` +
+      (winter ? `<path class="snow" d="M-13.8 -14.8L0 -25.8L13.8 -14.8L12.6 -14.6L0 -23.8L-12.6 -14.6Z"/>` : '') +
+      `<path class="rod" d="M3.4 12.6L17 0.6"/><path class="rod-line" d="M17 0.6Q18.4 7 18.6 14"/>` +
+      `<g class="bob"><circle class="float" cx="18.6" cy="14" r="1"/></g>` +
+      (boat ? `<g transform="translate(-9 15)">${boatMarkup(winter, false)}</g><path class="rod-line" d="M-1.6 13.6Q-4 15.6 -6 15.2"/>` : '');
+  }
+  // A small rowboat with two oars; it rocks gently on the water.
+  function boatMarkup(winter, drifting) {
+    if (winter && drifting) return '';
+    return `<g class="${winter ? '' : 'rock'}">` +
+      `<ellipse class="boat-reflect" cx="0.5" cy="3.6" rx="11" ry="1.8"/>` +
+      `<path class="boat-hull" d="M-10 -1.2Q-9 3.8 0 4Q8.6 3.8 10.6 -1.6Z"/>` +
+      `<path class="boat-in" d="M-9.2 -1.1Q0 1.6 9.8 -1.5Q0 -0.4 -9.2 -1.1Z"/>` +
+      `<path class="boat-rim" d="M-10 -1.2Q0 0.8 10.6 -1.6"/>` +
+      `<path class="boat-seat" d="M-1.4 -0.6V0.9M2.6 -0.7V0.8"/>` +
+      (drifting ? `<path class="oar" d="M-3 -0.4L-12 3.4M4.2 -0.6L12.6 3"/>` : `<path class="oar" d="M-4 -0.8L6 -2.4"/>`) +
+      (winter ? `<path class="snow" d="M-8.6 -1.3Q0 0.6 9.2 -1.6Q0 -0.6 -8.6 -1.3Z"/>` : '') + `</g>`;
+  }
+  // A water mill: stone below, timber above, and a big wheel turning in the stream.
+  function millMarkup(winter, wheelRight) {
+    const wx = wheelRight ? 15 : -15;
+    let spokes = '';
+    let paddles = '';
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      spokes += `M0 0L${r1(Math.cos(a) * 9)} ${r1(Math.sin(a) * 9)}`;
+      const px = Math.cos(a) * 10.4;
+      const py = Math.sin(a) * 10.4;
+      paddles += `M${r1(px - Math.sin(a) * 1.6)} ${r1(py + Math.cos(a) * 1.6)}L${r1(px + Math.sin(a) * 1.6)} ${r1(py - Math.cos(a) * 1.6)}`;
+    }
+    return `<ellipse class="hut-shadow" cx="0" cy="3" rx="18" ry="2.6"/>` +
+      `<path class="mill-stone" d="M-13 -11H13V2H-13Z"/>` +
+      `<path class="mill-joint" d="M-13 -6.6H13M-13 -2.2H13M-7 -11V-6.6M2 -11V-6.6M10 -11V-6.6M-11 -6.6V-2.2M-2 -6.6V-2.2M6 -6.6V-2.2M-6 -2.2V2M4 -2.2V2"/>` +
+      `<path class="hut-wall" d="M-13 -24H13V-11H-13Z"/>` +
+      `<path class="hut-plank" d="M-8.6 -24V-11M-4.2 -24V-11M0.2 -24V-11M4.6 -24V-11M9 -24V-11"/>` +
+      `<circle class="hut-glow" cx="-5" cy="-17.4" r="6"/>` +
+      `<path class="hut-window" d="M-7.4 -20H-2.6V-15H-7.4Z"/><path class="hut-frame" d="M-5 -20V-15M-7.4 -17.5H-2.6"/>` +
+      `<path class="hut-door" d="M3 -2.8H8.6V2H3Z"/>` +
+      `<path class="hut-roof" d="M-16 -22.4L0 -34L16 -22.4L14.4 -21.2L0 -31.2L-14.4 -21.2Z"/>` +
+      `<path class="hut-roof-in" d="M-14.4 -21.2L0 -31.2L14.4 -21.2Z"/>` +
+      `<path class="hut-gable" d="M-8 -21.2V-25.6M-3 -21.2V-29M3 -21.2V-29M8 -21.2V-25.6"/>` +
+      (winter ? `<path class="snow" d="M-16.2 -22.6L0 -34.4L16.2 -22.6L15 -22.4L0 -32.4L-15 -22.4Z"/>` : '') +
+      `<g transform="translate(${wx} -3)"><path class="mill-axle" d="M${wheelRight ? -3 : 3} 0H0"/>` +
+      `<g class="${winter ? '' : 'wheel-turn'}"><circle class="wheel-rim" r="10.4"/><circle class="wheel-rim" r="6"/>` +
+      `<path class="wheel-spoke" d="${spokes}"/><path class="wheel-paddle" d="${paddles}"/></g>` +
+      `<circle class="wheel-hub" r="1.6"/>` +
+      (winter ? '' : `<path class="foam" d="M-9 8.4q2 -1.2 4 0t4 0t4 0t4 0"/>`) + `</g>`;
+  }
+  // A grey heron, standing still in the shallows on long legs; now and then it dips its head.
+  function heronMarkup(dir) {
+    return `<g transform="scale(${dir} 1)"><ellipse class="heron-ring" cx="0.4" cy="0.4" rx="4" ry="1.1"/>` +
+      `<path class="heron-leg" d="M-0.6 0L-0.2 -10M1.4 0L1 -10"/>` +
+      `<path class="heron-body" d="M-7.6 -13.6Q-3.6 -17.6 2.4 -15.6Q4.6 -13.4 3 -11Q-2 -9.6 -7.6 -13.6Z"/>` +
+      `<path class="heron-wing" d="M-7.6 -13.6Q-3 -15.4 2 -13.8Q-1 -11.2 -7.6 -13.6Z"/>` +
+      `<g class="heron-head"><path class="heron-neck" d="M1.6 -15.2Q4.6 -18 3 -21.4Q2 -24.4 4.8 -25.2" />` +
+      `<path class="heron-face" d="M3.4 -25.6Q5.6 -26.8 6.8 -25Q5.2 -24.2 3.8 -24.4Z"/>` +
+      `<path class="heron-beak" d="M6.6 -25.4L11.6 -24.6L6.6 -24.4Z"/>` +
+      `<path class="heron-crest" d="M4 -25.6L0.6 -24.6"/><circle class="heron-eye" cx="5.4" cy="-25.2" r="0.45"/></g></g>`;
   }
 
   // ---------- atmosphere ----------
@@ -7093,7 +7363,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     }
     const kind = type === 'r' ? 'river' : extra;
     const [art, name] = KIND_INFO[kind];
-    return `<strong>${art[0].toUpperCase() + art.slice(1)} ${name}</strong>` + line(`Entdeckt ${key === dayKey() ? 'heute' : key === dayBefore(dayKey(), 1) ? 'gestern' : 'am ' + longDate(key)}`);
+    const along = type === 'r' ? riverExtras(key) : [];
+    return `<strong>${art[0].toUpperCase() + art.slice(1)} ${name}</strong>` +
+      (along.length ? line('Mit ' + (along.length > 1 ? along.slice(0, -1).join(', ') + ' und ' + along[along.length - 1] : along[0])) : '') +
+      line(`Entdeckt ${key === dayKey() ? 'heute' : key === dayBefore(dayKey(), 1) ? 'gestern' : 'am ' + longDate(key)}`);
   }
 
   function closeTip() {
