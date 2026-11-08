@@ -5858,154 +5858,168 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       }
     });
 
-    // Group into rows. A row holds two to four trees: how many depends on the row, and on
-    // how big its trees are, as large crowns need more room. Animals and the month sign
-    // stand between the trees and take no tree's place. A river or a golden tree found
-    // during a row follows right after that row, so rows are not cut short.
-    const rows = [];
-    let cur = null;
-    let sign = null;
-    let later = [];
-    const TARGETS = [3.4, 4.3, 1.6, 2.3, 4.8, 2.9, 3.6, 1.9, 4.1, 2.6];
-    const treeWeight = (sec) => 0.8 + levelFor(sec) * 0.06;
-    // After a row comes at most one river or golden tree; any more wait for the next row,
-    // so two rivers never run side by side.
-    const lastIsBreak = () => rows.length > 0 && rows[rows.length - 1].type !== 'slots';
-    const close = (all) => {
-      const had = !!cur;
-      if (cur) rows.push(cur);
-      cur = null;
-      if (all) {
-        // At the very end, two rivers in a row would run side by side: draw one.
-        for (const row of later) if (!(row.type === 'river' && lastIsBreak() && rows[rows.length - 1].type === 'river')) rows.push(row);
-        later = [];
-      } else if (had && later.length) rows.push(later.shift());
-    };
-    for (const it of items) {
-      if (it.type === 'month') {
-        // A new month starts a new row, with its signpost first.
-        close();
-        sign = it.key;
-        continue;
-      }
-      if (it.type === 'river' || it.type === 'golden' || it.type === 'milestone') {
-        const row = it.type === 'river' ? { type: 'river', h: riverStyle(it.key) === 'brook' ? BROOK_H : RIVER_H, key: it.key }
-          : it.type === 'milestone' ? { type: 'milestone', h: MILE_H, item: it } : { type: 'golden', h: ROW_H, item: it };
-        if (cur || lastIsBreak()) later.push(row);
-        else rows.push(row);
-        continue;
-      }
-      if (!cur && it.type === 'animal') {
-        // An animal found on the day that closed the last row stays beside its tree.
-        const prev = rows.filter((r) => r.type === 'slots').pop();
-        if (prev && prev.items.some((i) => i.type === 'tree' && i.key === it.key)) { prev.items.push(it); continue; }
-      }
-      if (!cur) {
-        // Rows are not evenly spaced: some lie close together, some further apart.
-        cur = { type: 'slots', h: SLOT_ROW_H - 16 + (hashStr(it.key + '#rowh') % 44), items: [], weight: 0, target: TARGETS[hashStr(it.key + '#row') % TARGETS.length] };
-        if (sign) { cur.items.push({ type: 'month', key: sign }); sign = null; }
-      }
-      cur.items.push(it);
-      if (it.type === 'tree') {
-        cur.weight += treeWeight(it.sec);
-        if (cur.weight >= cur.target) close();
-      }
-    }
-    // Animals found on the last day stand with the last trees, not alone in a row.
-    if (cur && !cur.items.some((i) => i.type === 'tree')) {
-      const prev = rows.filter((r) => r.type === 'slots').pop();
-      if (prev) { prev.items.push(...cur.items); cur = null; }
-    }
-    close(true);
-
-    // Lay out rows top to bottom. Each row only records how to draw itself; the drawing
-    // happens when its part of the forest comes into view (see below).
-    let y = VISTA_H;
-    let slotRow = 0;
-    const slotRows = rows.filter((r) => r.type === 'slots').length;
-    const grassPerRow = slotRows ? Math.ceil(grassCount(shown) / slotRows) : 0;
+    // Lay the forest out like a real one. Rivers cut it into glades; within a glade
+    // every tree, animal and sign is scattered in date order from top to bottom: each
+    // one tries a few spots near the current edge of the forest and takes the one with
+    // the most room around it, so trees stand in loose groups and alone, some further
+    // back, some in front, and never in lines. Every spot is fixed by its day, so the
+    // forest looks the same each time it opens.
     const placed = [];
-    rows.forEach((row, rowIdx) => {
-      const top = y;
-      const sr = row.type === 'slots' ? slotRow++ : -1;
-      // Rows further up are further back, so they are drawn a little smaller.
-      const depth = rows.length > 1 ? rowIdx / (rows.length - 1) : 1;
-      const scale = r3(0.8 + 0.2 * depth);
-      const bottom = top + row.h;
-      const make = () => {
-        let body = '';
-        if (row.type === 'river') {
-          body += `<g class="pick" data-info="r|${row.key}">${riverMarkup(top, row.h, row.key)}</g>`;
-        } else if (row.type === 'milestone') {
-          body += moundMarkup(top + row.h - 12, 1);
-          body += grassMarkup(10, row.item.key + '#mile', top + row.h - 30, top + row.h + 2);
-          body += milestoneItem(row.item, 200 + (row.item.hours / 100 % 2 ? -34 : 34), top + row.h - 8);
-        } else if (row.type === 'golden') {
-          // The deer family stands a little further back, beside the golden tree.
-          const gside = hashStr(row.item.key + '#gside') % 2 ? 1 : -1;
-          if (row.item.family) {
-            const day = row.item.key.split('#')[0];
-            const side = -gside;
-            body += `<g class="pick" data-info="a|${day}|family" transform="translate(${200 + side * 104 - 23} ${top + ROW_H - 36 - 34.5}) scale(1.15)">` +
-              `<title>Rehfamilie, entdeckt ${labelFor(day)}</title><g class="motif" style="--d:-${hashStr(day) % 9}s">${SPRITES.family}</g></g>`;
-          }
-          body += treeItem(row.item, 200 + gside * (40 + hashStr(row.item.key + '#gx') % 50), top + ROW_H - 8);
-        } else {
-          // A soft rise of ground under each row, so the floor is not one flat sheet.
-          body += moundMarkup(top + row.h - 12, sr, row.items[0].key);
-          body += grassMarkup(grassPerRow + 5, row.items[0].key, top + row.h - 30, top + row.h + 2);
-          body += decorMarkup(row.items[0].key + '#' + sr, top + row.h - 6);
-          body += airMarkup(row.items[0].key + '#' + sr, top + 10, top + row.h - 10, 3);
-          const weather = weatherNow();
-          if (weather === 'rain' || weather === 'rainbow') body += puddleMarkup(row.items[0].key + '#' + sr, top + row.h - 10, weather === 'rain');
-          if (specialNow() === 'crocus') body += crocusMarkup(row.items[0].key + '#' + sr, top + row.h - 34, top + row.h + 2, 7);
-          // Trees stand loosely, as in a real forest: the gaps between them are random, so
-          // some stand close together and others alone, and each one stands a little
-          // further back or forward. Those further back are drawn first and a touch smaller.
-          const rs = mulberry32(hashStr(row.items[0].key + '#scatter' + sr));
-          const need = (it) => (it.type === 'tree' ? 22 + levelFor(it.sec) * 6 : it.type === 'month' ? 60 : 30);
-          const used = row.items.reduce((sum, it) => sum + need(it), 0);
-          const squeeze = Math.min(1, 372 / used);
-          const free = Math.max(0, 384 - used * squeeze);
-          const gaps = [];
-          for (let g = 0; g <= row.items.length; g++) gaps.push(Math.pow(rs(), 1.7) * (g === 0 || g === row.items.length ? 0.7 : 1) + 0.04);
-          const gsum = gaps.reduce((a, b) => a + b, 0);
-          let at = 8;
-          const spots = row.items.map((it, c) => {
-            const rnd = mulberry32(hashStr(it.key + '#pos' + c));
-            at += (gaps[c] / gsum) * free;
-            const w = need(it) * squeeze;
-            const cx = at + w / 2;
-            at += w;
-            // How far back it stands: trees up to two fifths of the row, animals less.
-            const back = rs() * (it.type === 'tree' ? Math.min(40, row.h * 0.42) : 16);
-            return { it, rnd, cx, back, baseY: top + row.h - 6 - back };
-          });
-          // Fill wide gaps (and the open ends of the row) with undergrowth.
-          const half = (sp) => (sp.it.type === 'tree' ? 14 + levelFor(sp.it.sec) * 3 : 18);
-          let from = 6;
-          spots.forEach((sp, c) => {
-            const to = sp.cx - half(sp);
-            if (to - from > 46) body += undergrowth(row.items[0].key + '#' + sr + '#' + c, from + 8, to - 8, top + row.h - 8);
-            from = sp.cx + half(sp);
-          });
-          if (394 - from > 46) body += undergrowth(row.items[0].key + '#' + sr + '#end', from + 8, 386, top + row.h - 8);
-          const fall = seasonNow() === 'autumn';
-          for (const { it, rnd, cx, baseY, back } of spots.slice().sort((a, b) => a.baseY - b.baseY)) {
-            if (it.type === 'month') body += signMarkup(it.key, Math.max(34, Math.min(366, cx)), baseY);
-            else if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, cx)), baseY);
-            else {
-              const sp = speciesFor(it.key);
-              if (fall && levelFor(it.sec) >= 2 && sp !== 'tanne' && sp !== 'kiefer') body += litterMarkup(it.key, cx, baseY, 10 + levelFor(it.sec) * 3);
-              body += treeItem(it, cx, baseY, (0.9 + rnd() * 0.2) * (1 - back * 0.0025));
-            }
+    const radius = (it) => it.type === 'tree' ? 15 + levelFor(it.sec) * 4.4
+      : it.type === 'golden' ? 46 : it.type === 'milestone' ? 54 : it.type === 'month' ? 30 : it.type === 'family' ? 26 : 15;
+    // How tall each thing stands, to keep animals and signs from vanishing behind a tree.
+    const tallness = (it) => it.type === 'tree' ? 24 + levelFor(it.sec) * 10.5
+      : it.type === 'golden' ? 115 : it.type === 'milestone' ? 220 : it.type === 'month' ? 30 : it.type === 'family' ? 34 : 22;
+    const small = (it) => it.type === 'animal' || it.type === 'month' || it.type === 'family';
+    let y = VISTA_H - 26;
+    let glade = null;
+    let gladeNo = 0;
+    let lastRiver = false;
+    const openGlade = () => {
+      glade = { y0: y, cursor: y + 24, items: [], trees: 0, no: gladeNo++, afterRiver: lastRiver };
+    };
+    const place = (it) => {
+      if (!glade) openGlade();
+      const rnd = mulberry32(hashStr((it.key || '') + '#spot' + it.type + (it.kind || '') + (it.hours || '')));
+      const r = radius(it);
+      const h = tallness(it);
+      const ry = 10 + r * 0.32;
+      let best = null;
+      let bestScore = -1;
+      const tries = it.type === 'month' ? 6 : 14;
+      for (let k = 0; k < tries; k++) {
+        const edge = it.type === 'golden' ? 62 : it.type === 'milestone' ? 70 : it.type === 'family' ? 36 : r * 0.75 + 6;
+        let x = edge + rnd() * (400 - edge * 2);
+        if (it.type === 'month') x = rnd() < 0.5 ? 40 + rnd() * 30 : 330 + rnd() * 30;
+        // Just below a river big trees stand a little back from the water, so their crowns
+        // reach over the bank but do not cover the river.
+        const by = Math.max(glade.y0 + 16 + ry * 0.4 + (glade.afterRiver ? h * 0.34 : 0), glade.cursor + (rnd() - 0.45) * 30);
+        let score = 9;
+        for (const o of glade.items) {
+          const dy = Math.abs(by - o.y);
+          if (dy > 90) continue;
+          const dx = Math.abs(x - o.x);
+          const sx = dx / ((r + o.r) * 0.82);
+          const sy = dy / (ry + o.ry);
+          score = Math.min(score, Math.max(sx, sy));
+          // Whatever stands in front must not hide what stands behind it: an animal or a
+          // sign not at all, a tree not completely.
+          const [f, fy, fh, fr, b, bySpot, bh, br] = by > o.y ? [it, by, h, r, o.it, o.y, o.h, o.r] : [o.it, o.y, o.h, o.r, it, by, h, r];
+          if (dx < (small(b) ? fr * 1.05 + br * 0.5 : fr * 0.75 + br * 0.4)) {
+            const coverTop = fy - fh;
+            if (small(b) && coverTop < bySpot) score = Math.min(score, 0.15);
+            else if (!small(b) && !small(f) && coverTop < bySpot - bh * 0.85 && dx < fr * 0.5) score = Math.min(score, 0.3);
           }
         }
-        return `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})">${body}</g>`;
-      };
-      placed.push({ top, bottom, make });
+        // Small preference for the open middle over the very edges.
+        score -= Math.abs(x - 200) / 2000;
+        if (score > bestScore) { bestScore = score; best = [x, by]; }
+      }
+      glade.items.push({ it, x: best[0], y: best[1], r, ry, h });
+      if (it.type === 'tree' || it.type === 'golden' || it.type === 'milestone') glade.trees++;
+      // The edge of the forest moves down a little with every tree, more for big ones.
+      const step = it.type === 'animal' || it.type === 'family' ? 3 : it.type === 'month' ? 6 : 8 + r * 0.5;
+      glade.cursor += step * (0.6 + rnd() * 0.8);
+    };
+    // A glade ends: it is cut into strips that are drawn as the forest scrolls into view.
+    const closeGlade = () => {
+      if (!glade || !glade.items.length) { glade = null; return; }
+      const g = glade;
+      g.items.sort((p, q) => p.y - q.y);
+      const lastY = g.items[g.items.length - 1].y;
+      const bottom = lastY + 16;
+      let t0 = g.y0;
+      let idx = 0;
+      let strip = 0;
+      while (t0 < bottom - 1) {
+        const rs = mulberry32(hashStr(g.items[0].it.key + '#strip' + strip));
+        let t1 = Math.min(bottom, t0 + 110 + rs() * 50);
+        if (bottom - t1 < 60) t1 = bottom;
+        const members = [];
+        while (idx < g.items.length && (g.items[idx].y < t1 || t1 === bottom)) members.push(g.items[idx++]);
+        placed.push(stripMaker(t0, t1, members, g, strip, t1 === bottom));
+        t0 = t1;
+        strip++;
+      }
       y = bottom;
-    });
+      glade = null;
+      lastRiver = false;
+    };
+    const grassTotal = grassCount(shown);
+    const totalTrees = Math.max(1, shown.length);
+    const stripMaker = (top, bottom, members, g, strip, last) => {
+      const seed = (members[0] ? members[0].it.key : 'g' + g.no) + '#' + strip;
+      const make = () => {
+        let body = '';
+        // Rolling ground: a rise along the strip's lower edge, a different shape each time.
+        body += moundMarkup(bottom - 10, g.no + strip, seed);
+        const trees = members.filter((m) => m.it.type === 'tree').length;
+        body += grassMarkup(Math.round((grassTotal / totalTrees) * Math.max(1, trees)) + 4, seed, top + 6, bottom + 2);
+        body += airMarkup(seed, top, bottom - 10, 3);
+        const weather = weatherNow();
+        if (weather === 'rain' || weather === 'rainbow') body += puddleMarkup(seed, bottom - 10, weather === 'rain');
+        if (specialNow() === 'crocus') body += crocusMarkup(seed, top + 6, bottom, 7);
+        // Undergrowth in the open places between the trees.
+        const rs = mulberry32(hashStr(seed + '#floor'));
+        const want = Math.round((bottom - top) / 40);
+        let got = 0;
+        for (let k = 0; k < 24 && got < want; k++) {
+          const fx = 10 + rs() * 380;
+          const fy = top + 8 + rs() * (bottom - top - 8);
+          if (g.items.some((m) => Math.abs(m.x - fx) < m.r * 0.8 + 10 && Math.abs(m.y - fy) < m.ry + 8)) continue;
+          body += floorThing(rs(), fx, fy, 0.8 + rs() * 0.4, rs);
+          got++;
+        }
+        const fall = seasonNow() === 'autumn';
+        for (const m of members) {
+          const { it } = m;
+          if (it.type === 'month') body += signMarkup(it.key, m.x, m.y);
+          else if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, m.x)), m.y);
+          else if (it.type === 'family') {
+            body += `<g class="pick" data-info="a|${it.key}|family" transform="translate(${r1(m.x - 23)} ${r1(m.y - 34.5)}) scale(1.15)">` +
+              `<title>Rehfamilie, entdeckt ${labelFor(it.key)}</title><g class="motif" style="--d:-${hashStr(it.key) % 9}s">${SPRITES.family}</g></g>`;
+          } else if (it.type === 'milestone') body += milestoneItem(it, Math.max(70, Math.min(330, m.x)), m.y);
+          else if (it.type === 'golden') body += treeItem(it, m.x, m.y);
+          else {
+            const sp = speciesFor(it.key);
+            if (fall && levelFor(it.sec) >= 2 && sp !== 'tanne' && sp !== 'kiefer') body += litterMarkup(it.key, m.x, m.y, 10 + levelFor(it.sec) * 3);
+            const rnd = mulberry32(hashStr(it.key + '#size'));
+            body += treeItem(it, m.x, m.y, 0.92 + rnd() * 0.16);
+          }
+        }
+        return body;
+      };
+      return { top, bottom, make };
+    };
+    const riverRow = (key) => {
+      const h = riverStyle(key) === 'brook' ? BROOK_H : RIVER_H;
+      const top = y - 6;
+      const bottom = top + h;
+      placed.push({ top, bottom, make: () => `<g class="pick" data-info="r|${key}">${riverMarkup(top, h, key)}</g>` });
+      y = bottom - 22;
+      lastRiver = true;
+    };
+    // Rivers wait until their glade has a few trees, so two never run side by side.
+    const waiting = [];
+    let lastWasRiver = false;
+    for (const it of items) {
+      if (it.type === 'river') { waiting.push(it.key); continue; }
+      if (it.type === 'golden') {
+        place(it);
+        if (it.family) place({ type: 'family', key: it.key.split('#')[0] });
+        lastWasRiver = false;
+      } else {
+        place(it);
+        lastWasRiver = false;
+      }
+      if (waiting.length && glade && glade.trees >= 3) {
+        closeGlade();
+        riverRow(waiting.shift());
+        lastWasRiver = true;
+      }
+    }
+    closeGlade();
+    if (waiting.length && !lastWasRiver && placed.length) riverRow(waiting[0]);
 
     // The forest is cut into sections of a few rows, each its own picture. Only sections
     // on screen or about to scroll into view are drawn, so even a forest of many months
