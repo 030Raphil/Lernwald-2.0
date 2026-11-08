@@ -1754,6 +1754,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   margin: 0 0 6px;
 }
 .backup .muted { font-size: 14px; }
+.offline { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.offline .ok { color: var(--accent); font-weight: 700; }
 .backup-last { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
 .backup-controls { justify-content: flex-start; margin-top: 12px; }
 .backup-controls .btn { flex: 1 1 100%; }
@@ -1992,6 +1994,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         </div>
       </div>
       <p class="backup-msg" id="backupMsg" role="status"></p>
+    </section>
+    <section class="backup offline" id="offline" hidden aria-labelledby="offlineTitle">
+      <h3 id="offlineTitle">Ohne Internet</h3>
+      <p class="muted" id="offlineNote"></p>
     </section>
     </div>
   </div>
@@ -7156,6 +7162,33 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
   // Screen off or another app: the timer keeps running. Only the moment is noted,
   // in case the app gets closed. Coming back clears it and sends any interrupted save.
+  // ---------- offline ----------
+  // A small helper file next to the app (sw.js) keeps the newest version and its fonts on
+  // the device, so Lernwald opens without internet. Online, a new version is fetched
+  // first, so updates still arrive at once. Without the file nothing changes.
+  let offlineState = 'off';
+  function showOffline() {
+    const box = $('offline');
+    if (offlineState === 'off') { box.hidden = true; return; }
+    box.hidden = false;
+    $('offlineNote').innerHTML = offlineState === 'ready'
+      ? '<span class="ok">Bereit.</span> Lernwald öffnet sich auch ohne Internet. Neue Versionen kommen von selbst, sobald du wieder online bist.'
+      : offlineState === 'missing'
+        ? 'Noch nicht eingerichtet: Auf GitHub fehlt die Datei sw.js neben index.html.'
+        : 'Wird eingerichtet … Öffne die App einmal mit Internet, dann geht es auch ohne.';
+  }
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    offlineState = navigator.serviceWorker.controller ? 'ready' : 'pending';
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        if (navigator.serviceWorker.controller || reg.active) offlineState = 'ready';
+        showOffline();
+      }).catch(() => { offlineState = navigator.onLine ? 'missing' : 'pending'; showOffline(); });
+      navigator.serviceWorker.addEventListener('controllerchange', () => { offlineState = 'ready'; showOffline(); });
+    });
+  }
+  showOffline();
+
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) startMoving();
     const s = state.session;
