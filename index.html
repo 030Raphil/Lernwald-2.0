@@ -34,6 +34,7 @@
   --seq-bark: #9a4f33;
   --seq-leaf: #3e6e50;
   --mtn: #8197ad;
+  --path: #d6bd8c;
   --sky-deep: #6f9cc8;
   --mtn-snow: #f6f9fc;
   --mtn-ink: #1d2c44;
@@ -102,6 +103,7 @@
     --seq-bark: #a65a41;
     --seq-leaf: #3d7454;
     --mtn: #5d6e84;
+    --path: #5f5444;
     --seg-on: #33463a;
     --sky-deep: #0b1630;
     --mtn-snow: #c9d4e0;
@@ -169,6 +171,7 @@
   --seq-bark: #a65a41;
   --seq-leaf: #3d7454;
   --mtn: #5d6e84;
+  --path: #5f5444;
   --seg-on: #33463a;
   --sky-deep: #0b1630;
   --mtn-snow: #c9d4e0;
@@ -1709,6 +1712,15 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .hill.far { fill: color-mix(in srgb, var(--ground) 50%, var(--field-sky)); }
 .haze { fill: var(--field-sky); }
 .mound { fill: color-mix(in srgb, var(--shade) 24%, var(--ground)); }
+.path { fill: var(--path); }
+.path-edge { fill: color-mix(in srgb, var(--path) 62%, var(--shade)); opacity: 0.9; }
+.path-mid { fill: color-mix(in srgb, var(--path) 70%, #fff6e0); opacity: 0.5; }
+.path-stone { fill: color-mix(in srgb, var(--stone) 80%, var(--path)); }
+.app[data-season="winter"] .path { fill: color-mix(in srgb, var(--path) 35%, #f2f6f8); }
+.app[data-season="winter"] .path-mid { fill: #ffffff; opacity: 0.6; }
+.app[data-season="autumn"] .path-mid { fill: color-mix(in srgb, var(--path) 60%, #e8b060); opacity: 0.35; }
+.patch { fill: color-mix(in srgb, var(--shade) 30%, var(--ground)); opacity: 0.32; }
+.patch.alt { fill: color-mix(in srgb, var(--ground) 70%, #fbffe6); opacity: 0.22; }
 .mound-rim { fill: none; stroke: color-mix(in srgb, var(--ground) 55%, #fbffe6); stroke-width: 1.4; opacity: 0.36; stroke-linecap: round; }
 .mound-glow { fill: none; stroke: color-mix(in srgb, var(--ground) 72%, #fbffe6); stroke-width: 12; opacity: 0.2; transform: translateY(5px); }
 .mound-shade { fill: none; stroke: color-mix(in srgb, var(--shade) 40%, var(--ground)); stroke-width: 16; opacity: 0.18; transform: translateY(26px); }
@@ -4480,6 +4492,112 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   }
   const BROOK_H = 80;
 
+  // ---------- the footpath ----------
+  // A footpath winds from the bottom of the forest up through it and across every river
+  // on a bridge, out into the meadow and towards the mountains, getting narrower in the
+  // distance. Trees keep their trunks off it; signposts stand beside it.
+  const PATH_W = 17;
+  function pathX(y) {
+    return 200 + 56 * Math.sin(y / 240 + 0.7) + 20 * Math.sin(y / 87 + 2.1);
+  }
+  function pathW(y) {
+    return y > 240 ? PATH_W : Math.max(1.2, PATH_W * (y - 166) / 74);
+  }
+  function pathPts(y0, y1) {
+    const pts = [];
+    if (y1 <= y0) return pts;
+    for (let y = y0; y < y1; y += 6) pts.push([pathX(y), y]);
+    pts.push([pathX(y1), y1]);
+    return pts;
+  }
+  function pathMarkup(pts, seed) {
+    if (pts.length < 2) return '';
+    const rnd = mulberry32(hashStr(seed + '#path'));
+    const side = (grow, k) => {
+      const l = [];
+      const r = [];
+      for (const [x, y] of pts) {
+        const w = pathW(y) * k / 2 + grow;
+        l.push([x - w, y]);
+        r.push([x + w, y]);
+      }
+      return ribbonPath(l, r);
+    };
+    // Stones along the edges and a few in the middle, tufts of grass at the rim.
+    let stones = '';
+    let tufts = '';
+    let tuftsF = '';
+    for (let i = 0; i < pts.length; i++) {
+      const [x, y] = pts[i];
+      const w = pathW(y) / 2;
+      if (w < 3) continue;
+      if (rnd() < 0.35) {
+        const sd = rnd() < 0.5 ? -1 : 1;
+        stones += oval(x + sd * (w - 0.6 - rnd() * 1.4), y + (rnd() - 0.5) * 4, 1 + rnd() * 0.9, 0.7 + rnd() * 0.4);
+      }
+      if (rnd() < 0.12) stones += oval(x + (rnd() - 0.5) * w, y + (rnd() - 0.5) * 4, 0.7, 0.45);
+      if (i % 2 === 0 && rnd() < 0.6) {
+        const sd = rnd() < 0.5 ? -1 : 1;
+        const [b, f] = tuftPaths(x + sd * (w + 1.5), y + 2, 4 + rnd() * 3, rnd);
+        tufts += b;
+        tuftsF += f;
+      }
+    }
+    return `<path class="path-edge" d="${side(1.4, 1)}"/><path class="path" d="${side(0, 1)}"/>` +
+      `<path class="path-mid" d="${side(0, 0.42)}"/>` +
+      (stones ? `<path class="path-stone" d="${stones}"/>` : '') +
+      (tufts ? `<path class="gb" d="${tufts}"/><path class="gf" d="${tuftsF}"/>` : '');
+  }
+
+  // Where a river's footpath bridge sits: the point of its course closest to the path.
+  function riverCrossing(y0, h, seed) {
+    const g = riverGeom(y0, h, seed);
+    let best = Math.floor(g.n / 2);
+    let miss = 1e9;
+    for (let k = Math.floor(g.n * 0.15); k < g.n * 0.85; k++) {
+      const [x, y] = g.centre[k];
+      const d = Math.abs(x - pathX(y));
+      if (d < miss) { miss = d; best = k; }
+    }
+    const [x, y] = g.centre[best];
+    const [nx, ny, tx, ty] = g.normal(best);
+    const hw = g.halfAt(best);
+    const len = hw + (riverStyle(seed) === 'brook' ? 6 : 8);
+    return { k: best, x, y, nx, ny, tx, ty, hw, len, far: [x + nx * len, y + ny * len], near: [x - nx * len, y - ny * len] };
+  }
+  function riverGeom(y0, h, seed) {
+    const style = riverStyle(seed);
+    const wide = style === 'brook' ? 0.58 : 1;
+    const rnd = mulberry32(hashStr(seed + '#river'));
+    const kind = Math.floor(rnd() * 4);
+    const ph = rnd() * 6;
+    const ph2 = rnd() * 6;
+    const top = y0 + 18;
+    const bot = y0 + h - 18;
+    const mid = (top + bot) / 2;
+    const amp = (bot - top) / 2;
+    const at = (t) => {
+      const x = -100 + t * 600;
+      const wob = Math.sin(t * 9 + ph) * 4;
+      if (kind === 0) return [x, top + (bot - top) * t + wob];
+      if (kind === 1) return [x, bot - (bot - top) * t + wob];
+      if (kind === 2) return [x + Math.sin(t * 7 + ph) * 18, mid + Math.sin(t * Math.PI * 2.2 + ph) * amp];
+      return [x, bot - Math.sin(t * Math.PI) * (bot - top) + wob];
+    };
+    const n = 52;
+    const centre = [];
+    for (let i = 0; i <= n; i++) centre.push(at(i / n));
+    const normal = (i) => {
+      const a0 = centre[Math.max(0, i - 1)];
+      const a1 = centre[Math.min(n, i + 1)];
+      const tx = a1[0] - a0[0];
+      const ty = a1[1] - a0[1];
+      const len = Math.hypot(tx, ty) || 1;
+      return [ty / len, -tx / len, tx / len, ty / len];
+    };
+    const halfAt = (i) => (10.5 + Math.sin(i / 4.2 + ph2) * 4) * wide;
+    return { centre, normal, halfAt, n };
+  }
   function riverMarkup(y0, h, seed) {
     const style = riverStyle(seed);
     const wide = style === 'brook' ? 0.58 : 1;
@@ -4594,46 +4712,24 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     let crossing = '';
     let lilies = '';
     const season = seasonNow();
-    if (style !== 'river') {
-      let best = Math.floor(n / 2);
-      let flat = 9;
-      for (let k = Math.floor(n * 0.3); k < n * 0.7; k++) {
-        const [nx] = normal(k);
-        const [x] = centre[k];
-        if (x < 110 || x > 290) continue;
-        if (Math.abs(nx) < flat) { flat = Math.abs(nx); best = k; }
-      }
+    // The footpath crosses every river on a bridge: an old stone bridge or a wooden one,
+    // and over a brook a small plank bridge.
+    const cr = riverCrossing(y0, h, seed);
+    {
+      const best = cr.k;
       const [x, y] = centre[best];
       const [nx, ny, tx, ty] = normal(best);
       const hw = halfAt(best);
       const P = (a, b) => `${r1(x + nx * a + tx * b)} ${r1(y + ny * a + ty * b)}`;
-      if (style === 'brook') {
-        // Stepping stones, from one bank to the other.
-        let st = '';
-        let sh = '';
-        let wet = '';
-        const m = 3;
-        for (let j = 0; j < m; j++) {
-          const a = (j - 1) * hw * 1.05;
-          const b = (j - 1) * 5 + (rnd() - 0.5) * 2;
-          const px = x + nx * a + tx * b;
-          const py = y + ny * a + ty * b;
-          const rx = 3.6 + rnd() * 1;
-          wet += oval(px, py + 0.7, rx + 1, 2.6);
-          st += oval(px, py, rx, 2.2);
-          sh += oval(px - 0.7, py - 0.8, rx * 0.55, 0.9);
-        }
-        crossing = `<path class="step-wet" d="${wet}"/><path class="step-stone" d="${st}"/><path class="stone-hi" d="${sh}"/>`;
-      } else if (hashStr(seed + '#stonebridge') % 2) {
-        // An old stone bridge: a cobbled deck between two low walls of stone blocks.
-        const len = hw + 9;
+      if (style !== 'brook' && hashStr(seed + '#stonebridge') % 2) {
+        const len = cr.len + 1;
         const bw = 9.5;
         const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
         let cobbles = '';
         for (let a = -len + 2; a < len - 1; a += 3.2) {
           for (let b = -bw + 2.6; b < bw - 2; b += 3.4) {
-            const [px, py] = [x + nx * a + tx * (b + (Math.round(a) % 2 ? 1.2 : 0)), y + ny * a + ty * (b + (Math.round(a) % 2 ? 1.2 : 0))];
-            cobbles += oval(px, py, 1.3, 0.8);
+            const off = Math.round(a) % 2 ? 1.2 : 0;
+            cobbles += oval(x + nx * a + tx * (b + off), y + ny * a + ty * (b + off), 1.3, 0.8);
           }
         }
         const wall = (b, w2) => `M${P(-len, b - w2)}L${P(len, b - w2)}L${P(len, b + w2)}L${P(-len, b + w2)}Z`;
@@ -4652,43 +4748,51 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
           `<path class="sbridge-top" d="${up(wall(-bw, 1.6), 5.5) + up(wall(bw, 1.6), 5.5)}"/>` +
           `<path class="sbridge-joint" d="${joints}"/>`;
       } else {
-        // A small wooden footbridge with planks and a hand rail on each side.
-        const len = hw + 8;
-        const bw = 9;
+        // A wooden footbridge with planks; over a brook a narrower one with a single rail.
+        const brook = style === 'brook';
+        const len = cr.len;
+        const bw = brook ? 7 : 9;
         const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
         let planks = '';
         for (let a = -len + 2.4; a < len; a += 2.8) planks += `M${P(a, -bw)}L${P(a, bw)}`;
         const rail = (b) => `M${P(-len, b)}L${P(len, b)}`;
         let posts = '';
-        for (const a of [-len + 1, -hw * 0.45, hw * 0.45, len - 1]) for (const b of [-bw, bw]) {
+        const sides = brook ? [bw] : [-bw, bw];
+        for (const a of [-len + 1, -hw * 0.45, hw * 0.45, len - 1]) for (const b of sides) {
           const [px, py] = [x + nx * a + tx * b, y + ny * a + ty * b];
           posts += `M${r1(px)} ${r1(py)}l0 -6`;
         }
         const up = (d) => d.replace(/(-?[\d.]+) (-?[\d.]+)/g, (m0, a, b) => `${a} ${r1(Number(b) - 6)}`);
-        // The side of the deck that faces us, for a little depth.
         const side = `M${P(-len, bw)}L${P(len, bw)}L${P(len, bw + 2.2)}L${P(-len, bw + 2.2)}Z`;
         crossing = `<path class="bridge-shadow" d="M${P(-hw, -bw)}L${P(hw, -bw)}L${P(hw, bw + 5)}L${P(-hw, bw + 5)}Z"/>` +
           `<path class="bridge-side" d="${side}"/><path class="bridge-deck" d="${deck}"/><path class="bridge-plank" d="${planks}"/>` +
-          `<path class="bridge-post" d="${posts}"/><path class="bridge-rail" d="${up(rail(-bw) + rail(bw))}"/>`;
+          `<path class="bridge-post" d="${posts}"/><path class="bridge-rail" d="${up(sides.map(rail).join(''))}"/>`;
       }
-    } else if (season === 'summer' || season === 'spring') {
-      // Water lilies drift near the banks of the wide rivers.
+    }
+    if (style !== 'brook' && (season === 'summer' || season === 'spring')) {
+      // Water lilies drift near the banks of the wide rivers, away from the bridge.
       let flower = '';
       for (let i = 0; i < 4; i++) {
         const k = 4 + Math.floor(rnd() * (n - 8));
         const [x, y] = centre[k];
+        if (Math.abs(x - cr.x) < 34) continue;
         const [nx, ny] = normal(k);
         const off = halfAt(k) * (rnd() < 0.5 ? 0.45 : -0.45);
         const px = x + nx * off;
         const py = y + ny * off;
         const r = 2.4 + rnd() * 1.2;
         lilies += `M${r1(px)} ${r1(py)}L${r1(px + r)} ${r1(py - r * 0.25)}A${r1(r)} ${r1(r * 0.6)} 0 1 1 ${r1(px + r * 0.6)} ${r1(py + r * 0.45)}Z`;
-        if (!i && season === 'summer') flower = `<circle class="lily-flower" cx="${r1(px - 0.4)}" cy="${r1(py - 0.8)}" r="1.4"/>`;
+        if (!flower && season === 'summer') flower = `<circle class="lily-flower" cx="${r1(px - 0.4)}" cy="${r1(py - 0.8)}" r="1.4"/>`;
       }
-      lilies = `<path class="lilypad" d="${lilies}"/>` + flower;
+      if (lilies) lilies = `<path class="lilypad" d="${lilies}"/>` + flower;
     }
+    // The path runs up to the bridge and on from its other end.
+    const toBridge = pathPts(y0 - 4, cr.far[1] - 8);
+    toBridge.push(cr.far);
+    const fromBridge = [cr.near].concat(pathPts(cr.near[1] + 8, y0 + h + 4));
+    const way = pathMarkup(toBridge, seed + '#a') + pathMarkup(fromBridge, seed + '#b');
     const life = riverLife(seed, style, centre, normal, halfAt, n, season);
-    return `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
+    return way + `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
       `<path class="bank-wet" d="${ribbon(1.3, 1)}"/>` +
       `<path class="water-fill" d="${ribbon(0, 1)}"/>` +
       `<path class="water-deep" d="${ribbon(-3.5, 0.75)}"/>` +
@@ -4787,8 +4891,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   function riverExtras(seed) {
     const plan = riverPlan(seed);
     const out = [];
-    if (plan.style === 'brook') out.push('Trittsteinen');
-    else if (plan.style === 'bridge') out.push(hashStr(seed + '#stonebridge') % 2 ? 'Steinbrücke' : 'Holzbrücke');
+    out.push(plan.style === 'brook' ? 'Holzsteg' : hashStr(seed + '#stonebridge') % 2 ? 'Steinbrücke' : 'Holzbrücke');
     const word = { hut: 'Angelhütte', mill: 'Wassermühle', boat: 'Ruderboot', jetty: 'Bootssteg', heron: 'Graureiher' };
     for (const k of [plan.main, plan.second]) if (!out.includes(word[k])) out.push(word[k]);
     return out;
@@ -5865,61 +5968,71 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // back, some in front, and never in lines. Every spot is fixed by its day, so the
     // forest looks the same each time it opens.
     const placed = [];
-    const radius = (it) => it.type === 'tree' ? 15 + levelFor(it.sec) * 4.4
-      : it.type === 'golden' ? 46 : it.type === 'milestone' ? 54 : it.type === 'month' ? 30 : it.type === 'family' ? 26 : 15;
-    // How tall each thing stands, to keep animals and signs from vanishing behind a tree.
-    const tallness = (it) => it.type === 'tree' ? 24 + levelFor(it.sec) * 10.5
-      : it.type === 'golden' ? 115 : it.type === 'milestone' ? 220 : it.type === 'month' ? 30 : it.type === 'family' ? 34 : 22;
+    // The space each thing takes in the picture: half its width and its height.
+    const HALF = { laub: [8, 4.8], kirsche: [8, 4.8], birke: [6, 3.2], tanne: [6, 2.8], kiefer: [6, 3.6], weide: [8, 4.6] };
+    const sizeOf = (it) => {
+      if (it.type === 'tree') {
+        const L = levelFor(it.sec);
+        const [a, k] = HALF[speciesFor(it.key)] || HALF.laub;
+        return [a + L * k, 14 + L * 10.5];
+      }
+      return it.type === 'golden' ? [58, 132] : it.type === 'milestone' ? [52, 225] : it.type === 'month' ? [30, 34]
+        : it.type === 'family' ? [26, 36] : [14, 22];
+    };
     const small = (it) => it.type === 'animal' || it.type === 'month' || it.type === 'family';
+    const overlap = (ax0, ax1, ay0, ay1, bx0, bx1, by0, by1) =>
+      Math.max(0, Math.min(ax1, bx1) - Math.max(ax0, bx0)) * Math.max(0, Math.min(ay1, by1) - Math.max(ay0, by0));
     let y = VISTA_H - 26;
     let glade = null;
     let gladeNo = 0;
     let lastRiver = false;
+    let riverEnd = null;
     const openGlade = () => {
-      glade = { y0: y, cursor: y + 24, items: [], trees: 0, no: gladeNo++, afterRiver: lastRiver };
+      glade = { y0: y, cursor: y + 14, items: [], trees: 0, no: gladeNo++, afterRiver: lastRiver, pathFrom: lastRiver ? riverEnd : null };
     };
     const place = (it) => {
       if (!glade) openGlade();
       const rnd = mulberry32(hashStr((it.key || '') + '#spot' + it.type + (it.kind || '') + (it.hours || '')));
-      const r = radius(it);
-      const h = tallness(it);
-      const ry = 10 + r * 0.32;
+      const [hw0, h] = sizeOf(it);
+      const hw = hw0 * 0.85;
+      const area = hw * 2 * h;
       let best = null;
-      let bestScore = -1;
-      const tries = it.type === 'month' ? 6 : 14;
+      let bestScore = -1e9;
+      const tries = it.type === 'month' ? 8 : 22;
       for (let k = 0; k < tries; k++) {
-        const edge = it.type === 'golden' ? 62 : it.type === 'milestone' ? 70 : it.type === 'family' ? 36 : r * 0.75 + 6;
+        const edge = Math.min(190, hw0 + 4);
         let x = edge + rnd() * (400 - edge * 2);
-        if (it.type === 'month') x = rnd() < 0.5 ? 40 + rnd() * 30 : 330 + rnd() * 30;
-        // Just below a river big trees stand a little back from the water, so their crowns
-        // reach over the bank but do not cover the river.
-        const by = Math.max(glade.y0 + 16 + ry * 0.4 + (glade.afterRiver ? h * 0.34 : 0), glade.cursor + (rnd() - 0.45) * 30);
-        let score = 9;
+        // Month signs stand at the edge, alternately left and right.
+        if (it.type === 'month') x = pathX(glade.cursor) + (Number(it.key.slice(5, 7)) % 2 ? -1 : 1) * (PATH_W / 2 + 26 + rnd() * 6);
+        // Below a river, trees stand back far enough that their crowns end at the bank.
+        const minBy = glade.afterRiver && !small(it) ? glade.y0 + 20 + h * 0.95 : glade.y0 + 12 + h * 0.12;
+        const by = Math.max(minBy, Math.max(minBy - 10, glade.cursor) + (rnd() - 0.3) * 60);
+        const cx0 = x - hw;
+        const cx1 = x + hw;
+        const cy0 = by - h;
+        let crowd = 0;
+        let nearest = 999;
         for (const o of glade.items) {
-          const dy = Math.abs(by - o.y);
-          if (dy > 90) continue;
-          const dx = Math.abs(x - o.x);
-          const sx = dx / ((r + o.r) * 0.82);
-          const sy = dy / (ry + o.ry);
-          score = Math.min(score, Math.max(sx, sy));
-          // Whatever stands in front must not hide what stands behind it: an animal or a
-          // sign not at all, a tree not completely.
-          const [f, fy, fh, fr, b, bySpot, bh, br] = by > o.y ? [it, by, h, r, o.it, o.y, o.h, o.r] : [o.it, o.y, o.h, o.r, it, by, h, r];
-          if (dx < (small(b) ? fr * 1.05 + br * 0.5 : fr * 0.75 + br * 0.4)) {
-            const coverTop = fy - fh;
-            if (small(b) && coverTop < bySpot) score = Math.min(score, 0.15);
-            else if (!small(b) && !small(f) && coverTop < bySpot - bh * 0.85 && dx < fr * 0.5) score = Math.min(score, 0.3);
-          }
+          if (Math.abs(by - o.y) > 260) continue;
+          const tree = !small(o.it);
+          const f = overlap(cx0, cx1, cy0, by, o.x - o.hw, o.x + o.hw, o.y - o.h, o.y) / Math.min(area, o.area);
+          // Something small standing behind must not be hidden at all.
+          const hidden = (small(o.it) && o.y < by) || (small(it) && by < o.y);
+          crowd += Math.pow(f, 1.4) * (hidden ? 5 : 1);
+          // Neighbours standing at the same depth would make a line: stagger them.
+          if (!small(it) && !small(o.it) && Math.abs(x - o.x) < 170) crowd += 0.22 * Math.max(0, 1 - Math.abs(by - o.y) / 22);
+          if (tree || small(it)) nearest = Math.min(nearest, Math.hypot((x - o.x) / 1.4, by - o.y));
         }
-        // Small preference for the open middle over the very edges.
-        score -= Math.abs(x - 200) / 2000;
+        // No trunk stands on the path.
+        if (!small(it) && Math.abs(x - pathX(by)) < PATH_W / 2 + hw0 * 0.3 + 4) crowd += 3;
+        const score = -crowd - Math.abs(by - glade.cursor) / 600 + Math.min(1, nearest / 150) * 0.22;
         if (score > bestScore) { bestScore = score; best = [x, by]; }
       }
-      glade.items.push({ it, x: best[0], y: best[1], r, ry, h });
+      glade.items.push({ it, x: best[0], y: best[1], hw, h, area });
       if (it.type === 'tree' || it.type === 'golden' || it.type === 'milestone') glade.trees++;
-      // The edge of the forest moves down a little with every tree, more for big ones.
-      const step = it.type === 'animal' || it.type === 'family' ? 3 : it.type === 'month' ? 6 : 8 + r * 0.5;
-      glade.cursor += step * (0.6 + rnd() * 0.8);
+      // The edge of the forest moves down with every thing placed, by how much room it takes.
+      const step = Math.min(60, area / (400 * 0.44));
+      glade.cursor += step * (0.65 + rnd() * 0.7);
     };
     // A glade ends: it is cut into strips that are drawn as the forest scrolls into view.
     const closeGlade = () => {
@@ -5927,7 +6040,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const g = glade;
       g.items.sort((p, q) => p.y - q.y);
       const lastY = g.items[g.items.length - 1].y;
-      const bottom = lastY + 16;
+      const bottom = lastY + 10;
       let t0 = g.y0;
       let idx = 0;
       let strip = 0;
@@ -5952,9 +6065,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const make = () => {
         let body = '';
         // Rolling ground: a rise along the strip's lower edge, a different shape each time.
-        body += moundMarkup(bottom - 10, g.no + strip, seed);
+        body += patchMarkup(seed, top, bottom);
         const trees = members.filter((m) => m.it.type === 'tree').length;
         body += grassMarkup(Math.round((grassTotal / totalTrees) * Math.max(1, trees)) + 4, seed, top + 6, bottom + 2);
+        body += pathMarkup(pathPts(Math.max(top - 3, g.pathFrom || -1e9), bottom + 3), seed);
         body += airMarkup(seed, top, bottom - 10, 3);
         const weather = weatherNow();
         if (weather === 'rain' || weather === 'rainbow') body += puddleMarkup(seed, bottom - 10, weather === 'rain');
@@ -5966,7 +6080,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         for (let k = 0; k < 24 && got < want; k++) {
           const fx = 10 + rs() * 380;
           const fy = top + 8 + rs() * (bottom - top - 8);
-          if (g.items.some((m) => Math.abs(m.x - fx) < m.r * 0.8 + 10 && Math.abs(m.y - fy) < m.ry + 8)) continue;
+          if (g.items.some((m) => Math.abs(m.x - fx) < m.hw * 0.7 + 10 && fy < m.y + 8 && fy > m.y - Math.min(m.h, 40))) continue;
+          if (Math.abs(fx - pathX(fy)) < PATH_W / 2 + 14) continue;
           body += floorThing(rs(), fx, fy, 0.8 + rs() * 0.4, rs);
           got++;
         }
@@ -5996,6 +6111,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const top = y - 6;
       const bottom = top + h;
       placed.push({ top, bottom, make: () => `<g class="pick" data-info="r|${key}">${riverMarkup(top, h, key)}</g>` });
+      // Below the river, the path goes on from the end of its bridge.
+      riverEnd = riverCrossing(top, h, key).near[1] + 8;
       y = bottom - 22;
       lastRiver = true;
     };
@@ -6158,6 +6275,23 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   }
 
   // A wide, low rise of ground; alternate rows bend the other way.
+  // Soft patches of lighter and darker ground, so the meadow is not one flat colour,
+  // without lines running across the forest.
+  function patchMarkup(seed, top, bottom) {
+    const rnd = mulberry32(hashStr(seed + '#patch'));
+    let out = '';
+    const n = 2 + Math.floor(rnd() * 2);
+    for (let i = 0; i < n; i++) {
+      const rx = 60 + rnd() * 110;
+      const ry = Math.min(18 + rnd() * 16, (bottom - top) / 2.2);
+      const cx = -20 + rnd() * 440;
+      const cy = top + ry + rnd() * Math.max(1, bottom - top - ry * 2);
+      const cls = rnd() < 0.5 ? 'patch' : 'patch alt';
+      out += `<ellipse class="${cls}" cx="${r1(cx)}" cy="${r1(cy)}" rx="${r1(rx)}" ry="${r1(ry)}"/>` +
+        `<ellipse class="${cls}" cx="${r1(cx)}" cy="${r1(cy + ry * 0.1)}" rx="${r1(rx * 0.72)}" ry="${r1(ry * 0.66)}"/>`;
+    }
+    return out;
+  }
   function moundMarkup(b, n, seed) {
     // Wide enough to reach both edges even when the row is scaled down for depth;
     // it runs down like a hillside, and the next row's rise covers it. Each row's rise
@@ -6410,6 +6544,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       `<g class="mid"><path class="kg" d="${vBand(vHill, 196)}"/>${layer('mid')}</g>` +
       `<path class="vista-meadow" d="${vBand(vMeadow, 210)}"/>` +
       `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g></g></g>`;
+    // The footpath leaves the forest and winds off across the meadow towards the hills.
+    out += pathMarkup(pathPts(166, 214), 'aussicht');
     return out + airMarkup('aussicht', 140, 196, 4);
   }
 
