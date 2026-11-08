@@ -905,6 +905,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .willow-shade { fill: color-mix(in srgb, var(--wl) 78%, #0e2008); }
 .willow-hi { fill: color-mix(in srgb, var(--wl) 80%, var(--light-mix)); }
 .willow-hi2 { fill: color-mix(in srgb, var(--wl) 76%, var(--light-mix)); }
+.willow-foot { fill: color-mix(in srgb, var(--wl) 74%, #0e2008); opacity: 0.55; }
+.willow-strand { fill: none; stroke: color-mix(in srgb, var(--wl) 72%, var(--light-mix)); stroke-width: 0.9; stroke-linecap: round; opacity: 0.55; }
 .willow-vein { fill: none; stroke: color-mix(in srgb, var(--wl) 70%, #0e2008); stroke-width: 0.6; stroke-linecap: round; opacity: .7; }
 .willow-twig { fill: none; stroke: var(--willow-twig); stroke-width: 0.8; stroke-linecap: round; }
 .willow-twig.back { stroke: color-mix(in srgb, var(--willow-twig) 78%, var(--bark)); }
@@ -1034,7 +1036,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
 /* Spring: fresh leaves, blossoms on every third tree, green grass with flowers, melting snow patches */
 .app[data-season="spring"] { --t0: var(--spr-leaf-1); --t1: var(--spr-leaf-2); --t2: var(--spr-blossom); }
-.app[data-season="spring"] .birch { --t2: var(--spr-leaf-2); }
+.app[data-season="spring"] .birch { --t2: color-mix(in srgb, var(--spr-leaf-2) 80%, #e4f59a); }
 .app[data-season="spring"] .blade { stroke: var(--spr-grass); }
 .app[data-season="spring"] .flower { fill: var(--spr-flower); }
 .app[data-season="spring"] .flower.alt { fill: var(--spr-blossom); }
@@ -1045,6 +1047,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 
 /* Summer: deep full crowns, poppies and cornflowers in the grass, bright sky, white water lilies */
 .app[data-season="summer"] { --t0: var(--sum-leaf-1); --t1: var(--sum-leaf-2); --t2: var(--sum-leaf-3); }
+/* Birch leaves are small and light: a fresher, yellower green than the other trees. */
+.app[data-season="summer"] .birch { --t2: color-mix(in srgb, var(--sum-leaf-3) 72%, #d8ee86); }
 .app[data-season="summer"] .blade { stroke: var(--sum-grass); }
 .app[data-season="summer"] .flower { fill: var(--sum-poppy); }
 .app[data-season="summer"] .flower.alt { fill: var(--sum-corn); }
@@ -1338,6 +1342,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .reed { fill: none; stroke: var(--leaf-2); stroke-width: 1.2; stroke-linecap: round; }
 .cattail { fill: var(--bark); }
 .stone { fill: var(--stone); }
+.litter.t0 { fill: var(--t0); }
+.litter.t1 { fill: var(--t1); }
+.litter.t2 { fill: var(--t2); }
+.litter { opacity: 0.85; }
 .stone-hi { fill: color-mix(in srgb, var(--stone) 62%, #fff); }
 .step-wet { fill: color-mix(in srgb, var(--water) 70%, #1d4250); opacity: 0.55; }
 .step-stone { fill: color-mix(in srgb, var(--stone) 92%, #3c4a50); }
@@ -2884,6 +2892,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     // branches with sky between them; the widest are high up, like an umbrella.
     const count = n + Math.round(old);
     const zone = h * (1 - cs);
+    // Pads to draw: young pines grow in whorls, a tuft at each end of a pair of branches
+    // with the trunk showing between the tiers; older ones carry single pads on long,
+    // crooked branches, alternating sides.
+    const pads = [];
     for (let i = 0; i < count; i++) {
       const t = count > 1 ? i / (count - 1) : 1;
       const topPad = i === count - 1;
@@ -2892,18 +2904,32 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const rx = (youngRx + (oldRx - youngRx) * old) * (0.88 + rnd() * 0.24);
       const ty = cs + (1 - cs) * (0.05 + t * 0.85) + (topPad ? 0 : (rnd() - 0.5) * 0.05 * old);
       const [sx, sy] = stemAt(Math.min(0.97, ty));
+      const spacing = zone / Math.max(1, count - 1);
+      if (old < 0.7 && !topPad) {
+        // A whorl: two tufts out on either side, a smaller one at the stem.
+        const spread = rx * (0.52 + 0.3 * old) * (0.9 + rnd() * 0.2);
+        const prx = rx * (0.56 + 0.1 * t - 0.12 * old);
+        const pry = Math.max(3, Math.min(prx * 0.5, spacing * 0.58));
+        const lift = (rnd() - 0.5) * 2;
+        for (const sd of [-1, 1]) pads.push([sx + sd * spread, sy - pry * 0.1 + (sd > 0 ? lift : -lift), prx, pry, false, sx, sy]);
+        if (rx > 8) pads.push([sx, sy - pry * 0.5, rx * 0.34, pry * 0.8, false, sx, sy]);
+        continue;
+      }
       const side = topPad ? (rnd() - 0.5) * 0.3 : (i % 2 ? side0 : -side0);
       const out = reach * (0.3 + 0.38 * t + rnd() * 0.14) * old;
       const x0 = sx + side * out;
       const y0 = sy - zone * 0.04 * old;
-      const spacing = zone / Math.max(1, count - 1);
       // Young pines are one bushy cone, so their pads overlap; old ones have sky between.
-      const ry = Math.min(rx * (0.82 - 0.3 * old), Math.max(3.6, rx * 0.34 * old, spacing * (1.3 - 0.7 * old) + rx * 0.14));
+      const ry = Math.min(rx * (0.82 - 0.3 * old), Math.max(3.6, rx * 0.34 * old, spacing * (1.3 - 0.7 * old) + rx * 0.14), old > 0.4 ? spacing * 0.8 + 2 : 99);
+      pads.push([x0, y0, rx, ry, topPad, sx, sy]);
+    }
+    for (const [x0, y0, rx, ry, topPad, sx, sy] of pads) {
       // The branch out to an offset pad, with a kink.
-      if (old > 0.15 && Math.abs(x0 - sx) > 4) {
+      if (Math.abs(x0 - sx) > 3) {
         const kx = sx + (x0 - sx) * 0.55;
-        const ky = sy + 2 - Math.abs(x0 - sx) * 0.05 - (rnd() - 0.5) * 4;
-        branches += band(sx, sy + ry * 0.6, kx, ky, w * 0.42, w * 0.3) + band(kx, ky, x0, y0 + ry * 0.2, w * 0.3, w * 0.16);
+        const ky = sy + 2 - Math.abs(x0 - sx) * 0.05 - (rnd() - 0.5) * 4 * old;
+        const bw = old > 0.15 ? w * 0.42 : Math.max(0.9, w * 0.3);
+        branches += band(sx, sy + ry * 0.6, kx, ky, bw, bw * 0.72) + band(kx, ky, x0, y0 + ry * 0.2, bw * 0.72, bw * 0.4);
       }
       // A pad: rounded tufts on top, a flat underside.
       // Many puffy tufts of different size make a cloud-like clump instead of a disc.
@@ -3075,61 +3101,111 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         `<path class="willow-twig front" d="${twigs.split('M').filter((x, i) => i % 3 === 1).map((x) => 'M' + x).join('')}"/></g>`;
     }
 
-    // The curtain, as long pointed streamers: a darker row behind the trunk, then the
-    // crown, then the lit streamers that spring from high up on the crown and fall.
-    const n = 7 + level * 3;
-    // Young willows are airy: narrower streamers with sky between them.
-    const wid = (rx * 2) / n * (level >= 4 ? 1.7 : 1.3 + level * 0.1);
-    let back = '';
-    let front = '';
-    let hi = '';
-    let veins = '';
-    for (let k = 0; k < n; k++) {
-      const x = cx + ((k + 0.5) / n * 2 - 1) * rx * 0.97;
-      const u = (x - cx) / rx;
-      const dir = u >= 0 ? 1 : -1;
-      // The curtain flares out like a bell toward the sides.
-      const drift = u * Math.abs(u) * rx * 0.3 + (rnd() - 0.5) * 2.5;
-      const bx = x + wid * 0.5;
-      if (bx < cx + rx * 0.97) back += willowLobe(bx, domeY(bx) + ry * 0.45, hemY(bx) + 2 + rnd() * 5, wid * 1.05, drift * 1.1);
-      const y0 = domeY(x) + ry * (0.12 + rnd() * 0.18);
-      const y1 = hemY(x) - (k % 2 ? 4 + level : 0) - rnd() * (3 + level);
-      // Leave the middle open on bigger trees so the trunk shows.
-      if (level >= 2 && Math.abs(u) < 0.2) {
-        front += willowLeaf(x, y0, y0 + ry * (1.5 + rnd() * 0.4), wid, drift * 0.5);
-        continue;
+    // The crown hangs in tiers of drooping tongues of foliage, laid like shingles: the top
+    // tier forms the dome, each lower tier hangs in front of the one above and a little
+    // further out, and the lowest falls to a fringe of thin tips near the ground. A darker
+    // curtain hangs behind the trunk, which shows where the front parts in the middle.
+    const Lx = L || 0.4;
+    const tongue = (x, y0, y1, wl, drift, rr) => {
+      const tipW = wl * 0.5;
+      const yr = y0 + wl * 0.42;
+      let d = `M${r1(x - wl / 2)} ${r1(yr)}`;
+      d += `C${r1(x - wl / 2)} ${r1(y0 - wl * 0.05)} ${r1(x + wl / 2)} ${r1(y0 - wl * 0.05)} ${r1(x + wl / 2)} ${r1(yr)}`;
+      d += `C${r1(x + wl / 2 + drift * 0.2)} ${r1(yr + (y1 - yr) * 0.45)} ${r1(x + drift + tipW / 2 + wl * 0.08)} ${r1(y1 - (y1 - yr) * 0.3)} ${r1(x + drift + tipW / 2)} ${r1(y1 - 2)}`;
+      const tips = Math.max(2, Math.round(tipW / (fineDetail ? 1.6 : 2.4)));
+      for (let i = 0; i < tips; i++) {
+        const xa = x + drift + tipW / 2 - tipW * ((i + 0.5) / tips);
+        const xb = x + drift + tipW / 2 - tipW * ((i + 1) / tips);
+        d += `L${r1(xa)} ${r1(y1 + rr() * 3.5 - 0.5)}L${r1(xb)} ${r1(y1 - 1.5 - rr() * 3)}`;
       }
-      const ww = wid * (0.95 + rnd() * 0.35);
-      front += willowLeaf(x, y0, y1, ww, drift);
-      if (dir * (L || 0.3) > 0 && Math.abs(u) > 0.2) hi += willowLeaf(x - dir * ww * 0.08, y0 + 2, y0 + (y1 - y0) * 0.7, ww * 0.4, drift * 0.7);
-      if (fineDetail && level >= 2) veins += `M${r1(x)} ${r1(y0 + ry * 0.3)}Q${r1(x + drift * 0.3)} ${r1((y0 + y1) / 2)} ${r1(x + drift * 0.9)} ${r1(y1 - 3)}`;
-      half = Math.max(half, Math.abs(x + drift - 100) + ww * 0.5);
+      d += `C${r1(x + drift - tipW / 2 - wl * 0.08)} ${r1(y1 - (y1 - yr) * 0.3)} ${r1(x - wl / 2 + drift * 0.2)} ${r1(yr + (y1 - yr) * 0.45)} ${r1(x - wl / 2)} ${r1(yr)}Z`;
+      return d;
+    };
+    // The half-width of the crown at height y: a dome on top, flaring a little below.
+    const widthAt = (y) => (y <= cy ? rx * Math.sqrt(Math.max(0.04, 1 - Math.pow((cy - y) / ry, 2))) : rx * (1 + 0.1 * Math.min(1.5, (y - cy) / ry)));
+    const R = level <= 2 ? 1 : level <= 4 ? 2 : level <= 6 ? 3 : 4;
+    const lobeW = level <= 1 ? 7 + level * 2.5 : 11 + level * 1.6;
+    const swing = Math.min(1, 0.35 + level * 0.15);
+    const gapW = level >= 3 ? rx * 0.2 : 0;
+    const gapY = forkY - (forkY - cy) * 0.2;
+    let back = '';
+    const rows = [];
+    let veins = '';
+    let lit = '';
+    let strands = '';
+    // The dark curtain behind the trunk.
+    {
+      const hwB = widthAt(cy + ry * 0.2) * 0.8;
+      const nB = Math.max(2, Math.round((hwB * 2) / lobeW));
+      for (let i = 0; i < nB; i++) {
+        const u = nB === 1 ? 0 : (i / (nB - 1)) * 2 - 1;
+        const x = cx + u * (hwB - lobeW * 0.4);
+        back += tongue(x, domeY(x) + ry * 0.45, hemY(x) - 5 - rnd() * 5, lobeW * 1.05, u * lobeW * 0.3 * swing, rnd);
+      }
     }
-
-    // The crown underneath the streamers: a lumpy dome a shade darker.
-    let mass = oval(cx, cy + ry * 0.2, rx * 0.92, ry * 0.78);
-    let massHi = '';
-    const m = 4 + Math.ceil(level / 2);
-    for (let i = 0; i < m; i++) {
-      const t = (i + 0.5) / m;
-      const a = -Math.PI * (0.1 + 0.8 * t);
-      const r = ry * (0.44 + rnd() * 0.14);
-      const x = cx + Math.cos(a) * rx * 0.62;
-      const y = cy + Math.sin(a) * ry * 0.6 + ry * 0.22;
-      mass += oval(x, y, r * 1.3, r * 0.85);
-      if (Math.cos(a) * (L || 0.4) > 0.05) massHi += oval(x + r * 0.3 * (L || 0.4), y - r * 0.4, r * 0.7, r * 0.34);
-      top = Math.min(top, y - r * 0.85);
+    for (let j = 0; j < R; j++) {
+      const t = R === 1 ? 1 : j / (R - 1);
+      const y0 = R === 1 ? cy - ry * 0.9 : cy - ry * 0.98 + t * ry * (R === 2 ? 0.8 : 1.5);
+      const hw = R === 1 ? rx * 0.8 : widthAt(y0 + lobeW * 0.3) * (0.96 + t * 0.06);
+      const n = Math.max(1, Math.round((hw * 2) / lobeW));
+      const wl = Math.min(lobeW * 1.35, (hw * 2) / n * 1.18);
+      let mass = '';
+      let rim = '';
+      let foot = '';
+      for (let i = 0; i < n; i++) {
+        const u = n === 1 ? 0 : (i / (n - 1)) * 2 - 1;
+        // Every other tier sits half a tongue across, like roof tiles.
+        const x = cx + u * Math.max(0, hw - wl * 0.45) + (j % 2 ? wl * 0.18 : -wl * 0.18) * (n > 1 ? 1 : 0) + (rnd() - 0.5) * 2;
+        const yTop = Math.max(y0, domeY(x) - 1) + (rnd() - 0.5) * 2.5;
+        let y1 = j === R - 1 ? hemY(x) - rnd() * (2 + level * 0.6) : yTop + (hemY(x) - yTop) * (0.5 + 0.3 * t) + rnd() * 4;
+        if (gapW && Math.abs(x - cx) < gapW + wl * 0.3) y1 = Math.min(y1, gapY + rnd() * 4);
+        if (y1 - yTop < wl * 0.9) y1 = yTop + wl * 0.9;
+        const drift = (u * Math.abs(u) * wl * (0.35 + t * 0.4) + (rnd() - 0.5) * 1.5) * swing;
+        const tg = tongue(x, yTop, y1, wl, drift, rnd);
+        mass += tg;
+        rim += tongue(x - Lx * 0.6, yTop + 1.8, y1 + 1.5, wl * 1.06, drift, rnd);
+        // The lower part of each tongue lies in its own shade, so the next tier stands out.
+        foot += tongue(x + drift * 0.35, yTop + (y1 - yTop) * 0.5, y1 - 1, wl * 0.78, drift * 0.65, rnd);
+        half = Math.max(half, Math.abs(x + drift - 100) + wl * 0.55);
+        top = Math.min(top, yTop);
+        // Light on the sunny shoulder of each tongue, and a few hanging twigs inside.
+        const side = Lx > 0 ? 1 : -1;
+        // A lit cap on top of each tongue, towards the sun.
+        const lx = x + side * wl * 0.12;
+        lit += `M${r1(lx - wl * 0.34)} ${r1(yTop + wl * 0.3)}Q${r1(lx)} ${r1(yTop - wl * 0.02)} ${r1(lx + wl * 0.34)} ${r1(yTop + wl * 0.3)}Q${r1(lx)} ${r1(yTop + wl * 0.14)} ${r1(lx - wl * 0.34)} ${r1(yTop + wl * 0.3)}Z`;
+        if (level >= 2) strands += `M${r1(x + side * wl * 0.28)} ${r1(yTop + wl * 0.4)}Q${r1(x + side * wl * 0.3 + drift * 0.2)} ${r1(yTop + (y1 - yTop) * 0.5)} ${r1(x + drift + side * wl * 0.12)} ${r1(y1 - 4)}`;
+        const ns = fineDetail ? (level >= 3 ? 3 : 2) : 1;
+        for (let k = 0; k < ns; k++) {
+          const xs = x + ((k + 0.5) / ns - 0.5) * wl * 0.6;
+          const ys = yTop + wl * 0.35 + rnd() * 2;
+          const ye = y1 - 2 - rnd() * 4;
+          if (ye - ys < 5) continue;
+          veins += `M${r1(xs)} ${r1(ys)}Q${r1(xs + drift * 0.15)} ${r1(ys + (ye - ys) * 0.6)} ${r1(x + drift + (xs - x) * 0.45)} ${r1(ye)}`;
+        }
+      }
+      rows.push(`<path class="willow-shade" d="${rim}"/><path class="willow-mass" d="${mass}"/><path class="willow-foot" d="${foot}"/>`);
+    }
+    // A young willow is a whip with a few long, thin shoots hanging from it.
+    let whips = '';
+    if (level <= 1) {
+      for (const [ex, ey] of ends) {
+        const dir = ex >= cx ? 1 : -1;
+        for (let k = 0; k < 2; k++) {
+          const x = ex + dir * (3 + k * 3);
+          whips += `M${r1(ex)} ${r1(ey)}Q${r1(x)} ${r1(ey - 4)} ${r1(x + dir * 1.5)} ${r1(ey + 6 + k * 3)}`;
+        }
+      }
     }
     return `<g data-top="${r1(top - 18)}" data-half="${r1(half)}" class="willow${tone}">` +
       shadowMarkup(14 + rx * 0.95) +
       `<path class="willow-back" d="${back}"/>` +
       `<g class="wood-g"><path class="wood" d="${wood}"/>${level >= 1 ? rootMarkup(w) : ''}` +
       (furrows ? `<path class="bark-line" d="${furrows}"/>` : '') + `</g>` +
-      `<path class="willow-shade" d="${mass}"/>` +
-      `<path class="willow-hi2" d="${massHi}"/>` +
-      `<path class="willow-mass" d="${front}"/>` +
-      `<path class="willow-hi" d="${hi}"/>` +
-      (veins ? `<path class="willow-vein" d="${veins}"/>` : '') + `</g>`;
+      (whips ? `<path class="willow-twig back" d="${whips}"/>` : '') +
+      rows.join('') +
+      `<path class="willow-vein" d="${veins}"/>` +
+      `<path class="willow-strand" d="${strands}"/>` +
+      `<path class="willow-hi2" d="${lit}"/></g>`;
   }
 
   function buildTree(minutes, key) {
@@ -3572,9 +3648,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       branches += `M${r1(x0)} ${r1(y0)}Q${r1(cx)} ${r1(cy)} ${r1(ex)} ${r1(ey)}`;
       const at = (t) => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * ex, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * ey];
       // Birch leaves are small and the crown is airy: smaller clumps, more hanging strands.
-      const r = (2.7 + level * 0.4) * (0.85 + rnd() * 0.3);
+      const r = (2.4 + level * 0.32) * (0.85 + rnd() * 0.3);
       // Leaves hang a little below the branch, more of them towards its end.
-      const spots = !fineDetail ? (level >= 4 ? [0.5, 0.72, 0.95] : [0.6, 0.95]) : level >= 4 ? [0.38, 0.58, 0.76, 0.94] : [0.5, 0.75, 0.97];
+      const spots = !fineDetail ? (level >= 4 ? [0.46, 0.66, 0.84, 1] : [0.6, 0.95]) : level >= 4 ? [0.32, 0.48, 0.62, 0.76, 0.88, 1] : [0.45, 0.66, 0.84, 1];
       for (const t of spots) {
         const [x, y] = at(t);
         cluster(x + (rnd() - 0.5) * 3, y + r * (0.35 + rnd() * 0.45), r * (0.75 + t * 0.35) * (0.85 + rnd() * 0.3));
@@ -4104,9 +4180,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     hedgehog: `
       <ellipse class="a-shadow" cx="20" cy="29.8" rx="15" ry="1.5"/>
       <path class="leg-dark" d="M11.6 25.6L11 29.6M15 26L15.2 29.6M25 26L25.4 29.6M28.4 25.4L29 29.6"/>
-      <path class="animal-dark" d="M4 26L2.6 22.4L5.6 21L4.6 17L8.8 16.6L8.6 12.4L12.8 13.2L13.6 9.2L17.6 11.2L19.8 8.2L22.8 11.2L26 9.4L26.8 13.4L30.2 12.6L30 16.6L33.4 17.6L33.6 22.6L32.8 26.2Q18 28 4 26Z"/>
-      <path class="spines" d="M7 23L6 19.5M10.5 20L10 15.5M14.5 17L14.6 12.4M19 15.5L19.8 10.8M23 16L24.6 12M27 18L28.8 14.6M30.4 21L32.4 18.4M9 25L8.2 22M13 23.4L12.6 19.6M17.4 21.6L17.6 17.4M21.6 21.4L22.6 17.6M25.6 22.6L27 19.4"/>
-      <path class="spine-tips" d="M6 19.5l-.3-1M10 15.5l-.1-1M14.6 12.4v-1M19.8 10.8l.2-1M24.6 12l.4-.9M28.8 14.6l.5-.8M32.4 18.4l.6-.7"/>
+      <path class="animal-dark" d="M4.1 27.2L3.5 23.7L1.0 25.0L4.1 22.4L1.3 23.4L4.6 21.0L1.1 21.6L5.2 19.7L2.3 20.2L5.9 18.5L2.5 18.5L6.8 17.3L3.6 17.1L7.8 16.3L4.9 15.9L8.9 15.3L5.7 14.3L10.1 14.5L7.4 13.6L11.4 13.8L8.6 12.2L12.8 13.2L10.4 11.7L14.3 12.7L12.0 11.0L15.7 12.4L13.6 10.2L17.3 12.3L15.3 9.4L18.8 12.3L17.2 10.0L20.3 12.4L18.9 9.9L21.8 12.7L20.8 9.6L23.2 13.2L22.7 9.7L24.6 13.8L24.3 10.6L25.9 14.5L25.9 11.5L27.1 15.3L27.8 11.8L28.2 16.3L28.7 13.6L29.2 17.3L30.6 14.1L30.1 18.5L31.3 15.8L30.8 19.7L32.2 17.3L31.4 21.0L33.1 18.7L31.9 22.4L30.9 27.4Q18 28.6 4.1 27.2Z"/>
+      <path class="spines" d="M7.9 21.3L4.5 23.3M8.4 20.5L4.8 22.2M9.7 18.7L5.9 19.6M10.5 18.0L6.6 18.5M11.7 17.1L7.7 17.1M13.4 16.2L9.5 15.6M14.7 15.7L10.9 14.7M16.9 15.3L13.3 13.6M18.5 15.3L15.3 13.1M19.9 15.4L17.0 12.8M20.9 15.6L18.3 12.8M22.7 16.3L20.7 13.1M24.2 17.1L22.8 13.6M25.3 17.8L24.2 14.2M26.5 19.0L26.1 15.3M27.5 20.3L27.8 16.6M28.0 21.2L28.6 17.5M28.6 22.7L29.8 19.1M10.4 22.2L7.1 23.5M11.0 21.1L7.6 22.0M12.1 20.0L8.6 20.2M13.1 19.2L9.5 18.9M14.5 18.4L11.1 17.5M16.4 17.9L13.3 16.2M17.4 17.7L14.5 15.8M19.7 17.9L17.5 15.3M21.0 18.2L19.3 15.3M22.1 18.7L20.9 15.6M23.8 19.9L23.5 16.6M24.7 20.8L24.9 17.5M25.7 22.4L26.7 19.2M26.1 23.2L27.5 20.2M12.7 23.2L9.7 24.0M13.8 21.9L10.6 21.7M14.9 21.0L12.0 20.1M16.8 20.3L14.3 18.5M18.3 20.2L16.4 17.9M20.0 20.5L18.9 17.8M21.5 21.2L21.3 18.3"/>
+      <path class="spine-tips" d="M4.5 23.3l-1.0 0.6M4.8 22.2l-1.1 0.5M5.9 19.6l-1.2 0.3M6.6 18.5l-1.2 0.2M7.7 17.1l-1.2 0.0M9.5 15.6l-1.2 -0.2M10.9 14.7l-1.1 -0.3M13.3 13.6l-1.1 -0.5M15.3 13.1l-1.0 -0.7M17.0 12.8l-0.9 -0.8M18.3 12.8l-0.8 -0.8M20.7 13.1l-0.6 -1.0M22.8 13.6l-0.4 -1.0M24.2 14.2l-0.3 -1.1M26.1 15.3l-0.1 -1.1M27.8 16.6l0.1 -1.1M28.6 17.5l0.2 -1.1M29.8 19.1l0.4 -1.1M7.1 23.5l-1.0 0.4M7.6 22.0l-1.0 0.3M8.6 20.2l-1.1 0.1M9.5 18.9l-1.1 -0.1M11.1 17.5l-1.0 -0.3M13.3 16.2l-0.9 -0.5M14.5 15.8l-0.9 -0.6M17.5 15.3l-0.6 -0.8M19.3 15.3l-0.5 -0.9M20.9 15.6l-0.4 -0.9M23.5 16.6l-0.1 -1.0M24.9 17.5l0.1 -1.0M26.7 19.2l0.3 -0.9M27.5 20.2l0.4 -0.9"/>
       <g class="a-sniff">
       <path class="hog-face" d="M28.6 17.2Q35.6 16.6 39.2 23.2Q36.4 26.6 29.6 26Z"/>
       <path class="animal-shade" d="M29.6 22.2Q33 25.2 38.6 23.8Q36 26.4 29.6 26Z"/>
@@ -4203,14 +4279,67 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // They are fixed per row, so the floor looks the same on every visit.
   function decorMarkup(seed, by) {
     const rnd = mulberry32(hashStr(seed + '#floor'));
-    const L = lightDir();
     const n = 2 + Math.floor(rnd() * 3);
     let out = '';
     for (let i = 0; i < n; i++) {
       const x = 12 + rnd() * 376;
       const y = by + (rnd() - 0.5) * 12;
-      const t = rnd();
-      const s = 0.8 + rnd() * 0.5;
+      out += floorThing(rnd(), x, y, 0.8 + rnd() * 0.5, rnd);
+    }
+    return out;
+  }
+  // Undergrowth where a row leaves a wide gap between its trees: a bush with ferns, or
+  // stones in the grass, or a patch of flowers, so the meadow never lies empty.
+  function undergrowth(seed, x0, x1, y) {
+    const rnd = mulberry32(hashStr(seed + '#under'));
+    const season = seasonNow();
+    let out = '';
+    const width = x1 - x0;
+    const n = width > 120 ? 2 : 1;
+    for (let i = 0; i < n; i++) {
+      const x = x0 + width * ((i + 0.5) / n) + (rnd() - 0.5) * width * 0.2;
+      const yy = y + (rnd() - 0.5) * 8;
+      const pick = rnd();
+      if (pick < 0.4) {
+        out += floorThing(0.1, x, yy, 0.9 + rnd() * 0.4, rnd) + floorThing(0.7, x + 12 + rnd() * 4, yy + 2, 0.8, rnd);
+      } else if (pick < 0.62) {
+        out += floorThing(0.45, x, yy, 1 + rnd() * 0.3, rnd) + floorThing(0.45, x + 9, yy + 2, 0.6 + rnd() * 0.2, rnd) + floorThing(0.9, x - 8, yy + 1, 0.8, rnd);
+      } else if (pick < 0.84 && season !== 'winter') {
+        // A patch of flowers on short stalks.
+        let stalks = '';
+        let heads = '';
+        for (let k = 0; k < 6; k++) {
+          const fx = x + (rnd() - 0.5) * 22;
+          const fy = yy + (rnd() - 0.5) * 5;
+          const hgt = 5 + rnd() * 5;
+          stalks += `M${r1(fx)} ${r1(fy)}q${r1((rnd() - 0.5) * 2)} ${r1(-hgt * 0.5)} ${r1((rnd() - 0.5) * 1.5)} ${r1(-hgt)}`;
+          heads += `<circle class="flower${rnd() < 0.3 ? ' alt' : ''}" cx="${r1(fx)}" cy="${r1(fy - hgt)}" r="${r1(1.5 + rnd() * 0.7)}"/>`;
+        }
+        out += `<path class="flower-stalk" d="${stalks}"/>${heads}` + floorThing(0.9, x + 4, yy + 2, 0.7, rnd);
+      } else {
+        out += floorThing(0.7, x - 5, yy, 1, rnd) + floorThing(0.7, x + 6, yy + 1, 0.8, rnd) + floorThing(0.9, x, yy + 2, 0.9, rnd);
+      }
+    }
+    return out;
+  }
+  // Leaves fallen around the foot of a tree in autumn.
+  function litterMarkup(seed, x, y, spread) {
+    const rnd = mulberry32(hashStr(seed + '#litter'));
+    let d = ['', '', ''];
+    const n = 5 + Math.round(spread / 6);
+    for (let i = 0; i < n; i++) {
+      const a = rnd() * Math.PI * 2;
+      const r = spread * (0.3 + rnd() * 0.7);
+      const lx = x + Math.cos(a) * r;
+      const ly = y + Math.sin(a) * r * 0.18 + 1;
+      d[i % 3] += oval(lx, ly, 1.5 + rnd() * 0.6, 0.8);
+    }
+    return d.map((p, i) => `<path class="litter t${i}" d="${p}"/>`).join('');
+  }
+  function floorThing(t, x, y, s, rnd) {
+    const L = lightDir();
+    let out = '';
+    {
       if (t < 0.34) {
         const tone = ' t' + Math.floor(rnd() * 3);
         let sh = '';
@@ -5560,18 +5689,33 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
           const total = row.items.reduce((sum, it) => sum + room(it), 0);
           const span = Math.min(336, total * 96);
           let at = 200 - span / 2;
-          row.items.forEach((it, c) => {
+          const spots = row.items.map((it, c) => {
             const rnd = mulberry32(hashStr(it.key + '#pos' + c));
             const w = (room(it) / total) * span;
             const slotX = at + w / 2;
             at += w;
             const jitter = it.type === 'tree' ? 16 : 8;
-            const cx = slotX + shift + (rnd() - 0.5) * jitter;
-            const baseY = top + row.h - 8 + (rnd() - 0.5) * 18;
+            return { it, rnd, cx: slotX + shift + (rnd() - 0.5) * jitter, baseY: top + row.h - 8 + (rnd() - 0.5) * 18 };
+          });
+          // Fill wide gaps (and the open ends of the row) with undergrowth.
+          const half = (sp) => (sp.it.type === 'tree' ? 18 + levelFor(sp.it.sec) * 3.4 : 22);
+          let from = 6;
+          spots.forEach((sp, c) => {
+            const to = sp.cx - half(sp);
+            if (to - from > 46) body += undergrowth(row.items[0].key + '#' + sr + '#' + c, from + 8, to - 8, top + row.h - 8);
+            from = sp.cx + half(sp);
+          });
+          if (394 - from > 46) body += undergrowth(row.items[0].key + '#' + sr + '#end', from + 8, 386, top + row.h - 8);
+          const fall = seasonNow() === 'autumn';
+          for (const { it, rnd, cx, baseY } of spots) {
             if (it.type === 'month') body += signMarkup(it.key, Math.max(34, Math.min(366, cx)), baseY);
             else if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, cx)), baseY);
-            else body += treeItem(it, cx, baseY, 0.9 + rnd() * 0.2);
-          });
+            else {
+              const sp = speciesFor(it.key);
+              if (fall && levelFor(it.sec) >= 2 && sp !== 'tanne' && sp !== 'kiefer') body += litterMarkup(it.key, cx, baseY, 10 + levelFor(it.sec) * 3);
+              body += treeItem(it, cx, baseY, 0.9 + rnd() * 0.2);
+            }
+          }
         }
         return `<g transform="translate(200 ${bottom}) scale(${scale}) translate(-200 ${-bottom})">${body}</g>`;
       };
