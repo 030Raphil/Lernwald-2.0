@@ -34,7 +34,8 @@
   --seq-bark: #9a4f33;
   --seq-leaf: #3e6e50;
   --mtn: #8197ad;
-  --path: #d6bd8c;
+  --path: #d8c193;
+  --path-hi: #fff8e6;
   --sky-deep: #6f9cc8;
   --mtn-snow: #f6f9fc;
   --mtn-ink: #1d2c44;
@@ -103,7 +104,8 @@
     --seq-bark: #a65a41;
     --seq-leaf: #3d7454;
     --mtn: #5d6e84;
-    --path: #5f5444;
+    --path: #545241;
+    --path-hi: #8e8a70;
     --seg-on: #33463a;
     --sky-deep: #0b1630;
     --mtn-snow: #c9d4e0;
@@ -171,7 +173,8 @@
   --seq-bark: #a65a41;
   --seq-leaf: #3d7454;
   --mtn: #5d6e84;
-  --path: #5f5444;
+  --path: #545241;
+  --path-hi: #8e8a70;
   --seg-on: #33463a;
   --sky-deep: #0b1630;
   --mtn-snow: #c9d4e0;
@@ -1713,12 +1716,14 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
 .haze { fill: var(--field-sky); }
 .mound { fill: color-mix(in srgb, var(--shade) 24%, var(--ground)); }
 .path { fill: var(--path); }
-.path-edge { fill: color-mix(in srgb, var(--path) 62%, var(--shade)); opacity: 0.9; }
-.path-mid { fill: color-mix(in srgb, var(--path) 70%, #fff6e0); opacity: 0.5; }
-.path-stone { fill: color-mix(in srgb, var(--stone) 80%, var(--path)); }
-.app[data-season="winter"] .path { fill: color-mix(in srgb, var(--path) 35%, #f2f6f8); }
-.app[data-season="winter"] .path-mid { fill: #ffffff; opacity: 0.6; }
-.app[data-season="autumn"] .path-mid { fill: color-mix(in srgb, var(--path) 60%, #e8b060); opacity: 0.35; }
+.path-edge { fill: color-mix(in srgb, var(--path) 50%, var(--ground)); }
+.path-mid { fill: color-mix(in srgb, var(--path) 72%, var(--path-hi)); opacity: 0.55; }
+.path-stone { fill: color-mix(in srgb, var(--stone) 70%, var(--path)); }
+.path-step { fill: color-mix(in srgb, var(--path) 70%, var(--shade)); opacity: 0.35; }
+.land .mid path.vpath { fill: color-mix(in srgb, var(--path) var(--mid-k), var(--field-sky)); }
+.app[data-season="winter"] :is(.path, .land .mid path.vpath) { fill: color-mix(in srgb, var(--path) 30%, var(--win-snow)); }
+.app[data-season="winter"] .path-edge { fill: color-mix(in srgb, var(--path) 30%, var(--ground)); }
+.app[data-season="winter"] .path-mid { fill: var(--win-snow); opacity: 0.7; }
 .patch { fill: color-mix(in srgb, var(--shade) 30%, var(--ground)); opacity: 0.32; }
 .patch.alt { fill: color-mix(in srgb, var(--ground) 70%, #fbffe6); opacity: 0.22; }
 .mound-rim { fill: none; stroke: color-mix(in srgb, var(--ground) 55%, #fbffe6); stroke-width: 1.4; opacity: 0.36; stroke-linecap: round; }
@@ -4497,55 +4502,96 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // on a bridge, out into the meadow and towards the mountains, getting narrower in the
   // distance. Trees keep their trunks off it; signposts stand beside it.
   const PATH_W = 17;
+  // The path's course on flat ground, before it bends to meet the bridges.
+  function pathBase(y) {
+    return 200 + 54 * Math.sin(y / 240 + 0.7) + 19 * Math.sin(y / 87 + 2.1) + 6 * Math.sin(y / 37 + 0.4);
+  }
+  // Near the top it runs off into the distance: towards the horizon its bends get
+  // smaller and closer together, and it narrows, as it would in perspective.
+  const PATH_FAR = 262;
+  const PATH_HORIZON = 150;
+  const pathU = (y) => Math.max(0.02, (y - PATH_HORIZON) / (PATH_FAR - PATH_HORIZON));
+  // Each river's bridge bends the path a little, so it runs straight onto the bridge.
+  let pathBends = [];
   function pathX(y) {
-    return 200 + 56 * Math.sin(y / 240 + 0.7) + 20 * Math.sin(y / 87 + 2.1);
+    if (y < PATH_FAR) {
+      const u = pathU(y);
+      const g = PATH_FAR - (1 / u - 1) * (PATH_FAR - PATH_HORIZON);
+      return 200 + (pathBase(g) - 200) * u;
+    }
+    let x = pathBase(y);
+    for (const b of pathBends) {
+      const d = y < b.yA ? b.yA - y : y > b.yB ? y - b.yB : 0;
+      if (d >= 56) continue;
+      const target = y <= b.yA ? b.xA : y >= b.yB ? b.xB : b.xA + (b.xB - b.xA) * (y - b.yA) / (b.yB - b.yA);
+      const t = 1 - d / 56;
+      x += (t * t * (3 - 2 * t)) * (target - pathBase(y));
+    }
+    return x;
   }
   function pathW(y) {
-    return y > 240 ? PATH_W : Math.max(1.2, PATH_W * (y - 166) / 74);
+    if (y < PATH_FAR) return PATH_W * pathU(y);
+    return PATH_W * (1 + 0.1 * Math.sin(y / 63 + 0.5) + 0.06 * Math.sin(y / 23 + 1.3));
   }
   function pathPts(y0, y1) {
     const pts = [];
     if (y1 <= y0) return pts;
-    for (let y = y0; y < y1; y += 6) pts.push([pathX(y), y]);
+    const step = (y) => (y < PATH_FAR ? 2.5 : 5);
+    for (let y = y0; y < y1; y += step(y)) pts.push([pathX(y), y]);
     pts.push([pathX(y1), y1]);
     return pts;
   }
   function pathMarkup(pts, seed) {
     if (pts.length < 2) return '';
     const rnd = mulberry32(hashStr(seed + '#path'));
+    const season = seasonNow();
     const side = (grow, k) => {
       const l = [];
       const r = [];
       for (const [x, y] of pts) {
-        const w = pathW(y) * k / 2 + grow;
+        const w = pathW(y) * k / 2 + grow * Math.min(1, pathW(y) / 8);
         l.push([x - w, y]);
         r.push([x + w, y]);
       }
       return ribbonPath(l, r);
     };
-    // Stones along the edges and a few in the middle, tufts of grass at the rim.
+    // Pebbles at the edges, a few in the middle; grass leaning in over both edges; in
+    // autumn fallen leaves, in winter footprints in the snow.
     let stones = '';
     let tufts = '';
     let tuftsF = '';
+    let leaves = ['', '', ''];
+    let steps = '';
     for (let i = 0; i < pts.length; i++) {
       const [x, y] = pts[i];
       const w = pathW(y) / 2;
-      if (w < 3) continue;
-      if (rnd() < 0.35) {
+      if (w < 3.4) continue;
+      if (rnd() < 0.3) {
         const sd = rnd() < 0.5 ? -1 : 1;
-        stones += oval(x + sd * (w - 0.6 - rnd() * 1.4), y + (rnd() - 0.5) * 4, 1 + rnd() * 0.9, 0.7 + rnd() * 0.4);
+        stones += oval(x + sd * (w - 1 - rnd() * 1.6), y + (rnd() - 0.5) * 4, 0.9 + rnd() * 0.8, 0.6 + rnd() * 0.35);
       }
-      if (rnd() < 0.12) stones += oval(x + (rnd() - 0.5) * w, y + (rnd() - 0.5) * 4, 0.7, 0.45);
-      if (i % 2 === 0 && rnd() < 0.6) {
-        const sd = rnd() < 0.5 ? -1 : 1;
-        const [b, f] = tuftPaths(x + sd * (w + 1.5), y + 2, 4 + rnd() * 3, rnd);
-        tufts += b;
-        tuftsF += f;
+      if (rnd() < 0.1) stones += oval(x + (rnd() - 0.5) * w * 0.9, y + (rnd() - 0.5) * 4, 0.6, 0.4);
+      for (const sd of [-1, 1]) {
+        if (i % 3 === (sd > 0 ? 1 : 0) && rnd() < 0.5) {
+          const [b, f] = tuftPaths(x + sd * (w + 0.6 - rnd() * 1.2), y + 1.5, 3 + rnd() * 3, rnd);
+          tufts += b;
+          tuftsF += f;
+        }
+      }
+      if (season === 'autumn' && rnd() < 0.28) {
+        const lx = x + (rnd() - 0.5) * w * 1.6;
+        leaves[Math.floor(rnd() * 3)] += leafPath(lx, y + (rnd() - 0.5) * 3, rnd() * 6.3, 2.6, 1.1);
+      }
+      if (season === 'winter' && i % 2 === 0) {
+        const sd = (i / 2) % 2 ? 1 : -1;
+        steps += oval(x + sd * 1.8 + (rnd() - 0.5) * 0.6, y, 0.9, 1.5);
       }
     }
-    return `<path class="path-edge" d="${side(1.4, 1)}"/><path class="path" d="${side(0, 1)}"/>` +
-      `<path class="path-mid" d="${side(0, 0.42)}"/>` +
+    return `<path class="path-edge" d="${side(1.6, 1)}"/><path class="path" d="${side(0, 1)}"/>` +
+      `<path class="path-mid" d="${side(0, 0.46)}"/>` +
+      (steps ? `<path class="path-step" d="${steps}"/>` : '') +
       (stones ? `<path class="path-stone" d="${stones}"/>` : '') +
+      leaves.map((d, i) => (d ? `<path class="leaf t${i}" d="${d}"/>` : '')).join('') +
       (tufts ? `<path class="gb" d="${tufts}"/><path class="gf" d="${tuftsF}"/>` : '');
   }
 
@@ -4556,12 +4602,33 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     let miss = 1e9;
     for (let k = Math.floor(g.n * 0.15); k < g.n * 0.85; k++) {
       const [x, y] = g.centre[k];
-      const d = Math.abs(x - pathX(y));
+      const d = Math.abs(x - pathBase(y));
       if (d < miss) { miss = d; best = k; }
     }
-    const [x, y] = g.centre[best];
-    const [nx, ny, tx, ty] = g.normal(best);
-    const hw = g.halfAt(best);
+    // The exact point where the path meets the middle of the river.
+    let [x, y] = g.centre[best];
+    for (const j of [best - 1, best]) {
+      if (j < 0 || j >= g.n) continue;
+      const [x0, y0p] = g.centre[j];
+      const [x1, y1p] = g.centre[j + 1];
+      const d0 = x0 - pathBase(y0p);
+      const d1 = x1 - pathBase(y1p);
+      if (d0 * d1 <= 0 && d0 !== d1) {
+        const t = d0 / (d0 - d1);
+        x = x0 + (x1 - x0) * t;
+        y = y0p + (y1p - y0p) * t;
+        break;
+      }
+    }
+    // The bridge runs along the path, across the river at whatever angle it meets it.
+    const sl = (pathBase(y + 3) - pathBase(y - 3)) / 6;
+    const L = Math.hypot(sl, 1);
+    const nx = -sl / L;
+    const ny = -1 / L;
+    const tx = 1 / L;
+    const ty = -sl / L;
+    const [rnx, rny] = g.normal(best);
+    const hw = Math.min(g.halfAt(best) * 2.2, g.halfAt(best) / Math.max(0.3, Math.abs(nx * rnx + ny * rny)));
     const len = hw + (riverStyle(seed) === 'brook' ? 6 : 8);
     return { k: best, x, y, nx, ny, tx, ty, hw, len, far: [x + nx * len, y + ny * len], near: [x - nx * len, y - ny * len] };
   }
@@ -4652,6 +4719,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const cy = y + ny * off;
       ripples += `M${r1(cx - tx * w / 2)} ${r1(cy - ty * w / 2)}Q${r1(cx + nx * 1.6)} ${r1(cy + ny * 1.6)} ${r1(cx + tx * w / 2)} ${r1(cy + ty * w / 2)}`;
     }
+    const cr = riverCrossing(y0, h, seed);
+    const offPath = (px) => Math.abs(px - cr.x) > PATH_W / 2 + 12;
     // Stones on the banks, lit from above.
     let stones = '';
     let stonesHi = '';
@@ -4665,6 +4734,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const sy = y + ny * d;
       const rx = 2.4 + rnd() * 2.2;
       const ry = 1.5 + rnd();
+      if (!offPath(sx)) continue;
       stones += oval(sx, sy, rx, ry);
       stonesHi += oval(sx - rx * 0.15, sy - ry * 0.35, rx * 0.55, ry * 0.4);
     }
@@ -4692,6 +4762,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const d = (halfAt(k) + 1.5) * side;
       const bx = x + nx * d;
       const by = y + ny * d + (side > 0 ? 0 : 1.5);
+      if (!offPath(bx)) { rnd(); continue; }
       if (rnd() < 0.55) {
         const m = 3 + Math.floor(rnd() * 3);
         for (let j = 0; j < m; j++) {
@@ -4714,16 +4785,12 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     const season = seasonNow();
     // The footpath crosses every river on a bridge: an old stone bridge or a wooden one,
     // and over a brook a small plank bridge.
-    const cr = riverCrossing(y0, h, seed);
     {
-      const best = cr.k;
-      const [x, y] = centre[best];
-      const [nx, ny, tx, ty] = normal(best);
-      const hw = halfAt(best);
+      const { x, y, nx, ny, tx, ty, hw } = cr;
       const P = (a, b) => `${r1(x + nx * a + tx * b)} ${r1(y + ny * a + ty * b)}`;
       if (style !== 'brook' && hashStr(seed + '#stonebridge') % 2) {
         const len = cr.len + 1;
-        const bw = 9.5;
+        const bw = 10;
         const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
         let cobbles = '';
         for (let a = -len + 2; a < len - 1; a += 3.2) {
@@ -4751,7 +4818,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         // A wooden footbridge with planks; over a brook a narrower one with a single rail.
         const brook = style === 'brook';
         const len = cr.len;
-        const bw = brook ? 7 : 9;
+        const bw = 9.5;
         const deck = `M${P(-len, -bw)}L${P(len, -bw)}L${P(len, bw)}L${P(-len, bw)}Z`;
         let planks = '';
         for (let a = -len + 2.4; a < len; a += 2.8) planks += `M${P(a, -bw)}L${P(a, bw)}`;
@@ -4787,10 +4854,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       if (lilies) lilies = `<path class="lilypad" d="${lilies}"/>` + flower;
     }
     // The path runs up to the bridge and on from its other end.
-    const toBridge = pathPts(y0 - 4, cr.far[1] - 8);
-    toBridge.push(cr.far);
-    const fromBridge = [cr.near].concat(pathPts(cr.near[1] + 8, y0 + h + 4));
-    const way = pathMarkup(toBridge, seed + '#a') + pathMarkup(fromBridge, seed + '#b');
+    const way = pathMarkup(pathPts(y0 - 4, y0 + h + 4), seed + '#way');
     const life = riverLife(seed, style, centre, normal, halfAt, n, season);
     return way + `<path class="bank" d="${ribbon(4.2, 1)}"/>` +
       `<path class="bank-wet" d="${ribbon(1.3, 1)}"/>` +
@@ -5913,6 +5977,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   }
 
   let forestSections = [];
+  let pathFadeSeq = 0;
   let sectionWatch = null;
   let liveWatch = null;
 
@@ -5987,8 +6052,11 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     let gladeNo = 0;
     let lastRiver = false;
     let riverEnd = null;
+    pathBends = [];
+    // The path comes into the forest over the crest of the meadow below the hills.
+    const crestY = vMeadow(pathX(190)) + VISTA_SKY + 1.5;
     const openGlade = () => {
-      glade = { y0: y, cursor: y + 14, items: [], trees: 0, no: gladeNo++, afterRiver: lastRiver, pathFrom: lastRiver ? riverEnd : null };
+      glade = { y0: y, cursor: y + 14, items: [], trees: 0, no: gladeNo++, afterRiver: lastRiver, pathFrom: lastRiver ? riverEnd : gladeNo === 1 ? crestY : null };
     };
     const place = (it) => {
       if (!glade) openGlade();
@@ -6024,7 +6092,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
           if (tree || small(it)) nearest = Math.min(nearest, Math.hypot((x - o.x) / 1.4, by - o.y));
         }
         // No trunk stands on the path.
-        if (!small(it) && Math.abs(x - pathX(by)) < PATH_W / 2 + hw0 * 0.3 + 4) crowd += 3;
+        const trunk = it.type === 'milestone' ? 44 : it.type === 'golden' ? 14 : hw0 * 0.3;
+        if (!small(it) && Math.abs(x - pathX(by)) < PATH_W / 2 + trunk + 4) crowd += 40;
+        // Animals and signs stand beside the path rather than on it.
+        if (small(it) && Math.abs(x - pathX(by)) < PATH_W / 2 + 8) crowd += 1.5;
         const score = -crowd - Math.abs(by - glade.cursor) / 600 + Math.min(1, nearest / 150) * 0.22;
         if (score > bestScore) { bestScore = score; best = [x, by]; }
       }
@@ -6111,8 +6182,10 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const top = y - 6;
       const bottom = top + h;
       placed.push({ top, bottom, make: () => `<g class="pick" data-info="r|${key}">${riverMarkup(top, h, key)}</g>` });
-      // Below the river, the path goes on from the end of its bridge.
-      riverEnd = riverCrossing(top, h, key).near[1] + 8;
+      // The path bends to run straight over the bridge, and goes on from its far end.
+      const cr = riverCrossing(top, h, key);
+      pathBends.push({ yA: cr.far[1], xA: cr.far[0], yB: cr.near[1], xB: cr.near[0] });
+      riverEnd = cr.near[1] + 5;
       y = bottom - 22;
       lastRiver = true;
     };
@@ -6137,6 +6210,16 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     }
     closeGlade();
     if (waiting.length && !lastWasRiver && placed.length) riverRow(waiting[0]);
+    // At the bottom, the path runs on out of the picture, fading into the page.
+    if (placed.length) {
+      const from = lastRiver ? riverEnd : y + 2;
+      const fadeId = 'pf' + (++pathFadeSeq);
+      placed.push({ top: y, bottom: y, make: () =>
+        `<defs><linearGradient id="${fadeId}g" gradientUnits="userSpaceOnUse" x1="0" y1="${r1(from + 6)}" x2="0" y2="${r1(from + 56)}">` +
+        `<stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>` +
+        `<mask id="${fadeId}" maskUnits="userSpaceOnUse" x="-20" y="${r1(from - 10)}" width="440" height="90"><rect x="-20" y="${r1(from - 10)}" width="440" height="90" fill="url(#${fadeId}g)"/></mask></defs>` +
+        `<g mask="url(#${fadeId})">${pathMarkup(pathPts(from - 2, from + 60), 'tail')}</g>` });
+    }
 
     // The forest is cut into sections of a few rows, each its own picture. Only sections
     // on screen or about to scroll into view are drawn, so even a forest of many months
@@ -6484,6 +6567,15 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       `<path class="mtn-shade" d="${shade}"/><path class="mtn-shade deep" d="${deepShade}"/>` +
       `<rect x="-24" y="${base - 34}" width="448" height="40" fill="url(#vhaze-${cls})"/></g>`;
   }
+  // Far off, the path shows once more where it climbs over the hill.
+  function hillPath() {
+    const start = vHill(pathX(166)) + VISTA_SKY + 0.6;
+    const pts = [];
+    for (let y = start; y <= 206; y += 2) pts.push([pathX(y), y - VISTA_SKY]);
+    const l = pts.map(([x, y]) => [x - pathW(y + VISTA_SKY) * 0.5, y]);
+    const r = pts.map(([x, y]) => [x + pathW(y + VISTA_SKY) * 0.5, y]);
+    return `<path class="vpath" d="${ribbonPath(l, r)}"/>`;
+  }
   function vistaMarkup() {
     const rnd = mulberry32(hashStr('aussicht'));
     const L = lightDir() || 0.5;
@@ -6541,11 +6633,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
     }
     out += `<g class="land vista">` +
       `<g class="far"><path class="kg" d="${vBand(vRidge, 190)}"/>${layer('far')}</g>` +
-      `<g class="mid"><path class="kg" d="${vBand(vHill, 196)}"/>${layer('mid')}</g>` +
+      `<g class="mid"><path class="kg" d="${vBand(vHill, 196)}"/>${hillPath()}${layer('mid')}</g>` +
       `<path class="vista-meadow" d="${vBand(vMeadow, 210)}"/>` +
       `<g class="kg"><path class="tuft" d="${tufts}"/>${blooms}</g></g></g>`;
-    // The footpath leaves the forest and winds off across the meadow towards the hills.
-    out += pathMarkup(pathPts(166, 214), 'aussicht');
     return out + airMarkup('aussicht', 140, 196, 4);
   }
 
