@@ -4971,8 +4971,8 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
   // ---------- Mathilda and Philipp ----------
   // Two small hikers seen from behind, hand in hand, walking up the path towards the
   // mountains: Mathilda with long brown hair, Philipp with short blond hair.
-  function walkersMarkup(x, y, left) {
-    const s = 1.05;
+  function walkersMarkup(x, y, left, scale) {
+    const s = scale || 1.2;
     return `<g class="pick walkers" data-info="w|walkers|${left}" transform="translate(${r1(x)} ${r1(y)}) scale(${s})">` +
       `<title>Mathilda und Philipp</title>` +
       `<rect x="-11" y="-29" width="22" height="30" fill="transparent"/>` +
@@ -6604,7 +6604,7 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
         for (const m of members.concat(lamps).sort((p, q) => p.y - q.y)) {
           const { it } = m;
           if (it.type === 'lamp') body += lampMarkup(m.x, m.y, it.side);
-          else if (it.type === 'walkers') body += walkersMarkup(m.x, m.y, it.left);
+          else if (it.type === 'walkers') body += walkersMarkup(m.x, m.y, it.left, it.s);
           else if (it.type === 'deco') body += decoMarkup(it, m.x, m.y);
           else if (it.type === 'month') body += signMarkup(it.key, m.x, m.y);
           else if (it.type === 'animal') body += animalItem(it, Math.max(22, Math.min(378, m.x)), m.y);
@@ -6667,6 +6667,9 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       const yS = (lastRiver ? riverEnd : y) - 6;
       const yE = crestY + 16;
       let yw = yS - prog * (yS - yE);
+      // Near, at the bottom, they stand tall, clearly bigger than a hare or a deer; the
+      // further they get towards the mountains, the smaller they look.
+      const ws = Math.round((2.2 - 1.45 * Math.pow(prog, 1.1)) * 100) / 100;
       let st = strips.find((t) => yw >= t.top && yw < t.bottom);
       if (!st) {
         st = strips.reduce((b, t) => (Math.min(Math.abs(t.top - yw), Math.abs(t.bottom - yw)) < Math.min(Math.abs(b.top - yw), Math.abs(b.bottom - yw)) ? t : b));
@@ -6674,14 +6677,14 @@ button, .tab, .gear { -webkit-tap-highlight-color: transparent; touch-action: ma
       }
       // Not hidden behind a tree standing in front of them.
       const hidden = (yy) => st.members.some((m) => m.y > yy && !['animal', 'month'].includes(m.it.type) &&
-        m.y - m.h * 0.9 < yy - 6 && Math.abs(m.x - pathX(yy)) < m.hw * 0.75 + 8);
+        m.y - m.h * 0.9 < yy - 29 * ws * 0.4 && Math.abs(m.x - pathX(yy)) < m.hw * 0.75 + 8 * ws);
       yw = Math.max(st.top + 10, Math.min(st.bottom - 16, yw));
       for (const dy of [0, 8, -8, 16, -16, 24, 32, 40, 48]) {
         const yy = yw + dy;
         if (yy < st.top + 10 || yy > st.bottom - 16) continue;
         if (!hidden(yy)) { yw = yy; break; }
       }
-      st.members.push({ it: { type: 'walkers', left: Math.round((MILESTONE_SEC - (allSec % MILESTONE_SEC)) / 3600) }, x: pathX(yw), y: yw, hw: 9, h: 22 });
+      st.members.push({ it: { type: 'walkers', s: ws, left: Math.round((MILESTONE_SEC - (allSec % MILESTONE_SEC)) / 3600) }, x: pathX(yw), y: yw, hw: 11 * ws, h: 29 * ws });
     }
     // At the bottom, the path runs on out of the picture, fading into the page.
     if (placed.length) {
